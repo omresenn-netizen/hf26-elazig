@@ -243,6 +243,8 @@ def main():
     }
     for name, inv in picks.items():
         draw_invoice(inv, by_vkn, SAMPLES / name)
+    demo_uploads = [{"file": name, "invoice_no": inv["invoice_no"], "scenario": inv["scenario"]} for name, inv in picks.items()]
+    (DATA / "demo_uploads.json").write_text(json.dumps(demo_uploads, ensure_ascii=False, indent=2), encoding="utf-8")
     counts = {}
     for i in invoices:
         counts[i["scenario"]] = counts.get(i["scenario"], 0) + 1

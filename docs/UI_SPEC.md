@@ -97,8 +97,7 @@ Pages: **Fatura Pazarı**, **Tekliflerim**.
   Data comes from the uploads table **plus** the existing `data/invoices.json` (shown as already
   uploaded by their sellers, so the market is not empty).
   **Exception:** invoices whose `invoice_no` appears in one of the images in `samples/` are NOT
-  preloaded (keep a list `DEMO_UPLOAD_INVOICE_NOS` in `db.py`, read once from the generator's picks:
-  the invoice numbers printed on `samples/*.png`). Those are the files the presenter uploads live,
+  preloaded (their invoice numbers are listed in `data/demo_uploads.json`). Those are the files the presenter uploads live,
   so they must not be treated as duplicates. They are still used by the fraud graph/network checks.
 - Selecting a row opens a detail drawer/card: invoice fields, flags, Gemma risk report, suggested
   discount from the deterministic formula, and only then the offer form (discount rate → net amount

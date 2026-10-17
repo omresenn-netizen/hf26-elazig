@@ -1,0 +1,32 @@
+[
+  {
+    "file": "01_gercek_icecek.png",
+    "invoice_no": "VDZ2026000015",
+    "scenario": "legit"
+  },
+  {
+    "file": "02_gercek_tekstil.png",
+    "invoice_no": "VDZ2026000011",
+    "scenario": "legit"
+  },
+  {
+    "file": "03_supheli_sektor.png",
+    "invoice_no": "VDZ2026000045",
+    "scenario": "sector_mismatch"
+  },
+  {
+    "file": "04_naylon_danismanlik.png",
+    "invoice_no": "KRT2026000042",
+    "scenario": "broker"
+  },
+  {
+    "file": "05_dongu_sebeke.png",
+    "invoice_no": "YAB2026000032",
+    "scenario": "ring"
+  },
+  {
+    "file": "06_gercek_mobilya.png",
+    "invoice_no": "VDZ2026000005",
+    "scenario": "legit"
+  }
+]
