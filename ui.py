@@ -153,3 +153,40 @@ def render_footer():
         "entegrasyonları mock'tur</div>",
         unsafe_allow_html=True,
     )
+
+
+def kobi_styles():
+    st.markdown(
+        """
+        <style>
+        div[data-testid="stFileUploaderDropzone"] {
+            min-height: 135px; border: 2px dashed #94A3B8; border-radius: 8px;
+            background: #F8FAFC; align-items: center;
+        }
+        div[data-testid="stFileUploaderDropzone"]:hover {
+            border-color: #0B3D91; background: #F1F5F9;
+        }
+        .kobi-steps {
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 12px;
+            margin: 4px 0 20px; color: #64748B; font-size: 14px;
+        }
+        .kobi-step-active { color: #0B3D91; font-weight: 750; }
+        .kobi-risk {
+            display: inline-block; padding: 5px 12px; border-radius: 16px;
+            font-size: 14px; font-weight: 700;
+        }
+        .kobi-risk-low { color: #166534; background: #DCFCE7; }
+        .kobi-risk-medium { color: #9A3412; background: #FFEDD5; }
+        .kobi-risk-high { color: #991B1B; background: #FEE2E2; }
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.kobi-offer-heading) {
+            background: #F4F6FA; border-color: #DCE2EA;
+        }
+        .kobi-unread-badge {
+            display: inline-block; padding: 2px 9px; margin-left: 6px;
+            border-radius: 12px; color: #fff; background: #C8102E;
+            font-size: 12px; font-weight: 700;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
