@@ -1,0 +1,373 @@
+﻿ÔùÅ skill(devrelay-community-wisdom)
+
+ÔùÅ skill(devrelay-challenges)
+
+IÔÇÖm reviewing the project contract and current worktree while checking relevant implementation patterns and live event context.
+
+ÔùÅ update_todo todos: "- [ ] Read project instructions and AI API contract; inspectÔÇĞ"
+  Ôöö TODO list updated
+
+ÔùÅ Read copilot-instructions.md
+  Ôöé .github\copilot-instructions.md
+  Ôöö 70 lines read
+
+ÔùÅ Read API.md
+  Ôöé docs\API.md
+  Ôöö L1:240 (100 lines read)
+
+ÔùÅ Inspect worktree and repository files (shell)
+  Ôöé git status --short; git branch --show-current; Get-ChildItem -Name
+  Ôöö 28 linesÔÇĞ
+
+ÔùÅ search_dev_to_semantic (MCP: devrelay-gateway) ┬À pitfalls caching AI generated responses prompt iÔÇĞ
+  Ôöö {"Ok":[{"id":4585680,"title":"Prompt Caching Is a Timing Oracle: How the 41-8...
+
+ÔùÅ search_dev_to_semantic (MCP: devrelay-gateway) ┬À caching local LLM inference results Python conteÔÇĞ
+  Ôöö {"Ok":[{"id":3745470,"title":"llm-message-hash-py: Canonical Hashes for LLM R...
+
+ÔùÅ get_challenges (MCP: devrelay-gateway) ┬À page: 1, per_page: 10
+  Ôöö Output too large to read at once (28.4 KB). Saved to: C:\Users\omres\AppData\...
+
+ÔùÅ list_my_mlh_events (MCP: devrelay-gateway)                                                      6s
+  Ôöö {"Ok":[{"id":"01a12737-8131-7b7d-ae09-dccf7e87855e","status":"checked_in","ev...
+
+ÔùÅ Read repo_api.py
+  Ôöö 1 line read
+
+ÔùÅ Read gemma.py
+  Ôöö 157 lines read
+
+ÔùÅ Read requirements.txt
+  Ôöö 10 lines read
+
+/ Search (grep)
+  Ôöé "payment_history|payment_stats|def get_|def .*offer|def .*document|def .*notif|def .*user|def
+  Ôöé .*invoice" (db.py, tests)
+  Ôöö 19 lines found
+
+/ Search (grep)
+  Ôöé "annual_rate|notifications|risk-report|payment-profile|offers-insight|ai-digest|risk_report|mark
+  Ôöé et|compare|offers|documents" (server.py)
+  Ôöö 61 lines found
+
+/ Search (grep)
+  Ôöé "def |@app\.|class " (server.py)
+  Ôöö 79 lines found
+
+ÔùÅ Read server.py
+  Ôöö L845:913 (69 lines read)
+
+ÔùÅ Read server.py
+  Ôöö L376:407 (32 lines read)
+
+ÔùÅ Read server.py
+  Ôöö L1:175 (175 lines read)
+
+ÔùÅ Read test_api.py
+  Ôöé tests\test_api.py
+  Ôöö L1:240 (194 lines read)
+
+ÔùÅ Read server.py
+  Ôöö L517:653 (137 lines read)
+
+ÔùÅ Read db.py
+  Ôöö L1:120 (120 lines read)
+
+ÔùÅ Read repo_api.py
+  Ôöö L1:240 (240 lines read)
+
+ÔùÅ get_comments (MCP: devrelay-gateway) ┬À article_id: 3179115, page: 1
+  Ôöö {"Ok":[]}
+
+ÔùÅ get_article_content (MCP: devrelay-gateway) ┬À id: 3179115
+  Ôöö {"Ok":"---\ntitle: Caching Strategies for LLM Systems: Exact-Match & Semantic...
+
+ÔùÅ get_article_content (MCP: devrelay-gateway) ┬À id: 4440505
+  Ôöö {"Ok":"*Originally published on [Loop & Retry](https://loopandretry.github.io...
+
+ÔùÅ get_comments (MCP: devrelay-gateway) ┬À article_id: 4440505, page: 1
+  Ôöö {"Ok":[{"type_of":"comment","id_code":"3da1f","created_at":"2026-08-20T11:05:...
+
+Ô£ù Read test_api.py
+  Ôöé tests\test_api.py
+  Ôöö view_range out of bounds
+
+ÔùÅ Read repo_api.py
+  Ôöö L240:500 (261 lines read)
+
+ÔùÅ Read companies.json
+  Ôöé data\companies.json
+  Ôöö L1:80 (80 lines read)
+
+ÔùÅ Read invoices.json
+  Ôöé data\invoices.json
+  Ôöö L1:100 (100 lines read)
+
+/ Search (glob)
+  Ôöé "data/*payment*"
+  Ôöö No matches found
+
+/ Search (grep)
+  Ôöé "asyncio|threading|cache" in *.py
+  Ôöö 8 lines found
+
+/ Search (grep)
+  Ôöé "def make_document|def offer_objects|def .*company|def .*owner|def .*notification|annual_rate"
+  Ôöé (repo_api.py)
+  Ôöö 79 lines found
+
+The API already reloads offer/document state per request, but its risk-report cache is keyed only by document ID, and offer serializers report the wrong annualized rate. IÔÇÖm adding hash-scoped AI caching plus owner-checked endpoints, without touching files outside the assigned ownership.
+
+ÔùÅ update_todo todos: "- [x] Read project instructions and AI API contract; inspectÔÇĞ"
+  Ôöö TODO list updated
+
+ÔùÅ Edit
+  Ôöé Edit gemma.py
+  Ôöö Create repo_ai.py
+
+ÔùÅ Edit
+  Ôöö Edit server.py
+
+ÔùÅ Read server.py
+  Ôöö L680:755 (76 lines read)
+
+ÔùÅ Read server.py
+  Ôöö L820:1020 (201 lines read)
+
+/ Search (grep)
+  Ôöé "annual_rate|def get_payment_history|def payment_stats" (db.py, repo_ai.py, server.py)
+  Ôöö 12 lines found
+
+ÔùÅ Edit
+  Ôöö Edit server.py
+
+ÔùÅ Edit
+  Ôöö Edit server.py
+
+ÔùÅ Edit
+  Ôöö Edit repo_ai.py
+
+ÔùÅ Read db.py
+  Ôöö L130:205 (76 lines read)
+
+ÔùÅ Edit
+  Ôöö Create tests/test_ai.py
+
+The four AI endpoints and hash-aware response cache are in place, and mutable offers now affect cache keys and displayed annual rates. IÔÇÖm exercising the new route contracts and authorization before running the full suite.
+
+ÔùÅ update_todo todos: "- [x] Read project instructions and AI API contract; inspectÔÇĞ"
+  Ôöö TODO list updated
+
+ÔùÅ Run AI endpoint tests (shell)                                                                  22s
+  Ôöé & 'C:\Users\omres\OneDrive\Desktop\hf26-elazig\.venv\Scripts\python.exe' -m pytest -q
+  Ôöé tests/test_ai.py
+  Ôöö 8 linesÔÇĞ
+
+ÔùÅ Review diff and whitespace (shell)
+  Ôöé git diff --check; git diff --stat; git status --short; git diff -- server.py gemma.py repo_ai.py
+  Ôöé tests/test_ai.py
+  Ôöö 522 linesÔÇĞ
+
+Ô£ù Run full requested pytest suite (shell)                                                        24s
+  Ôöé & 'C:\Users\omres\OneDrive\Desktop\hf26-elazig\.venv\Scripts\python.exe' -m pytest -q
+  Ôöö ......F...                                                               [100%]
+    ================================== FAILURES ===================================
+    ______________ test_offer_creates_panel_and_email_notifications _______________
+
+    client = <starlette.testclient.TestClient object at 0x0000019200654F30>
+
+    def test_offer_creates_panel_and_email_notifications(client):
+    login(client, "kobi", "9200000101")
+    upload = client.post(
+    "/api/uploads",
+    files={"file": ("invoice.png", io.BytesIO(b"\x89PNG\r\n\x1a\napi-image"), "image/png")},
+    )
+    document_id = upload.json()["document"]["id"]
+    extracted = client.post(f"/api/documents/{document_id}/extract")
+    assert extracted.status_code == 200
+    checked = client.post(f"/api/documents/{document_id}/check", json={"fields":
+    extracted.json()["fields"]})
+    assert checked.status_code == 200
+    assert client.post(f"/api/documents/{document_id}/publish").status_code == 200
+
+    client.post("/api/logout")
+    login(client, "finansor", "anadolu_faktoring")
+    offer = client.post("/api/offers", json={
+    "document_id": document_id, "net_amount": 1100, "note": "H─▒zl─▒ teklif",
+    })
+    assert offer.status_code == 200, offer.text
+    client.post("/api/logout")
+    login(client, "kobi", "9200000101")
+    notifications = client.get("/api/notifications").json()
+    assert {item["subject"] for item in notifications} == {"Faturan─▒z i├ğin yeni finansman teklifi"}
+    >       assert len(notifications) == 2
+    E       AssertionError: assert 1 == 2
+    E        +  where 1 = len([{'id': 1, 'created_at': '2026-10-17 22:42:40', 'subject': 'Faturan─▒z
+    i├ğin yeni finansman teklifi', 'body': 'API-TEST-001 i├ğin Anadolu Faktoring taraf─▒ndan 1100.00 TL
+    teklif verildi.', ...}])
+
+    tests\test_api.py:123: AssertionError
+    ============================== warnings summary ===============================
+    ..\..\OneDrive\Desktop\hf26-elazig\.venv\Lib\site-packages\fastapi\testclient.py:1
+    C:\Users\omres\OneDrive\Desktop\hf26-elazig\.venv\Lib\site-packages\fastapi\testclient.py:1:
+    StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install
+    `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+    -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+    =========================== short test summary info ===========================
+    FAILED tests/test_api.py::test_offer_creates_panel_and_email_notifications - ...
+    1 failed, 9 passed, 1 warning in 23.05s
+    Failed with exit code 1
+
+ÔùÅ Read server.py
+  Ôöö L250:375 (126 lines read)
+
+/ Search (grep)
+  Ôöé "gemma\." (server.py)
+  Ôöö 9 lines found
+
+ÔùÅ Measure generated test log changes (shell)
+  Ôöé $base = (git show HEAD:logs/gemma.jsonl | Measure-Object -Line).Lines; $current = (Get-Content
+  Ôöé logs/gemma.jsonl | Measure-Object -Line).Lines; Write-Output "baseline=$base current=$current";
+  Ôöé git diff --numstat -- logs/gemma.jsonl; git status --short
+  Ôöö 7 linesÔÇĞ
+
+ÔùÅ Edit
+  Ôöö Edit server.py
+
+ÔùÅ Read repo_ai.py
+  Ôöö 124 lines read
+
+ÔùÅ Read test_ai.py
+  Ôöé tests\test_ai.py
+  Ôöö 225 lines read
+
+/ Search (grep)
+  Ôöé "notifications|model|generated_at|ai-digest|payment-profile|offers-insight|insight" (server.py)
+  Ôöö 31 lines found
+
+ÔùÅ Remove only test-generated Gemma log entries (shell)
+  Ôöé $base = (git show HEAD:logs/gemma.jsonl | Measure-Object -Line).Lines; $current = Get-Content
+  Ôöé logs/gemma.jsonl; if ($current.Count -gt $base) { $current | Select-Object -First $base |
+  Ôöé Set-Content logs/gemma.jsonl -Encoding utf8 }; git diff --numstat -- logs/gemma.jsonl
+  Ôöö 1 lineÔÇĞ
+
+ÔùÅ Edit
+  Ôöé Edit server.py
+  Ôöö Edit tests/test_ai.py
+
+ÔùÅ Edit
+  Ôöö Edit server.py
+
+Ô£ù Re-run complete pytest suite after refinements (shell)                                         26s
+  Ôöé & 'C:\Users\omres\OneDrive\Desktop\hf26-elazig\.venv\Scripts\python.exe' -m pytest -q
+  Ôöö .......F...                                                              [100%]
+    ================================== FAILURES ===================================
+    ______________ test_offer_creates_panel_and_email_notifications _______________
+
+    client = <starlette.testclient.TestClient object at 0x00000234D48D85A0>
+
+    def test_offer_creates_panel_and_email_notifications(client):
+    login(client, "kobi", "9200000101")
+    upload = client.post(
+    "/api/uploads",
+    files={"file": ("invoice.png", io.BytesIO(b"\x89PNG\r\n\x1a\napi-image"), "image/png")},
+    )
+    document_id = upload.json()["document"]["id"]
+    extracted = client.post(f"/api/documents/{document_id}/extract")
+    assert extracted.status_code == 200
+    checked = client.post(f"/api/documents/{document_id}/check", json={"fields":
+    extracted.json()["fields"]})
+    assert checked.status_code == 200
+    assert client.post(f"/api/documents/{document_id}/publish").status_code == 200
+
+    client.post("/api/logout")
+    login(client, "finansor", "anadolu_faktoring")
+    offer = client.post("/api/offers", json={
+    "document_id": document_id, "net_amount": 1100, "note": "H─▒zl─▒ teklif",
+    })
+    assert offer.status_code == 200, offer.text
+    client.post("/api/logout")
+    login(client, "kobi", "9200000101")
+    notifications = client.get("/api/notifications").json()
+    assert {item["subject"] for item in notifications} == {"Faturan─▒z i├ğin yeni finansman teklifi"}
+    >       assert len(notifications) == 2
+    E       AssertionError: assert 1 == 2
+    E        +  where 1 = len([{'id': 1, 'created_at': '2026-10-17 22:44:12', 'subject': 'Faturan─▒z
+    i├ğin yeni finansman teklifi', 'body': 'API-TEST-001 i├ğin Anadolu Faktoring taraf─▒ndan 1100.00 TL
+    teklif verildi.', ...}])
+
+    tests\test_api.py:123: AssertionError
+    ============================== warnings summary ===============================
+    ..\..\OneDrive\Desktop\hf26-elazig\.venv\Lib\site-packages\fastapi\testclient.py:1
+    C:\Users\omres\OneDrive\Desktop\hf26-elazig\.venv\Lib\site-packages\fastapi\testclient.py:1:
+    StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install
+    `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+    -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+    =========================== short test summary info ===========================
+    FAILED tests/test_api.py::test_offer_creates_panel_and_email_notifications - ...
+    1 failed, 10 passed, 1 warning in 24.61s
+    Failed with exit code 1
+
+The new AI tests pass; the full suite now has one legacy assertion expecting email notifications in the API response, which conflicts with the requested panel-only contract. IÔÇÖm preserving the new contract and doing final cleanup and diff verification.
+
+ÔùÅ Restore generated logs and verify source syntax (shell)
+  Ôöé & 'C:\Users\omres\OneDrive\Desktop\hf26-elazig\.venv\Scripts\python.exe' -c "import
+  Ôöé pathlib,subprocess; p=pathlib.Path('logs/gemma.jsonl'); p.write_bytes(subprocess.run(['git','s
+  Ôöé how','HEAD:logs/gemma.jsonl'],check=True,stdout=subprocess.PIPE).stdout)"; if ($?) { &
+  Ôöé 'C:\Users\omres\OneDrive\Desktop\hf26-elazig\.venv\Scripts\python.exe' -m compileall -q
+  Ôöé server.py repo_ai.py gemma.py tests/test_ai.py }; if ($?) { git diff --check }; if ($?) { git ÔÇĞ
+  Ôöö 12 linesÔÇĞ
+
+ÔùÅ Verify generated log was restored exactly (shell)
+  Ôöé & 'C:\Users\omres\OneDrive\Desktop\hf26-elazig\.venv\Scripts\python.exe' -c "import
+  Ôöé hashlib,pathlib,subprocess; a=subprocess.check_output(['git','show','HEAD:logs/gemma.jsonl']);
+  Ôöé b=pathlib.Path('logs/gemma.jsonl').read_bytes(); print('identical=',a==b,'head=',len(a),hashlib.
+  Ôöé sha256(a).hexdigest(),'worktree=',len(b),hashlib.sha256(b).hexdigest())"; git update-index
+  Ôöé --refresh; git status --short; git diff --check
+  Ôöö 10 linesÔÇĞ
+
+ÔùÅ update_todo todos: "- [x] Read project instructions and AI API contract; inspectÔÇĞ"
+  Ôöö TODO list updated
+
+ÔùÅ Stage and inspect owned changes (shell)
+  Ôöé git add -A; if ($?) { git status --short; git diff --cached --check; git diff --cached --stat;
+  Ôöé git diff --cached --name-only }
+  Ôöö 14 linesÔÇĞ
+
+ÔùÅ Commit AI insights implementation (shell)
+  Ôöé git commit -m "Add cached AI insights API" -m "Co-authored-by: Copilot
+  Ôöé <223556219+Copilot@users.noreply.github.com>"; if ($?) { git status --short; git log -1
+  Ôöé --format="%h %s%n%b" }
+  Ôöö 7 linesÔÇĞ
+
+ÔùÅ update_todo todos: "- [x] Read project instructions and AI API contract; inspectÔÇĞ"
+  Ôöö TODO list updated
+
+Implemented the four logged Gemma insights, the AI endpoints, hash-based caching, payment-history JSON fallback, and the annual-rate and panel-notification fixes. Changes are committed as **`8768bdb`**.
+
+**Validation:** the new AI tests pass. The full `pytest -q` run had 10 passes and one failure: an existing test expects email notifications in the API response, contrary to the requested panel-only behavior. I left that test untouched to stay within the assigned file ownership.
+
+### ­şîÉ Community Wisdom
+ÔÜí [[Caching Strategies for LLM Systems: Exact-Match & Semantic Caching](https://dev.to/vaibhav_ahluwalia_b39a1b3/caching-strategies-for-llm-systems-exact-match-semantic-caching-4a1j)] ­şæñ [@vaibhav_ahluwalia_b39a1b3](https://dev.to/vaibhav_ahluwalia_b39a1b3) ÔÇö The article recommends exact, content-derived keys when correctness matters, which supports invalidating cached insights when invoice or offer data changes. ­şöù [Read Full Discussion on DEV](https://dev.to/vaibhav_ahluwalia_b39a1b3/caching-strategies-for-llm-systems-exact-match-semantic-caching-4a1j)
+
+­şøí´©Å [[Tool output is untrusted input: prompt injection is a data-flow bug](https://dev.to/loopandretry/tool-output-is-untrusted-input-prompt-injection-is-a-data-flow-bug-1p9j)] ­şæñ [@loopandretry](https://dev.to/loopandretry) ÔÇö The post treats external text as untrusted; a commenter cautions that broad, persistent taint can overblock, so prompt warnings should be defense-in-depth, not a security boundary. ­şöù [Read Full Discussion on DEV](https://dev.to/loopandretry/tool-output-is-untrusted-input-prompt-injection-is-a-data-flow-bug-1p9j)
+
+The **Hacktoberfest Open-Source AI Challenge: Week 4** is upcoming, starting Oct 26; its detailed rules are not published yet. [Challenge details](https://dev.to/events/82). This milestone could make a DEV post, and I can check the project against the challenge rules once theyÔÇÖre available.
+
+node.exe : Session exported to: C:\Users\omres\OneDrive\Desktop\hf26-elazig\sessions\02-ai-insights.md
+At C:\Users\omres\AppData\Roaming\npm\copilot.ps1:24 char:5
++     & "node$exe"  "$basedir/node_modules/@github/copilot/npm-loader.j ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Session exporte...-ai-insights.md:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+
+Changes    +837 -46
+AI Credits 4.98 (6m 49s)
+Tokens     Ôåæ 2.2m (2.1m cached, 92.7k written) ÔÇó Ôåô 34.5k (20.4k reasoning)
+Resume     copilot --resume=95f94cf1-01ba-403c-ad3d-2e2474217821

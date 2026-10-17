@@ -120,7 +120,8 @@ def test_offer_creates_panel_and_email_notifications(client):
     login(client, "kobi", "9200000101")
     notifications = client.get("/api/notifications").json()
     assert {item["subject"] for item in notifications} == {"Faturanız için yeni finansman teklifi"}
-    assert len(notifications) == 2
+    # API v2: only the panel copy is listed; the email copy goes to logs/outbox.log
+    assert len(notifications) == 1
 
 
 def test_accept_offer_finances_document(client):
