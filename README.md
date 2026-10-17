@@ -44,19 +44,32 @@ during the schema upgrade.
 
 ## Run locally
 
-Requirements: Python 3.13 and Ollama with the `gemma4` model available locally.
+Requirements: Python 3.13 and Ollama with the `gemma4` model installed.
 
 ```powershell
-py -3.13 -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install -r requirements.txt
 ollama pull gemma4
-streamlit run app.py
+powershell -ExecutionPolicy Bypass -File scripts\run.ps1
 ```
 
-The app is available at `http://localhost:8501`. Gemma runs through the local Ollama
-HTTP API; each call is appended to `logs/gemma.jsonl`. Runtime offers and deals are stored
-in the ignored local `vadesiz.db`.
+The launcher creates or updates `.venv`, installs the requirements, starts the FastAPI
+web app and opens `http://localhost:8600`. It checks that Ollama is running and `gemma4`
+is available before starting. To inspect the local hardware and measure a warm Gemma
+call:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\hardware_check.py
+```
+
+Gemma runs through the local Ollama HTTP API; each call is appended to
+`logs/gemma.jsonl`. Runtime offers and deals are stored in the ignored local
+`vadesiz.db`. The legacy Streamlit tool can still be started with
+`.\.venv\Scripts\streamlit.exe run app.py`.
+
+## Deploy
+
+For a private DigitalOcean GPU Droplet deployment with Docker Compose, see
+[`docs/DEPLOY.md`](docs/DEPLOY.md). The Ollama model and invoice data stay on the
+Droplet; Ollama is not exposed to the public network.
 
 ## Stack
 
