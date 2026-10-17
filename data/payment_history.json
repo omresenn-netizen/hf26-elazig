@@ -1,0 +1,1811 @@
+[
+  {
+    "company_vkn": "9100000011",
+    "invoice_no": "PH-0011-0001",
+    "counterparty_vkn": "9200000606",
+    "amount": 475516.79,
+    "due_date": "2026-09-18",
+    "paid_date": "2026-09-18",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000011",
+    "invoice_no": "PH-0011-0002",
+    "counterparty_vkn": "9200000101",
+    "amount": 788773.56,
+    "due_date": "2026-09-16",
+    "paid_date": "2026-09-16",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000011",
+    "invoice_no": "PH-0011-0003",
+    "counterparty_vkn": "9200000404",
+    "amount": 920228.28,
+    "due_date": "2026-09-05",
+    "paid_date": "2026-09-05",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000011",
+    "invoice_no": "PH-0011-0004",
+    "counterparty_vkn": "9200000707",
+    "amount": 512818.85,
+    "due_date": "2026-08-20",
+    "paid_date": "2026-08-20",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000011",
+    "invoice_no": "PH-0011-0005",
+    "counterparty_vkn": "9200000707",
+    "amount": 1054961.42,
+    "due_date": "2026-06-09",
+    "paid_date": "2026-06-13",
+    "days_late": 4
+  },
+  {
+    "company_vkn": "9100000011",
+    "invoice_no": "PH-0011-0006",
+    "counterparty_vkn": "9200000303",
+    "amount": 336195.44,
+    "due_date": "2026-06-07",
+    "paid_date": "2026-06-07",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000011",
+    "invoice_no": "PH-0011-0007",
+    "counterparty_vkn": "9200000707",
+    "amount": 670691.29,
+    "due_date": "2026-05-23",
+    "paid_date": "2026-05-23",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000011",
+    "invoice_no": "PH-0011-0008",
+    "counterparty_vkn": "9200000101",
+    "amount": 194167.93,
+    "due_date": "2026-04-25",
+    "paid_date": "2026-04-25",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000011",
+    "invoice_no": "PH-0011-0009",
+    "counterparty_vkn": "9200000505",
+    "amount": 1085433.73,
+    "due_date": "2026-03-25",
+    "paid_date": "2026-03-25",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000011",
+    "invoice_no": "PH-0011-0010",
+    "counterparty_vkn": "9200000404",
+    "amount": 366163.14,
+    "due_date": "2026-03-24",
+    "paid_date": "2026-03-24",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000011",
+    "invoice_no": "PH-0011-0011",
+    "counterparty_vkn": "9200000101",
+    "amount": 1288799.66,
+    "due_date": "2026-03-21",
+    "paid_date": "2026-03-21",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000011",
+    "invoice_no": "PH-0011-0012",
+    "counterparty_vkn": "9200000404",
+    "amount": 1186423.27,
+    "due_date": "2026-03-10",
+    "paid_date": "2026-03-10",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000011",
+    "invoice_no": "PH-0011-0013",
+    "counterparty_vkn": "9200000505",
+    "amount": 158503.67,
+    "due_date": "2026-03-04",
+    "paid_date": "2026-03-08",
+    "days_late": 4
+  },
+  {
+    "company_vkn": "9100000011",
+    "invoice_no": "PH-0011-0014",
+    "counterparty_vkn": "9200000606",
+    "amount": 397529.09,
+    "due_date": "2026-02-11",
+    "paid_date": "2026-02-11",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000011",
+    "invoice_no": "PH-0011-0015",
+    "counterparty_vkn": "9200000202",
+    "amount": 1034139.52,
+    "due_date": "2026-02-10",
+    "paid_date": "2026-02-10",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000011",
+    "invoice_no": "PH-0011-0016",
+    "counterparty_vkn": "9200000707",
+    "amount": 1153210.78,
+    "due_date": "2025-10-09",
+    "paid_date": "2025-10-09",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000011",
+    "invoice_no": "PH-0011-0017",
+    "counterparty_vkn": "9200000303",
+    "amount": 805781.62,
+    "due_date": "2025-09-14",
+    "paid_date": "2025-09-18",
+    "days_late": 4
+  },
+  {
+    "company_vkn": "9100000011",
+    "invoice_no": "PH-0011-0018",
+    "counterparty_vkn": "9200000606",
+    "amount": 96828.74,
+    "due_date": "2025-08-25",
+    "paid_date": "2025-08-25",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000011",
+    "invoice_no": "PH-0011-0019",
+    "counterparty_vkn": "9200000505",
+    "amount": 61822.96,
+    "due_date": "2025-08-04",
+    "paid_date": "2025-08-04",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000011",
+    "invoice_no": "PH-0011-0020",
+    "counterparty_vkn": "9200000505",
+    "amount": 1420030.72,
+    "due_date": "2025-08-01",
+    "paid_date": "2025-08-01",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000011",
+    "invoice_no": "PH-0011-0021",
+    "counterparty_vkn": "9200000505",
+    "amount": 315400.75,
+    "due_date": "2025-06-16",
+    "paid_date": "2025-06-17",
+    "days_late": 1
+  },
+  {
+    "company_vkn": "9100000011",
+    "invoice_no": "PH-0011-0022",
+    "counterparty_vkn": "9200000606",
+    "amount": 77767.34,
+    "due_date": "2025-06-10",
+    "paid_date": "2025-06-10",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000011",
+    "invoice_no": "PH-0011-0023",
+    "counterparty_vkn": "9200000303",
+    "amount": 1460150.07,
+    "due_date": "2025-05-21",
+    "paid_date": "2025-05-21",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000022",
+    "invoice_no": "PH-0022-0001",
+    "counterparty_vkn": "9200000202",
+    "amount": 687488.85,
+    "due_date": "2026-09-26",
+    "paid_date": "2026-09-26",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000022",
+    "invoice_no": "PH-0022-0002",
+    "counterparty_vkn": "9200000202",
+    "amount": 1265541.83,
+    "due_date": "2026-09-24",
+    "paid_date": "2026-09-24",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000022",
+    "invoice_no": "PH-0022-0003",
+    "counterparty_vkn": "9200000404",
+    "amount": 632664.03,
+    "due_date": "2026-09-18",
+    "paid_date": "2026-09-18",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000022",
+    "invoice_no": "PH-0022-0004",
+    "counterparty_vkn": "9200000505",
+    "amount": 1384023.03,
+    "due_date": "2026-09-14",
+    "paid_date": "2026-09-15",
+    "days_late": 1
+  },
+  {
+    "company_vkn": "9100000022",
+    "invoice_no": "PH-0022-0005",
+    "counterparty_vkn": "9200000202",
+    "amount": 1396087.84,
+    "due_date": "2026-08-13",
+    "paid_date": "2026-08-13",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000022",
+    "invoice_no": "PH-0022-0006",
+    "counterparty_vkn": "9200000202",
+    "amount": 625780.01,
+    "due_date": "2026-08-10",
+    "paid_date": "2026-08-10",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000022",
+    "invoice_no": "PH-0022-0007",
+    "counterparty_vkn": "9200000202",
+    "amount": 457642.76,
+    "due_date": "2026-07-09",
+    "paid_date": "2026-07-09",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000022",
+    "invoice_no": "PH-0022-0008",
+    "counterparty_vkn": "9200000202",
+    "amount": 1001601.82,
+    "due_date": "2026-04-28",
+    "paid_date": "2026-04-28",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000022",
+    "invoice_no": "PH-0022-0009",
+    "counterparty_vkn": "9200000505",
+    "amount": 1375210.2,
+    "due_date": "2026-01-07",
+    "paid_date": "2026-01-07",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000022",
+    "invoice_no": "PH-0022-0010",
+    "counterparty_vkn": "9200000101",
+    "amount": 358935.5,
+    "due_date": "2025-12-23",
+    "paid_date": "2025-12-24",
+    "days_late": 1
+  },
+  {
+    "company_vkn": "9100000022",
+    "invoice_no": "PH-0022-0011",
+    "counterparty_vkn": "9200000505",
+    "amount": 1114587.51,
+    "due_date": "2025-11-22",
+    "paid_date": "2025-11-24",
+    "days_late": 2
+  },
+  {
+    "company_vkn": "9100000022",
+    "invoice_no": "PH-0022-0012",
+    "counterparty_vkn": "9200000505",
+    "amount": 1460027.9,
+    "due_date": "2025-09-08",
+    "paid_date": "2025-09-08",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000022",
+    "invoice_no": "PH-0022-0013",
+    "counterparty_vkn": "9200000707",
+    "amount": 287912.41,
+    "due_date": "2025-08-10",
+    "paid_date": "2025-08-12",
+    "days_late": 2
+  },
+  {
+    "company_vkn": "9100000022",
+    "invoice_no": "PH-0022-0014",
+    "counterparty_vkn": "9200000101",
+    "amount": 127066.77,
+    "due_date": "2025-06-02",
+    "paid_date": "2025-06-02",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000033",
+    "invoice_no": "PH-0033-0001",
+    "counterparty_vkn": "9200000707",
+    "amount": 735633.88,
+    "due_date": "2026-10-02",
+    "paid_date": "2026-10-07",
+    "days_late": 5
+  },
+  {
+    "company_vkn": "9100000033",
+    "invoice_no": "PH-0033-0002",
+    "counterparty_vkn": "9200000303",
+    "amount": 636547.23,
+    "due_date": "2026-08-18",
+    "paid_date": "2026-08-18",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000033",
+    "invoice_no": "PH-0033-0003",
+    "counterparty_vkn": "9200000505",
+    "amount": 1206862.47,
+    "due_date": "2026-06-21",
+    "paid_date": "2026-06-22",
+    "days_late": 1
+  },
+  {
+    "company_vkn": "9100000033",
+    "invoice_no": "PH-0033-0004",
+    "counterparty_vkn": "9200000303",
+    "amount": 386954.35,
+    "due_date": "2026-04-29",
+    "paid_date": "2026-04-29",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000033",
+    "invoice_no": "PH-0033-0005",
+    "counterparty_vkn": "9200000303",
+    "amount": 781063.06,
+    "due_date": "2026-04-01",
+    "paid_date": "2026-04-01",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000033",
+    "invoice_no": "PH-0033-0006",
+    "counterparty_vkn": "9200000505",
+    "amount": 90793.4,
+    "due_date": "2026-03-21",
+    "paid_date": "2026-03-21",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000033",
+    "invoice_no": "PH-0033-0007",
+    "counterparty_vkn": "9200000404",
+    "amount": 480120.47,
+    "due_date": "2026-02-23",
+    "paid_date": "2026-02-25",
+    "days_late": 2
+  },
+  {
+    "company_vkn": "9100000033",
+    "invoice_no": "PH-0033-0008",
+    "counterparty_vkn": "9200000101",
+    "amount": 1265126.77,
+    "due_date": "2026-01-28",
+    "paid_date": "2026-02-02",
+    "days_late": 5
+  },
+  {
+    "company_vkn": "9100000033",
+    "invoice_no": "PH-0033-0009",
+    "counterparty_vkn": "9200000707",
+    "amount": 899591.4,
+    "due_date": "2026-01-23",
+    "paid_date": "2026-01-28",
+    "days_late": 5
+  },
+  {
+    "company_vkn": "9100000033",
+    "invoice_no": "PH-0033-0010",
+    "counterparty_vkn": "9200000202",
+    "amount": 599423.5,
+    "due_date": "2026-01-09",
+    "paid_date": "2026-01-10",
+    "days_late": 1
+  },
+  {
+    "company_vkn": "9100000033",
+    "invoice_no": "PH-0033-0011",
+    "counterparty_vkn": "9200000606",
+    "amount": 171433.84,
+    "due_date": "2025-12-22",
+    "paid_date": "2025-12-22",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000033",
+    "invoice_no": "PH-0033-0012",
+    "counterparty_vkn": "9200000101",
+    "amount": 751438.83,
+    "due_date": "2025-12-10",
+    "paid_date": "2025-12-13",
+    "days_late": 3
+  },
+  {
+    "company_vkn": "9100000033",
+    "invoice_no": "PH-0033-0013",
+    "counterparty_vkn": "9200000707",
+    "amount": 984226.73,
+    "due_date": "2025-11-19",
+    "paid_date": "2025-11-19",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000033",
+    "invoice_no": "PH-0033-0014",
+    "counterparty_vkn": "9200000404",
+    "amount": 415180.49,
+    "due_date": "2025-11-01",
+    "paid_date": "2025-11-01",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000033",
+    "invoice_no": "PH-0033-0015",
+    "counterparty_vkn": "9200000707",
+    "amount": 195863.9,
+    "due_date": "2025-08-16",
+    "paid_date": "2025-08-16",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000033",
+    "invoice_no": "PH-0033-0016",
+    "counterparty_vkn": "9200000303",
+    "amount": 1240275.65,
+    "due_date": "2025-08-16",
+    "paid_date": "2025-08-17",
+    "days_late": 1
+  },
+  {
+    "company_vkn": "9100000033",
+    "invoice_no": "PH-0033-0017",
+    "counterparty_vkn": "9200000202",
+    "amount": 1051750.15,
+    "due_date": "2025-07-26",
+    "paid_date": "2025-07-26",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000033",
+    "invoice_no": "PH-0033-0018",
+    "counterparty_vkn": "9200000505",
+    "amount": 369242.24,
+    "due_date": "2025-05-31",
+    "paid_date": "2025-05-31",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000033",
+    "invoice_no": "PH-0033-0019",
+    "counterparty_vkn": "9200000303",
+    "amount": 1487696.22,
+    "due_date": "2025-04-29",
+    "paid_date": "2025-05-04",
+    "days_late": 5
+  },
+  {
+    "company_vkn": "9100000044",
+    "invoice_no": "PH-0044-0001",
+    "counterparty_vkn": "9200000202",
+    "amount": 876102.11,
+    "due_date": "2026-09-07",
+    "paid_date": "2026-10-15",
+    "days_late": 38
+  },
+  {
+    "company_vkn": "9100000044",
+    "invoice_no": "PH-0044-0002",
+    "counterparty_vkn": "9200000606",
+    "amount": 1220069.23,
+    "due_date": "2026-08-01",
+    "paid_date": "2026-09-03",
+    "days_late": 33
+  },
+  {
+    "company_vkn": "9100000044",
+    "invoice_no": "PH-0044-0003",
+    "counterparty_vkn": "9200000101",
+    "amount": 441037.01,
+    "due_date": "2026-07-11",
+    "paid_date": "2026-08-01",
+    "days_late": 21
+  },
+  {
+    "company_vkn": "9100000044",
+    "invoice_no": "PH-0044-0004",
+    "counterparty_vkn": "9200000606",
+    "amount": 406610.36,
+    "due_date": "2026-06-26",
+    "paid_date": "2026-07-16",
+    "days_late": 20
+  },
+  {
+    "company_vkn": "9100000044",
+    "invoice_no": "PH-0044-0005",
+    "counterparty_vkn": "9200000101",
+    "amount": 307257.56,
+    "due_date": "2026-05-11",
+    "paid_date": "2026-05-11",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000044",
+    "invoice_no": "PH-0044-0006",
+    "counterparty_vkn": "9200000404",
+    "amount": 688635.22,
+    "due_date": "2026-05-10",
+    "paid_date": "2026-05-10",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000044",
+    "invoice_no": "PH-0044-0007",
+    "counterparty_vkn": "9200000202",
+    "amount": 449488.92,
+    "due_date": "2026-04-25",
+    "paid_date": "2026-04-30",
+    "days_late": 5
+  },
+  {
+    "company_vkn": "9100000044",
+    "invoice_no": "PH-0044-0008",
+    "counterparty_vkn": "9200000707",
+    "amount": 1387539.54,
+    "due_date": "2026-03-28",
+    "paid_date": "2026-04-02",
+    "days_late": 5
+  },
+  {
+    "company_vkn": "9100000044",
+    "invoice_no": "PH-0044-0009",
+    "counterparty_vkn": "9200000303",
+    "amount": 757772.74,
+    "due_date": "2026-03-06",
+    "paid_date": "2026-03-06",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000044",
+    "invoice_no": "PH-0044-0010",
+    "counterparty_vkn": "9200000505",
+    "amount": 779708.39,
+    "due_date": "2026-02-25",
+    "paid_date": "2026-03-01",
+    "days_late": 4
+  },
+  {
+    "company_vkn": "9100000044",
+    "invoice_no": "PH-0044-0011",
+    "counterparty_vkn": "9200000303",
+    "amount": 261897.36,
+    "due_date": "2026-01-29",
+    "paid_date": "2026-01-29",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000044",
+    "invoice_no": "PH-0044-0012",
+    "counterparty_vkn": "9200000606",
+    "amount": 579704.13,
+    "due_date": "2026-01-18",
+    "paid_date": "2026-01-18",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000044",
+    "invoice_no": "PH-0044-0013",
+    "counterparty_vkn": "9200000303",
+    "amount": 881563.17,
+    "due_date": "2025-11-05",
+    "paid_date": "2025-11-10",
+    "days_late": 5
+  },
+  {
+    "company_vkn": "9100000044",
+    "invoice_no": "PH-0044-0014",
+    "counterparty_vkn": "9200000606",
+    "amount": 73442.0,
+    "due_date": "2025-11-04",
+    "paid_date": "2025-11-09",
+    "days_late": 5
+  },
+  {
+    "company_vkn": "9100000044",
+    "invoice_no": "PH-0044-0015",
+    "counterparty_vkn": "9200000606",
+    "amount": 1154616.53,
+    "due_date": "2025-11-03",
+    "paid_date": "2025-11-03",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000044",
+    "invoice_no": "PH-0044-0016",
+    "counterparty_vkn": "9200000303",
+    "amount": 282214.84,
+    "due_date": "2025-10-16",
+    "paid_date": "2025-10-17",
+    "days_late": 1
+  },
+  {
+    "company_vkn": "9100000044",
+    "invoice_no": "PH-0044-0017",
+    "counterparty_vkn": "9200000202",
+    "amount": 906608.16,
+    "due_date": "2025-10-15",
+    "paid_date": "2025-10-18",
+    "days_late": 3
+  },
+  {
+    "company_vkn": "9100000044",
+    "invoice_no": "PH-0044-0018",
+    "counterparty_vkn": "9200000606",
+    "amount": 900203.54,
+    "due_date": "2025-06-25",
+    "paid_date": "2025-06-25",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9100000044",
+    "invoice_no": "PH-0044-0019",
+    "counterparty_vkn": "9200000505",
+    "amount": 163297.3,
+    "due_date": "2025-06-03",
+    "paid_date": "2025-06-03",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9200000101",
+    "invoice_no": "PH-0101-0001",
+    "counterparty_vkn": "9100000033",
+    "amount": 128357.53,
+    "due_date": "2026-10-02",
+    "paid_date": "2026-10-06",
+    "days_late": 4
+  },
+  {
+    "company_vkn": "9200000101",
+    "invoice_no": "PH-0101-0002",
+    "counterparty_vkn": "9100000022",
+    "amount": 23565.69,
+    "due_date": "2026-08-24",
+    "paid_date": "2026-08-28",
+    "days_late": 4
+  },
+  {
+    "company_vkn": "9200000101",
+    "invoice_no": "PH-0101-0003",
+    "counterparty_vkn": "9100000022",
+    "amount": 193298.49,
+    "due_date": "2026-07-02",
+    "paid_date": "2026-07-04",
+    "days_late": 2
+  },
+  {
+    "company_vkn": "9200000101",
+    "invoice_no": "PH-0101-0004",
+    "counterparty_vkn": "9100000022",
+    "amount": 198587.83,
+    "due_date": "2026-05-24",
+    "paid_date": "2026-05-25",
+    "days_late": 1
+  },
+  {
+    "company_vkn": "9200000101",
+    "invoice_no": "PH-0101-0005",
+    "counterparty_vkn": "9100000011",
+    "amount": 225789.59,
+    "due_date": "2026-05-07",
+    "paid_date": "2026-05-10",
+    "days_late": 3
+  },
+  {
+    "company_vkn": "9200000101",
+    "invoice_no": "PH-0101-0006",
+    "counterparty_vkn": "9100000044",
+    "amount": 159116.27,
+    "due_date": "2026-02-20",
+    "paid_date": "2026-02-26",
+    "days_late": 6
+  },
+  {
+    "company_vkn": "9200000101",
+    "invoice_no": "PH-0101-0007",
+    "counterparty_vkn": "9100000033",
+    "amount": 95162.4,
+    "due_date": "2026-01-27",
+    "paid_date": "2026-01-27",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9200000101",
+    "invoice_no": "PH-0101-0008",
+    "counterparty_vkn": "9100000033",
+    "amount": 164379.9,
+    "due_date": "2025-12-05",
+    "paid_date": "2025-12-15",
+    "days_late": 10
+  },
+  {
+    "company_vkn": "9200000101",
+    "invoice_no": "PH-0101-0009",
+    "counterparty_vkn": "9100000033",
+    "amount": 79330.01,
+    "due_date": "2025-09-27",
+    "paid_date": "2025-10-02",
+    "days_late": 5
+  },
+  {
+    "company_vkn": "9200000101",
+    "invoice_no": "PH-0101-0010",
+    "counterparty_vkn": "9100000033",
+    "amount": 109423.74,
+    "due_date": "2025-09-10",
+    "paid_date": "2025-09-14",
+    "days_late": 4
+  },
+  {
+    "company_vkn": "9200000101",
+    "invoice_no": "PH-0101-0011",
+    "counterparty_vkn": "9100000033",
+    "amount": 84124.11,
+    "due_date": "2025-06-23",
+    "paid_date": "2025-06-28",
+    "days_late": 5
+  },
+  {
+    "company_vkn": "9200000101",
+    "invoice_no": "PH-0101-0012",
+    "counterparty_vkn": "9100000033",
+    "amount": 232834.93,
+    "due_date": "2025-05-30",
+    "paid_date": "2025-06-10",
+    "days_late": 11
+  },
+  {
+    "company_vkn": "9200000101",
+    "invoice_no": "PH-0101-0013",
+    "counterparty_vkn": "9100000044",
+    "amount": 127097.98,
+    "due_date": "2025-05-03",
+    "paid_date": "2025-05-05",
+    "days_late": 2
+  },
+  {
+    "company_vkn": "9200000101",
+    "invoice_no": "PH-0101-0014",
+    "counterparty_vkn": "9100000033",
+    "amount": 172009.49,
+    "due_date": "2025-04-18",
+    "paid_date": "2025-04-27",
+    "days_late": 9
+  },
+  {
+    "company_vkn": "9200000202",
+    "invoice_no": "PH-0202-0001",
+    "counterparty_vkn": "9100000044",
+    "amount": 188367.85,
+    "due_date": "2026-08-18",
+    "paid_date": "2026-08-20",
+    "days_late": 2
+  },
+  {
+    "company_vkn": "9200000202",
+    "invoice_no": "PH-0202-0002",
+    "counterparty_vkn": "9100000011",
+    "amount": 101235.58,
+    "due_date": "2026-08-17",
+    "paid_date": "2026-08-28",
+    "days_late": 11
+  },
+  {
+    "company_vkn": "9200000202",
+    "invoice_no": "PH-0202-0003",
+    "counterparty_vkn": "9100000011",
+    "amount": 182569.62,
+    "due_date": "2026-08-11",
+    "paid_date": "2026-08-09",
+    "days_late": -2
+  },
+  {
+    "company_vkn": "9200000202",
+    "invoice_no": "PH-0202-0004",
+    "counterparty_vkn": "9100000033",
+    "amount": 55238.86,
+    "due_date": "2026-07-23",
+    "paid_date": "2026-07-26",
+    "days_late": 3
+  },
+  {
+    "company_vkn": "9200000202",
+    "invoice_no": "PH-0202-0005",
+    "counterparty_vkn": "9100000044",
+    "amount": 156926.67,
+    "due_date": "2026-05-12",
+    "paid_date": "2026-05-16",
+    "days_late": 4
+  },
+  {
+    "company_vkn": "9200000202",
+    "invoice_no": "PH-0202-0006",
+    "counterparty_vkn": "9100000011",
+    "amount": 29496.46,
+    "due_date": "2026-04-13",
+    "paid_date": "2026-04-11",
+    "days_late": -2
+  },
+  {
+    "company_vkn": "9200000202",
+    "invoice_no": "PH-0202-0007",
+    "counterparty_vkn": "9100000033",
+    "amount": 147468.39,
+    "due_date": "2026-04-02",
+    "paid_date": "2026-04-05",
+    "days_late": 3
+  },
+  {
+    "company_vkn": "9200000202",
+    "invoice_no": "PH-0202-0008",
+    "counterparty_vkn": "9100000044",
+    "amount": 132693.58,
+    "due_date": "2026-03-24",
+    "paid_date": "2026-03-23",
+    "days_late": -1
+  },
+  {
+    "company_vkn": "9200000202",
+    "invoice_no": "PH-0202-0009",
+    "counterparty_vkn": "9100000011",
+    "amount": 140047.62,
+    "due_date": "2026-03-14",
+    "paid_date": "2026-03-16",
+    "days_late": 2
+  },
+  {
+    "company_vkn": "9200000202",
+    "invoice_no": "PH-0202-0010",
+    "counterparty_vkn": "9100000011",
+    "amount": 71709.73,
+    "due_date": "2026-02-18",
+    "paid_date": "2026-02-20",
+    "days_late": 2
+  },
+  {
+    "company_vkn": "9200000202",
+    "invoice_no": "PH-0202-0011",
+    "counterparty_vkn": "9100000033",
+    "amount": 83114.66,
+    "due_date": "2026-02-17",
+    "paid_date": "2026-02-22",
+    "days_late": 5
+  },
+  {
+    "company_vkn": "9200000202",
+    "invoice_no": "PH-0202-0012",
+    "counterparty_vkn": "9100000044",
+    "amount": 222335.0,
+    "due_date": "2026-01-30",
+    "paid_date": "2026-02-01",
+    "days_late": 2
+  },
+  {
+    "company_vkn": "9200000202",
+    "invoice_no": "PH-0202-0013",
+    "counterparty_vkn": "9100000033",
+    "amount": 166808.9,
+    "due_date": "2026-01-19",
+    "paid_date": "2026-01-21",
+    "days_late": 2
+  },
+  {
+    "company_vkn": "9200000202",
+    "invoice_no": "PH-0202-0014",
+    "counterparty_vkn": "9100000033",
+    "amount": 236083.87,
+    "due_date": "2025-11-02",
+    "paid_date": "2025-11-04",
+    "days_late": 2
+  },
+  {
+    "company_vkn": "9200000202",
+    "invoice_no": "PH-0202-0015",
+    "counterparty_vkn": "9100000011",
+    "amount": 159220.8,
+    "due_date": "2025-10-16",
+    "paid_date": "2025-10-23",
+    "days_late": 7
+  },
+  {
+    "company_vkn": "9200000202",
+    "invoice_no": "PH-0202-0016",
+    "counterparty_vkn": "9100000011",
+    "amount": 202196.5,
+    "due_date": "2025-10-08",
+    "paid_date": "2025-10-07",
+    "days_late": -1
+  },
+  {
+    "company_vkn": "9200000202",
+    "invoice_no": "PH-0202-0017",
+    "counterparty_vkn": "9100000011",
+    "amount": 31988.84,
+    "due_date": "2025-09-04",
+    "paid_date": "2025-09-16",
+    "days_late": 12
+  },
+  {
+    "company_vkn": "9200000202",
+    "invoice_no": "PH-0202-0018",
+    "counterparty_vkn": "9100000044",
+    "amount": 66384.18,
+    "due_date": "2025-06-16",
+    "paid_date": "2025-06-14",
+    "days_late": -2
+  },
+  {
+    "company_vkn": "9200000202",
+    "invoice_no": "PH-0202-0019",
+    "counterparty_vkn": "9100000011",
+    "amount": 147697.72,
+    "due_date": "2025-06-11",
+    "paid_date": "2025-06-20",
+    "days_late": 9
+  },
+  {
+    "company_vkn": "9200000202",
+    "invoice_no": "PH-0202-0020",
+    "counterparty_vkn": "9100000044",
+    "amount": 63133.78,
+    "due_date": "2025-05-31",
+    "paid_date": "2025-05-30",
+    "days_late": -1
+  },
+  {
+    "company_vkn": "9200000202",
+    "invoice_no": "PH-0202-0021",
+    "counterparty_vkn": "9100000022",
+    "amount": 127845.21,
+    "due_date": "2025-05-09",
+    "paid_date": "2025-05-16",
+    "days_late": 7
+  },
+  {
+    "company_vkn": "9200000303",
+    "invoice_no": "PH-0303-0001",
+    "counterparty_vkn": "9100000022",
+    "amount": 58010.8,
+    "due_date": "2026-10-01",
+    "paid_date": "2026-10-07",
+    "days_late": 6
+  },
+  {
+    "company_vkn": "9200000303",
+    "invoice_no": "PH-0303-0002",
+    "counterparty_vkn": "9100000033",
+    "amount": 54040.11,
+    "due_date": "2026-09-24",
+    "paid_date": "2026-09-25",
+    "days_late": 1
+  },
+  {
+    "company_vkn": "9200000303",
+    "invoice_no": "PH-0303-0003",
+    "counterparty_vkn": "9100000011",
+    "amount": 172288.41,
+    "due_date": "2026-09-23",
+    "paid_date": "2026-10-01",
+    "days_late": 8
+  },
+  {
+    "company_vkn": "9200000303",
+    "invoice_no": "PH-0303-0004",
+    "counterparty_vkn": "9100000044",
+    "amount": 145042.82,
+    "due_date": "2026-08-26",
+    "paid_date": "2026-08-25",
+    "days_late": -1
+  },
+  {
+    "company_vkn": "9200000303",
+    "invoice_no": "PH-0303-0005",
+    "counterparty_vkn": "9100000044",
+    "amount": 92980.77,
+    "due_date": "2026-07-16",
+    "paid_date": "2026-07-14",
+    "days_late": -2
+  },
+  {
+    "company_vkn": "9200000303",
+    "invoice_no": "PH-0303-0006",
+    "counterparty_vkn": "9100000033",
+    "amount": 13182.02,
+    "due_date": "2026-07-05",
+    "paid_date": "2026-07-07",
+    "days_late": 2
+  },
+  {
+    "company_vkn": "9200000303",
+    "invoice_no": "PH-0303-0007",
+    "counterparty_vkn": "9100000033",
+    "amount": 45110.34,
+    "due_date": "2026-07-05",
+    "paid_date": "2026-07-09",
+    "days_late": 4
+  },
+  {
+    "company_vkn": "9200000303",
+    "invoice_no": "PH-0303-0008",
+    "counterparty_vkn": "9100000033",
+    "amount": 138335.74,
+    "due_date": "2026-05-20",
+    "paid_date": "2026-05-27",
+    "days_late": 7
+  },
+  {
+    "company_vkn": "9200000303",
+    "invoice_no": "PH-0303-0009",
+    "counterparty_vkn": "9100000033",
+    "amount": 23158.95,
+    "due_date": "2026-05-13",
+    "paid_date": "2026-05-11",
+    "days_late": -2
+  },
+  {
+    "company_vkn": "9200000303",
+    "invoice_no": "PH-0303-0010",
+    "counterparty_vkn": "9100000044",
+    "amount": 118232.45,
+    "due_date": "2026-04-25",
+    "paid_date": "2026-04-30",
+    "days_late": 5
+  },
+  {
+    "company_vkn": "9200000303",
+    "invoice_no": "PH-0303-0011",
+    "counterparty_vkn": "9100000022",
+    "amount": 195444.62,
+    "due_date": "2026-04-20",
+    "paid_date": "2026-04-20",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9200000303",
+    "invoice_no": "PH-0303-0012",
+    "counterparty_vkn": "9100000033",
+    "amount": 221088.54,
+    "due_date": "2026-03-14",
+    "paid_date": "2026-03-22",
+    "days_late": 8
+  },
+  {
+    "company_vkn": "9200000303",
+    "invoice_no": "PH-0303-0013",
+    "counterparty_vkn": "9100000033",
+    "amount": 67709.75,
+    "due_date": "2025-12-28",
+    "paid_date": "2026-01-02",
+    "days_late": 5
+  },
+  {
+    "company_vkn": "9200000303",
+    "invoice_no": "PH-0303-0014",
+    "counterparty_vkn": "9100000022",
+    "amount": 40752.57,
+    "due_date": "2025-12-21",
+    "paid_date": "2025-12-19",
+    "days_late": -2
+  },
+  {
+    "company_vkn": "9200000303",
+    "invoice_no": "PH-0303-0015",
+    "counterparty_vkn": "9100000011",
+    "amount": 97564.88,
+    "due_date": "2025-12-17",
+    "paid_date": "2025-12-24",
+    "days_late": 7
+  },
+  {
+    "company_vkn": "9200000303",
+    "invoice_no": "PH-0303-0016",
+    "counterparty_vkn": "9100000022",
+    "amount": 41865.71,
+    "due_date": "2025-12-16",
+    "paid_date": "2025-12-20",
+    "days_late": 4
+  },
+  {
+    "company_vkn": "9200000303",
+    "invoice_no": "PH-0303-0017",
+    "counterparty_vkn": "9100000022",
+    "amount": 174373.8,
+    "due_date": "2025-11-06",
+    "paid_date": "2025-11-13",
+    "days_late": 7
+  },
+  {
+    "company_vkn": "9200000303",
+    "invoice_no": "PH-0303-0018",
+    "counterparty_vkn": "9100000033",
+    "amount": 187349.05,
+    "due_date": "2025-07-26",
+    "paid_date": "2025-08-02",
+    "days_late": 7
+  },
+  {
+    "company_vkn": "9200000303",
+    "invoice_no": "PH-0303-0019",
+    "counterparty_vkn": "9100000011",
+    "amount": 171944.97,
+    "due_date": "2025-04-25",
+    "paid_date": "2025-04-27",
+    "days_late": 2
+  },
+  {
+    "company_vkn": "9200000404",
+    "invoice_no": "PH-0404-0001",
+    "counterparty_vkn": "9100000011",
+    "amount": 24457.9,
+    "due_date": "2026-08-09",
+    "paid_date": "2026-08-21",
+    "days_late": 12
+  },
+  {
+    "company_vkn": "9200000404",
+    "invoice_no": "PH-0404-0002",
+    "counterparty_vkn": "9100000033",
+    "amount": 130594.64,
+    "due_date": "2026-05-28",
+    "paid_date": "2026-06-01",
+    "days_late": 4
+  },
+  {
+    "company_vkn": "9200000404",
+    "invoice_no": "PH-0404-0003",
+    "counterparty_vkn": "9100000022",
+    "amount": 140051.77,
+    "due_date": "2026-04-20",
+    "paid_date": "2026-05-02",
+    "days_late": 12
+  },
+  {
+    "company_vkn": "9200000404",
+    "invoice_no": "PH-0404-0004",
+    "counterparty_vkn": "9100000011",
+    "amount": 156017.77,
+    "due_date": "2026-04-04",
+    "paid_date": "2026-04-14",
+    "days_late": 10
+  },
+  {
+    "company_vkn": "9200000404",
+    "invoice_no": "PH-0404-0005",
+    "counterparty_vkn": "9100000044",
+    "amount": 78602.74,
+    "due_date": "2026-03-25",
+    "paid_date": "2026-03-24",
+    "days_late": -1
+  },
+  {
+    "company_vkn": "9200000404",
+    "invoice_no": "PH-0404-0006",
+    "counterparty_vkn": "9100000011",
+    "amount": 199515.6,
+    "due_date": "2026-01-09",
+    "paid_date": "2026-01-12",
+    "days_late": 3
+  },
+  {
+    "company_vkn": "9200000404",
+    "invoice_no": "PH-0404-0007",
+    "counterparty_vkn": "9100000022",
+    "amount": 78769.41,
+    "due_date": "2025-11-12",
+    "paid_date": "2025-11-19",
+    "days_late": 7
+  },
+  {
+    "company_vkn": "9200000404",
+    "invoice_no": "PH-0404-0008",
+    "counterparty_vkn": "9100000033",
+    "amount": 242603.82,
+    "due_date": "2025-10-31",
+    "paid_date": "2025-11-05",
+    "days_late": 5
+  },
+  {
+    "company_vkn": "9200000404",
+    "invoice_no": "PH-0404-0009",
+    "counterparty_vkn": "9100000033",
+    "amount": 210040.01,
+    "due_date": "2025-10-07",
+    "paid_date": "2025-10-14",
+    "days_late": 7
+  },
+  {
+    "company_vkn": "9200000404",
+    "invoice_no": "PH-0404-0010",
+    "counterparty_vkn": "9100000044",
+    "amount": 76706.37,
+    "due_date": "2025-09-14",
+    "paid_date": "2025-09-22",
+    "days_late": 8
+  },
+  {
+    "company_vkn": "9200000404",
+    "invoice_no": "PH-0404-0011",
+    "counterparty_vkn": "9100000011",
+    "amount": 210646.42,
+    "due_date": "2025-09-04",
+    "paid_date": "2025-09-09",
+    "days_late": 5
+  },
+  {
+    "company_vkn": "9200000404",
+    "invoice_no": "PH-0404-0012",
+    "counterparty_vkn": "9100000044",
+    "amount": 63000.58,
+    "due_date": "2025-08-30",
+    "paid_date": "2025-09-01",
+    "days_late": 2
+  },
+  {
+    "company_vkn": "9200000404",
+    "invoice_no": "PH-0404-0013",
+    "counterparty_vkn": "9100000044",
+    "amount": 188619.55,
+    "due_date": "2025-06-17",
+    "paid_date": "2025-06-20",
+    "days_late": 3
+  },
+  {
+    "company_vkn": "9200000404",
+    "invoice_no": "PH-0404-0014",
+    "counterparty_vkn": "9100000011",
+    "amount": 134653.23,
+    "due_date": "2025-05-21",
+    "paid_date": "2025-05-22",
+    "days_late": 1
+  },
+  {
+    "company_vkn": "9200000404",
+    "invoice_no": "PH-0404-0015",
+    "counterparty_vkn": "9100000022",
+    "amount": 126353.55,
+    "due_date": "2025-05-16",
+    "paid_date": "2025-05-14",
+    "days_late": -2
+  },
+  {
+    "company_vkn": "9200000404",
+    "invoice_no": "PH-0404-0016",
+    "counterparty_vkn": "9100000033",
+    "amount": 167192.47,
+    "due_date": "2025-05-13",
+    "paid_date": "2025-05-22",
+    "days_late": 9
+  },
+  {
+    "company_vkn": "9200000404",
+    "invoice_no": "PH-0404-0017",
+    "counterparty_vkn": "9100000022",
+    "amount": 77510.67,
+    "due_date": "2025-05-08",
+    "paid_date": "2025-05-15",
+    "days_late": 7
+  },
+  {
+    "company_vkn": "9200000505",
+    "invoice_no": "PH-0505-0001",
+    "counterparty_vkn": "9100000033",
+    "amount": 115949.63,
+    "due_date": "2026-09-21",
+    "paid_date": "2026-09-23",
+    "days_late": 2
+  },
+  {
+    "company_vkn": "9200000505",
+    "invoice_no": "PH-0505-0002",
+    "counterparty_vkn": "9100000022",
+    "amount": 119202.47,
+    "due_date": "2026-08-28",
+    "paid_date": "2026-08-28",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9200000505",
+    "invoice_no": "PH-0505-0003",
+    "counterparty_vkn": "9100000022",
+    "amount": 125487.1,
+    "due_date": "2026-08-19",
+    "paid_date": "2026-08-19",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9200000505",
+    "invoice_no": "PH-0505-0004",
+    "counterparty_vkn": "9100000022",
+    "amount": 198402.68,
+    "due_date": "2026-07-03",
+    "paid_date": "2026-07-01",
+    "days_late": -2
+  },
+  {
+    "company_vkn": "9200000505",
+    "invoice_no": "PH-0505-0005",
+    "counterparty_vkn": "9100000011",
+    "amount": 38694.22,
+    "due_date": "2026-03-24",
+    "paid_date": "2026-03-25",
+    "days_late": 1
+  },
+  {
+    "company_vkn": "9200000505",
+    "invoice_no": "PH-0505-0006",
+    "counterparty_vkn": "9100000022",
+    "amount": 221691.26,
+    "due_date": "2026-03-14",
+    "paid_date": "2026-03-26",
+    "days_late": 12
+  },
+  {
+    "company_vkn": "9200000505",
+    "invoice_no": "PH-0505-0007",
+    "counterparty_vkn": "9100000044",
+    "amount": 241753.69,
+    "due_date": "2026-03-11",
+    "paid_date": "2026-03-15",
+    "days_late": 4
+  },
+  {
+    "company_vkn": "9200000505",
+    "invoice_no": "PH-0505-0008",
+    "counterparty_vkn": "9100000044",
+    "amount": 66955.06,
+    "due_date": "2025-10-31",
+    "paid_date": "2025-11-10",
+    "days_late": 10
+  },
+  {
+    "company_vkn": "9200000505",
+    "invoice_no": "PH-0505-0009",
+    "counterparty_vkn": "9100000022",
+    "amount": 98819.62,
+    "due_date": "2025-10-27",
+    "paid_date": "2025-11-05",
+    "days_late": 9
+  },
+  {
+    "company_vkn": "9200000505",
+    "invoice_no": "PH-0505-0010",
+    "counterparty_vkn": "9100000022",
+    "amount": 140583.02,
+    "due_date": "2025-09-28",
+    "paid_date": "2025-09-28",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9200000505",
+    "invoice_no": "PH-0505-0011",
+    "counterparty_vkn": "9100000044",
+    "amount": 53455.47,
+    "due_date": "2025-08-17",
+    "paid_date": "2025-08-15",
+    "days_late": -2
+  },
+  {
+    "company_vkn": "9200000505",
+    "invoice_no": "PH-0505-0012",
+    "counterparty_vkn": "9100000044",
+    "amount": 242447.3,
+    "due_date": "2025-07-17",
+    "paid_date": "2025-07-21",
+    "days_late": 4
+  },
+  {
+    "company_vkn": "9200000505",
+    "invoice_no": "PH-0505-0013",
+    "counterparty_vkn": "9100000033",
+    "amount": 60402.59,
+    "due_date": "2025-06-16",
+    "paid_date": "2025-06-16",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9200000505",
+    "invoice_no": "PH-0505-0014",
+    "counterparty_vkn": "9100000033",
+    "amount": 225770.68,
+    "due_date": "2025-06-14",
+    "paid_date": "2025-06-18",
+    "days_late": 4
+  },
+  {
+    "company_vkn": "9200000505",
+    "invoice_no": "PH-0505-0015",
+    "counterparty_vkn": "9100000033",
+    "amount": 19157.56,
+    "due_date": "2025-06-10",
+    "paid_date": "2025-06-12",
+    "days_late": 2
+  },
+  {
+    "company_vkn": "9200000505",
+    "invoice_no": "PH-0505-0016",
+    "counterparty_vkn": "9100000044",
+    "amount": 186708.06,
+    "due_date": "2025-04-22",
+    "paid_date": "2025-04-21",
+    "days_late": -1
+  },
+  {
+    "company_vkn": "9200000606",
+    "invoice_no": "PH-0606-0001",
+    "counterparty_vkn": "9100000044",
+    "amount": 249438.88,
+    "due_date": "2026-08-31",
+    "paid_date": "2026-09-06",
+    "days_late": 6
+  },
+  {
+    "company_vkn": "9200000606",
+    "invoice_no": "PH-0606-0002",
+    "counterparty_vkn": "9100000033",
+    "amount": 147477.72,
+    "due_date": "2026-08-06",
+    "paid_date": "2026-08-06",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9200000606",
+    "invoice_no": "PH-0606-0003",
+    "counterparty_vkn": "9100000044",
+    "amount": 48569.16,
+    "due_date": "2026-07-25",
+    "paid_date": "2026-07-30",
+    "days_late": 5
+  },
+  {
+    "company_vkn": "9200000606",
+    "invoice_no": "PH-0606-0004",
+    "counterparty_vkn": "9100000033",
+    "amount": 70109.27,
+    "due_date": "2026-07-09",
+    "paid_date": "2026-07-09",
+    "days_late": 0
+  },
+  {
+    "company_vkn": "9200000606",
+    "invoice_no": "PH-0606-0005",
+    "counterparty_vkn": "9100000011",
+    "amount": 103766.49,
+    "due_date": "2026-05-29",
+    "paid_date": "2026-06-08",
+    "days_late": 10
+  },
+  {
+    "company_vkn": "9200000606",
+    "invoice_no": "PH-0606-0006",
+    "counterparty_vkn": "9100000033",
+    "amount": 230682.15,
+    "due_date": "2026-05-12",
+    "paid_date": "2026-05-24",
+    "days_late": 12
+  },
+  {
+    "company_vkn": "9200000606",
+    "invoice_no": "PH-0606-0007",
+    "counterparty_vkn": "9100000033",
+    "amount": 117058.32,
+    "due_date": "2026-04-07",
+    "paid_date": "2026-04-17",
+    "days_late": 10
+  },
+  {
+    "company_vkn": "9200000606",
+    "invoice_no": "PH-0606-0008",
+    "counterparty_vkn": "9100000044",
+    "amount": 105454.33,
+    "due_date": "2026-03-21",
+    "paid_date": "2026-03-24",
+    "days_late": 3
+  },
+  {
+    "company_vkn": "9200000606",
+    "invoice_no": "PH-0606-0009",
+    "counterparty_vkn": "9100000033",
+    "amount": 32228.91,
+    "due_date": "2026-02-26",
+    "paid_date": "2026-03-09",
+    "days_late": 11
+  },
+  {
+    "company_vkn": "9200000606",
+    "invoice_no": "PH-0606-0010",
+    "counterparty_vkn": "9100000044",
+    "amount": 139962.24,
+    "due_date": "2026-02-15",
+    "paid_date": "2026-02-19",
+    "days_late": 4
+  },
+  {
+    "company_vkn": "9200000606",
+    "invoice_no": "PH-0606-0011",
+    "counterparty_vkn": "9100000033",
+    "amount": 59592.72,
+    "due_date": "2025-12-06",
+    "paid_date": "2025-12-18",
+    "days_late": 12
+  },
+  {
+    "company_vkn": "9200000606",
+    "invoice_no": "PH-0606-0012",
+    "counterparty_vkn": "9100000033",
+    "amount": 119841.52,
+    "due_date": "2025-10-27",
+    "paid_date": "2025-11-01",
+    "days_late": 5
+  },
+  {
+    "company_vkn": "9200000606",
+    "invoice_no": "PH-0606-0013",
+    "counterparty_vkn": "9100000033",
+    "amount": 73244.72,
+    "due_date": "2025-09-23",
+    "paid_date": "2025-09-30",
+    "days_late": 7
+  },
+  {
+    "company_vkn": "9200000606",
+    "invoice_no": "PH-0606-0014",
+    "counterparty_vkn": "9100000044",
+    "amount": 57629.71,
+    "due_date": "2025-08-31",
+    "paid_date": "2025-09-08",
+    "days_late": 8
+  },
+  {
+    "company_vkn": "9200000606",
+    "invoice_no": "PH-0606-0015",
+    "counterparty_vkn": "9100000011",
+    "amount": 120540.79,
+    "due_date": "2025-07-28",
+    "paid_date": "2025-07-31",
+    "days_late": 3
+  },
+  {
+    "company_vkn": "9200000606",
+    "invoice_no": "PH-0606-0016",
+    "counterparty_vkn": "9100000011",
+    "amount": 147395.29,
+    "due_date": "2025-07-14",
+    "paid_date": "2025-07-21",
+    "days_late": 7
+  },
+  {
+    "company_vkn": "9200000606",
+    "invoice_no": "PH-0606-0017",
+    "counterparty_vkn": "9100000044",
+    "amount": 225054.0,
+    "due_date": "2025-07-12",
+    "paid_date": "2025-07-16",
+    "days_late": 4
+  },
+  {
+    "company_vkn": "9200000606",
+    "invoice_no": "PH-0606-0018",
+    "counterparty_vkn": "9100000033",
+    "amount": 161986.23,
+    "due_date": "2025-06-27",
+    "paid_date": "2025-07-02",
+    "days_late": 5
+  },
+  {
+    "company_vkn": "9200000606",
+    "invoice_no": "PH-0606-0019",
+    "counterparty_vkn": "9100000033",
+    "amount": 90692.16,
+    "due_date": "2025-06-14",
+    "paid_date": "2025-06-16",
+    "days_late": 2
+  },
+  {
+    "company_vkn": "9200000606",
+    "invoice_no": "PH-0606-0020",
+    "counterparty_vkn": "9100000022",
+    "amount": 106134.74,
+    "due_date": "2025-05-21",
+    "paid_date": "2025-05-25",
+    "days_late": 4
+  },
+  {
+    "company_vkn": "9200000707",
+    "invoice_no": "PH-0707-0001",
+    "counterparty_vkn": "9100000022",
+    "amount": 17969.55,
+    "due_date": "2026-10-12",
+    "paid_date": "2026-10-17",
+    "days_late": 5
+  },
+  {
+    "company_vkn": "9200000707",
+    "invoice_no": "PH-0707-0002",
+    "counterparty_vkn": "9100000044",
+    "amount": 145976.87,
+    "due_date": "2026-09-18",
+    "paid_date": "2026-09-25",
+    "days_late": 7
+  },
+  {
+    "company_vkn": "9200000707",
+    "invoice_no": "PH-0707-0003",
+    "counterparty_vkn": "9100000044",
+    "amount": 30954.47,
+    "due_date": "2026-09-03",
+    "paid_date": "2026-09-08",
+    "days_late": 5
+  },
+  {
+    "company_vkn": "9200000707",
+    "invoice_no": "PH-0707-0004",
+    "counterparty_vkn": "9100000011",
+    "amount": 192650.33,
+    "due_date": "2026-04-11",
+    "paid_date": "2026-04-22",
+    "days_late": 11
+  },
+  {
+    "company_vkn": "9200000707",
+    "invoice_no": "PH-0707-0005",
+    "counterparty_vkn": "9100000044",
+    "amount": 186562.51,
+    "due_date": "2026-04-04",
+    "paid_date": "2026-04-12",
+    "days_late": 8
+  },
+  {
+    "company_vkn": "9200000707",
+    "invoice_no": "PH-0707-0006",
+    "counterparty_vkn": "9100000044",
+    "amount": 179169.89,
+    "due_date": "2026-03-19",
+    "paid_date": "2026-03-30",
+    "days_late": 11
+  },
+  {
+    "company_vkn": "9200000707",
+    "invoice_no": "PH-0707-0007",
+    "counterparty_vkn": "9100000022",
+    "amount": 117290.5,
+    "due_date": "2026-03-17",
+    "paid_date": "2026-03-26",
+    "days_late": 9
+  },
+  {
+    "company_vkn": "9200000707",
+    "invoice_no": "PH-0707-0008",
+    "counterparty_vkn": "9100000033",
+    "amount": 153583.69,
+    "due_date": "2026-03-04",
+    "paid_date": "2026-03-12",
+    "days_late": 8
+  },
+  {
+    "company_vkn": "9200000707",
+    "invoice_no": "PH-0707-0009",
+    "counterparty_vkn": "9100000022",
+    "amount": 188852.75,
+    "due_date": "2026-02-28",
+    "paid_date": "2026-03-11",
+    "days_late": 11
+  },
+  {
+    "company_vkn": "9200000707",
+    "invoice_no": "PH-0707-0010",
+    "counterparty_vkn": "9100000011",
+    "amount": 177970.62,
+    "due_date": "2026-02-03",
+    "paid_date": "2026-02-06",
+    "days_late": 3
+  },
+  {
+    "company_vkn": "9200000707",
+    "invoice_no": "PH-0707-0011",
+    "counterparty_vkn": "9100000033",
+    "amount": 23649.92,
+    "due_date": "2026-01-17",
+    "paid_date": "2026-01-21",
+    "days_late": 4
+  },
+  {
+    "company_vkn": "9200000707",
+    "invoice_no": "PH-0707-0012",
+    "counterparty_vkn": "9100000044",
+    "amount": 226831.84,
+    "due_date": "2025-12-31",
+    "paid_date": "2026-01-07",
+    "days_late": 7
+  },
+  {
+    "company_vkn": "9200000707",
+    "invoice_no": "PH-0707-0013",
+    "counterparty_vkn": "9100000044",
+    "amount": 175473.64,
+    "due_date": "2025-11-20",
+    "paid_date": "2025-11-28",
+    "days_late": 8
+  },
+  {
+    "company_vkn": "9200000707",
+    "invoice_no": "PH-0707-0014",
+    "counterparty_vkn": "9100000022",
+    "amount": 168926.49,
+    "due_date": "2025-10-18",
+    "paid_date": "2025-10-25",
+    "days_late": 7
+  },
+  {
+    "company_vkn": "9200000707",
+    "invoice_no": "PH-0707-0015",
+    "counterparty_vkn": "9100000011",
+    "amount": 203470.46,
+    "due_date": "2025-08-28",
+    "paid_date": "2025-09-08",
+    "days_late": 11
+  },
+  {
+    "company_vkn": "9200000707",
+    "invoice_no": "PH-0707-0016",
+    "counterparty_vkn": "9100000022",
+    "amount": 148349.52,
+    "due_date": "2025-08-07",
+    "paid_date": "2025-08-19",
+    "days_late": 12
+  },
+  {
+    "company_vkn": "9200000707",
+    "invoice_no": "PH-0707-0017",
+    "counterparty_vkn": "9100000033",
+    "amount": 202284.59,
+    "due_date": "2025-07-22",
+    "paid_date": "2025-07-24",
+    "days_late": 2
+  },
+  {
+    "company_vkn": "9200000707",
+    "invoice_no": "PH-0707-0018",
+    "counterparty_vkn": "9100000033",
+    "amount": 214864.62,
+    "due_date": "2025-07-10",
+    "paid_date": "2025-07-11",
+    "days_late": 1
+  },
+  {
+    "company_vkn": "9200000707",
+    "invoice_no": "PH-0707-0019",
+    "counterparty_vkn": "9100000011",
+    "amount": 157091.43,
+    "due_date": "2025-05-12",
+    "paid_date": "2025-05-20",
+    "days_late": 8
+  }
+]
