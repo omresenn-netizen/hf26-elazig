@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VadeX · Fatura Finansman Platformu</title>
+<meta name="description" content="Vadeli faturaların doğrulanarak lisanslı finansman kuruluşlarına devredildiği platform.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/vadex.css">
+</head>
+<body>
+<div class="util"><div class="wrap">
+  <span class="demo">Demo ortamı · Tüm firma ve fatura verileri kurgusaldır · GİB, Findex, banka ve e-imza entegrasyonları simülasyondur</span>
+  <span><a href="#/guvenlik">Güvenlik</a><a href="#/mevzuat">Mevzuat</a><a href="#/giris">Giriş</a></span>
+</div></div>
+<header class="site"><div class="wrap">
+  <a class="brand" href="#/" aria-label="VadeX ana sayfa">
+    <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="6" fill="#12355b"/><path d="M8 10l6.5 14L21 10" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 18l5 6M27 18l-5 6" stroke="#5fc2c9" stroke-width="2.4" stroke-linecap="round"/></svg>
+    <div><b>VadeX</b><span>Fatura Finansman Platformu</span></div>
+  </a>
+  <form class="search" onsubmit="return false" role="search">
+    <label class="sr" for="q">Ara</label>
+    <input id="q" placeholder="Belge no, VKN veya firma ara">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+  </form>
+  <nav class="main" id="nav"></nav>
+</div></header>
+<div id="app"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<script src="/vadex.js"></script>
+</body>
+</html>
