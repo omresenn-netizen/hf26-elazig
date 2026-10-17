@@ -301,7 +301,8 @@ def _seed_users(connection):
     companies_path = Path(__file__).resolve().parent / "data" / "companies.json"
     companies = json.loads(companies_path.read_text(encoding="utf-8"))
     for company in companies:
-        if company.get("type") == "sme":
+        # shell companies and the invoice broker also get accounts: in the demo they try to finance fake invoices
+        if company.get("type") in {"sme", "shell", "broker"}:
             _seed_user(
                 connection,
                 company["vkn"],
