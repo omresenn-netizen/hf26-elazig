@@ -120,11 +120,12 @@ def explain_flags(invoice, flags):
 
 def risk_report(invoice, buyer_data):
     prompt = (
-        "Fatura ve alıcı bilgileri için Türkçe kısa bir risk değerlendirmesi üret. "
+        "Fatura ve alıcı bilgileri için Türkçe kısa bir risk özeti ve verilen iskonto "
+        "oranının nedenini açıkla. İskonto oranını sen hesaplama, değiştirme veya "
+        "alternatif bir oran önerme; rate finansal kuralla önceden hesaplanmıştır. "
         "Yalnızca şu JSON şemasını döndür: "
-        '{"summary":"...","suggested_discount_rate":0.0}. '
-        "İndirim oranı yüzde değil 0 ile 1 arasında ondalık sayı olsun. "
-        "Bu yalnızca öneridir, nihai kararı insan verir.\nFatura: "
+        '{"summary":"...","discount_explanation":"..."}. '
+        "Nihai kararı insan verir.\nFatura: "
         + json.dumps(invoice, ensure_ascii=False)
         + "\nAlıcı: "
         + json.dumps(buyer_data, ensure_ascii=False)

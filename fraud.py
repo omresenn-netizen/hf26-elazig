@@ -244,3 +244,17 @@ def analyze_invoice(invoice, companies, invoices):
 
 def risk_score(flags):
     return min(100, sum(FLAG_POINTS.get(flag.get("code"), 0) for flag in flags))
+
+
+def days_to_due(invoice, as_of=None):
+    due_date = _issue_date({"issue_date": invoice.get("due_date")})
+    if due_date is None:
+        raise ValueError("Faturanın geçerli bir vade tarihi olmalıdır.")
+    current_date = as_of or date.today()
+    return max(0, (due_date - current_date).days)
+
+
+def base_discount_rate(invoice, score, as_of=None):
+    due_in_days = days_to_due(invoice, as_of)
+    premium = max(0, min(100, score)) / 100 * 0.05
+    return max(0.005, 0.45 * due_in_days / 365 + premium)

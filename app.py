@@ -28,6 +28,11 @@ FLAG_LABELS = {
 }
 
 
+@st.cache_data(show_spinner=False)
+def _cached_risk_report(invoice_no, invoice_json, buyer_json):
+    return gemma.risk_report(json.loads(invoice_json), json.loads(buyer_json))
+
+
 def _run_checks(invoice, companies, invoices):
     flags = fraud.analyze_invoice(invoice, companies, invoices)
     explanation = gemma.explain_flags(invoice, flags)
@@ -240,31 +245,42 @@ def _show_financier_panel(companies, invoices):
     st.write(f"**Alıcı:** {buyer.get('name', '—')}")
     st.write(f"**Mock kredi skoru:** {credit['score']} / 900 · {credit['service']}")
 
-    report_cache = st.session_state.setdefault("risk_reports", {})
-    if selected_no not in report_cache:
-        context = {
-            "company": buyer,
-            "credit_score": credit,
-            "gib_verification": mocks.verify_invoice(source, invoices),
-            "flags": flags,
-        }
-        report_invoice = {key: value for key, value in invoice.items() if key != "scenario"}
-        with st.spinner("Gemma risk raporunu hazırlıyor..."):
-            try:
-                report_cache[selected_no] = gemma.risk_report(report_invoice, context)
-            except RuntimeError as exc:
-                st.error(f"Gemma risk raporu alınamadı: {exc}")
-    report = report_cache.get(selected_no)
-    suggested_rate = 0.04
+    try:
+        suggested_rate = fraud.base_discount_rate(invoice, fraud.risk_score(flags))
+    except ValueError as exc:
+        st.error(f"İskonto oranı hesaplanamadı: {exc}")
+        return
+    days_to_due = fraud.days_to_due(invoice)
+    context = {
+        "company": buyer,
+        "credit_score": credit,
+        "gib_verification": mocks.verify_invoice(source, invoices),
+        "flags": flags,
+        "risk_score": fraud.risk_score(flags),
+        "base_discount_rate": suggested_rate,
+        "days_to_due": days_to_due,
+    }
+    report_invoice = {key: value for key, value in invoice.items() if key != "scenario"}
+    report = None
+    with st.spinner("Gemma risk raporunu hazırlıyor..."):
+        try:
+            report = _cached_risk_report(
+                selected_no,
+                json.dumps(report_invoice, ensure_ascii=False, sort_keys=True),
+                json.dumps(context, ensure_ascii=False, sort_keys=True),
+            )
+        except RuntimeError as exc:
+            st.error(f"Gemma risk raporu alınamadı: {exc}")
+
     if isinstance(report, dict):
         st.subheader("Gemma risk raporu")
         st.write(report.get("summary", "Özet üretilemedi."))
-        rate = report.get("suggested_discount_rate")
-        if isinstance(rate, (int, float)) and 0 <= rate <= 1:
-            suggested_rate = float(rate)
-            st.write(f"**Önerilen iskonto:** %{suggested_rate * 100:.2f}".replace(".", ","))
-        else:
-            st.warning("Gemma'nın iskonto önerisi geçerli bir 0–1 oranı değil.")
+        st.write(report.get("discount_explanation", ""))
+        st.write(
+            f"**Kural tabanlı iskonto oranı:** "
+            f"%{suggested_rate * 100:.2f}".replace(".", ",")
+            + f" · Yıllık %45 × {days_to_due} gün / 365 + risk primi"
+        )
     elif report is not None:
         st.subheader("Gemma risk raporu")
         st.warning("Gemma geçerli JSON döndürmedi; ham çıktı:")
@@ -279,13 +295,13 @@ def _show_financier_panel(companies, invoices):
 
     st.subheader("Teklif oluştur")
     invoice_total = float(invoice.get("total") or 0)
-    current_rate = min(max(suggested_rate, 0.0), 0.5)
+    current_rate = suggested_rate
     with st.form(f"offer_form_{selected_no}"):
         financier_name = st.text_input("Finansör adı", value="Vadesiz Demo Finans")
         discount_rate = st.number_input(
             "İskonto oranı",
-            min_value=0.0,
-            max_value=0.5,
+            min_value=0.005,
+            max_value=max(0.5, suggested_rate),
             value=current_rate,
             step=0.005,
             format="%.3f",
