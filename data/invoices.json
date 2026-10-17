@@ -9,253 +9,241 @@
       {
         "description": "NYM kablo 3x2,5 (100 m)",
         "unit": "makara",
-        "quantity": 12,
-        "unit_price": 3443.43
+        "quantity": 20,
+        "unit_price": 2929.22
       },
       {
         "description": "Sigorta 16A",
         "unit": "adet",
-        "quantity": 300,
-        "unit_price": 96.88
+        "quantity": 75,
+        "unit_price": 123.59
       },
       {
         "description": "LED panel 60x60",
         "unit": "adet",
-        "quantity": 75,
-        "unit_price": 754.38
+        "quantity": 120,
+        "unit_price": 817.62
       }
     ],
-    "subtotal": 126963.66,
+    "subtotal": 165968.05,
     "kdv_rate": 0.2,
-    "kdv": 25392.73,
-    "total": 152356.39,
-    "irsaliye_no": "IRS20260826348",
+    "kdv": 33193.61,
+    "total": 199161.66,
+    "irsaliye_no": "IRS20260826518",
     "buyer_approved": true,
     "scenario": "legit",
     "id": "INV-001"
   },
   {
     "invoice_no": "VDZ2026000003",
-    "seller_vkn": "9200000404",
-    "buyer_vkn": "9100000011",
+    "seller_vkn": "9200000707",
+    "buyer_vkn": "9100000022",
     "issue_date": "2026-08-26",
-    "due_date": "2026-12-24",
+    "due_date": "2026-10-25",
     "items": [
       {
-        "description": "Gün kurusu kayısı",
-        "unit": "kg",
+        "description": "CNC işlenmiş flanş",
+        "unit": "adet",
         "quantity": 75,
-        "unit_price": 305.15
+        "unit_price": 444.59
       },
       {
-        "description": "Ceviz içi",
+        "description": "Kaynaklı konstrüksiyon",
         "unit": "kg",
-        "quantity": 300,
-        "unit_price": 620.66
-      },
-      {
-        "description": "Kayısı pestili",
-        "unit": "kg",
-        "quantity": 240,
-        "unit_price": 359.14
+        "quantity": 2367,
+        "unit_price": 128.48
       }
     ],
-    "subtotal": 295277.85,
+    "subtotal": 337456.41,
     "kdv_rate": 0.2,
-    "kdv": 59055.57,
-    "total": 354333.42,
-    "irsaliye_no": "IRS20260826947",
+    "kdv": 67491.28,
+    "total": 404947.69,
+    "irsaliye_no": "IRS20260826473",
     "buyer_approved": true,
     "scenario": "legit",
     "id": "INV-002"
   },
   {
     "invoice_no": "VDZ2026000004",
-    "seller_vkn": "9200000101",
-    "buyer_vkn": "9100000033",
-    "issue_date": "2026-08-04",
-    "due_date": "2026-10-03",
+    "seller_vkn": "9200000707",
+    "buyer_vkn": "9100000022",
+    "issue_date": "2026-10-14",
+    "due_date": "2026-12-13",
     "items": [
       {
-        "description": "Kapüşonlu sweatshirt",
+        "description": "CNC işlenmiş flanş",
         "unit": "adet",
-        "quantity": 40,
-        "unit_price": 261.08
-      },
-      {
-        "description": "Pamuklu tişört",
-        "unit": "adet",
-        "quantity": 200,
-        "unit_price": 129.88
-      },
-      {
-        "description": "Kot pantolon",
-        "unit": "adet",
-        "quantity": 240,
-        "unit_price": 311.84
+        "quantity": 150,
+        "unit_price": 580.49
       }
     ],
-    "subtotal": 111260.8,
+    "subtotal": 87073.5,
     "kdv_rate": 0.2,
-    "kdv": 22252.16,
-    "total": 133512.96,
-    "irsaliye_no": "IRS20260804809",
+    "kdv": 17414.7,
+    "total": 104488.2,
+    "irsaliye_no": "IRS20261014649",
     "buyer_approved": true,
     "scenario": "legit",
     "id": "INV-003"
   },
   {
     "invoice_no": "VDZ2026000005",
-    "seller_vkn": "9200000101",
-    "buyer_vkn": "9100000033",
-    "issue_date": "2026-09-02",
-    "due_date": "2026-12-31",
+    "seller_vkn": "9200000505",
+    "buyer_vkn": "9100000044",
+    "issue_date": "2026-08-06",
+    "due_date": "2026-10-05",
     "items": [
       {
-        "description": "Kot pantolon",
+        "description": "Ofis masası",
         "unit": "adet",
-        "quantity": 240,
-        "unit_price": 364.03
+        "quantity": 15,
+        "unit_price": 8072.51
+      },
+      {
+        "description": "Raf ünitesi",
+        "unit": "adet",
+        "quantity": 18,
+        "unit_price": 4286.28
       }
     ],
-    "subtotal": 87367.2,
+    "subtotal": 198240.69,
     "kdv_rate": 0.2,
-    "kdv": 17473.44,
-    "total": 104840.64,
-    "irsaliye_no": "IRS20260902721",
+    "kdv": 39648.14,
+    "total": 237888.83,
+    "irsaliye_no": "IRS20260806305",
     "buyer_approved": true,
     "scenario": "legit",
     "id": "INV-004"
   },
   {
     "invoice_no": "VDZ2026000006",
-    "seller_vkn": "9200000202",
-    "buyer_vkn": "9100000011",
-    "issue_date": "2026-08-08",
-    "due_date": "2026-10-07",
+    "seller_vkn": "9200000303",
+    "buyer_vkn": "9100000022",
+    "issue_date": "2026-08-26",
+    "due_date": "2026-12-24",
     "items": [
       {
-        "description": "Kola 330 ml (24'lü koli)",
-        "unit": "koli",
+        "description": "Streç film rulo",
+        "unit": "rulo",
         "quantity": 75,
-        "unit_price": 337.25
+        "unit_price": 243.54
+      },
+      {
+        "description": "Oluklu karton kutu 40x30",
+        "unit": "adet",
+        "quantity": 60,
+        "unit_price": 11.88
       }
     ],
-    "subtotal": 25293.75,
+    "subtotal": 18978.3,
     "kdv_rate": 0.2,
-    "kdv": 5058.75,
-    "total": 30352.5,
-    "irsaliye_no": "IRS20260808831",
+    "kdv": 3795.66,
+    "total": 22773.96,
+    "irsaliye_no": "IRS20260826661",
     "buyer_approved": true,
     "scenario": "legit",
     "id": "INV-005"
   },
   {
     "invoice_no": "VDZ2026000007",
-    "seller_vkn": "9200000101",
-    "buyer_vkn": "9100000033",
-    "issue_date": "2026-09-22",
-    "due_date": "2026-11-21",
+    "seller_vkn": "9200000707",
+    "buyer_vkn": "9100000022",
+    "issue_date": "2026-08-06",
+    "due_date": "2026-12-04",
     "items": [
       {
-        "description": "Kapüşonlu sweatshirt",
-        "unit": "adet",
-        "quantity": 60,
-        "unit_price": 303.98
+        "description": "Kaynaklı konstrüksiyon",
+        "unit": "kg",
+        "quantity": 1557,
+        "unit_price": 115.87
       }
     ],
-    "subtotal": 18238.8,
+    "subtotal": 180409.59,
     "kdv_rate": 0.2,
-    "kdv": 3647.76,
-    "total": 21886.56,
-    "irsaliye_no": "IRS20260922434",
+    "kdv": 36081.92,
+    "total": 216491.51,
+    "irsaliye_no": "IRS20260806192",
     "buyer_approved": true,
     "scenario": "legit",
     "id": "INV-006"
   },
   {
     "invoice_no": "VDZ2026000008",
-    "seller_vkn": "9200000404",
-    "buyer_vkn": "9100000011",
-    "issue_date": "2026-08-06",
-    "due_date": "2026-10-05",
+    "seller_vkn": "9200000303",
+    "buyer_vkn": "9100000022",
+    "issue_date": "2026-08-14",
+    "due_date": "2026-10-13",
     "items": [
       {
-        "description": "Ceviz içi",
-        "unit": "kg",
-        "quantity": 60,
-        "unit_price": 524.86
+        "description": "Oluklu karton kutu 40x30",
+        "unit": "adet",
+        "quantity": 300,
+        "unit_price": 15.07
       },
       {
-        "description": "Kayısı pestili",
-        "unit": "kg",
-        "quantity": 60,
-        "unit_price": 384.04
+        "description": "Streç film rulo",
+        "unit": "rulo",
+        "quantity": 40,
+        "unit_price": 261.14
       }
     ],
-    "subtotal": 54534.0,
+    "subtotal": 14966.6,
     "kdv_rate": 0.2,
-    "kdv": 10906.8,
-    "total": 65440.8,
-    "irsaliye_no": "IRS20260806912",
+    "kdv": 2993.32,
+    "total": 17959.92,
+    "irsaliye_no": "IRS20260814791",
     "buyer_approved": true,
     "scenario": "legit",
     "id": "INV-007"
   },
   {
     "invoice_no": "VDZ2026000009",
-    "seller_vkn": "9200000202",
-    "buyer_vkn": "9100000011",
-    "issue_date": "2026-09-05",
-    "due_date": "2026-11-04",
+    "seller_vkn": "9200000707",
+    "buyer_vkn": "9100000022",
+    "issue_date": "2026-08-11",
+    "due_date": "2026-12-09",
     "items": [
       {
-        "description": "Meyve suyu 1 L (12'li koli)",
-        "unit": "koli",
-        "quantity": 200,
-        "unit_price": 316.06
-      },
-      {
-        "description": "Maden suyu 200 ml (24'lü koli)",
-        "unit": "koli",
-        "quantity": 240,
-        "unit_price": 164.88
+        "description": "Kaynaklı konstrüksiyon",
+        "unit": "kg",
+        "quantity": 2453,
+        "unit_price": 121.63
       }
     ],
-    "subtotal": 102783.2,
+    "subtotal": 298358.39,
     "kdv_rate": 0.2,
-    "kdv": 20556.64,
-    "total": 123339.84,
-    "irsaliye_no": "IRS20260905145",
+    "kdv": 59671.68,
+    "total": 358030.07,
+    "irsaliye_no": "IRS20260811894",
     "buyer_approved": true,
     "scenario": "legit",
     "id": "INV-008"
   },
   {
     "invoice_no": "VDZ2026000010",
-    "seller_vkn": "9200000505",
+    "seller_vkn": "9200000606",
     "buyer_vkn": "9100000044",
-    "issue_date": "2026-08-02",
-    "due_date": "2026-10-31",
+    "issue_date": "2026-09-25",
+    "due_date": "2027-01-23",
     "items": [
       {
-        "description": "Ofis masası",
+        "description": "LED panel 60x60",
         "unit": "adet",
-        "quantity": 40,
-        "unit_price": 7480.43
+        "quantity": 240,
+        "unit_price": 767.98
       },
       {
-        "description": "Raf ünitesi",
+        "description": "Sigorta 16A",
         "unit": "adet",
         "quantity": 40,
-        "unit_price": 4072.61
+        "unit_price": 101.84
       }
     ],
-    "subtotal": 462121.6,
+    "subtotal": 188388.8,
     "kdv_rate": 0.2,
-    "kdv": 92424.32,
-    "total": 554545.92,
-    "irsaliye_no": "IRS20260802927",
+    "kdv": 37677.76,
+    "total": 226066.56,
+    "irsaliye_no": "IRS20260925108",
     "buyer_approved": true,
     "scenario": "legit",
     "id": "INV-009"
@@ -264,27 +252,21 @@
     "invoice_no": "VDZ2026000011",
     "seller_vkn": "9200000101",
     "buyer_vkn": "9100000033",
-    "issue_date": "2026-09-07",
-    "due_date": "2026-11-06",
+    "issue_date": "2026-09-30",
+    "due_date": "2027-01-28",
     "items": [
-      {
-        "description": "Pamuklu tişört",
-        "unit": "adet",
-        "quantity": 150,
-        "unit_price": 94.29
-      },
       {
         "description": "Kot pantolon",
         "unit": "adet",
-        "quantity": 60,
-        "unit_price": 268.01
+        "quantity": 75,
+        "unit_price": 357.87
       }
     ],
-    "subtotal": 30224.1,
+    "subtotal": 26840.25,
     "kdv_rate": 0.2,
-    "kdv": 6044.82,
-    "total": 36268.92,
-    "irsaliye_no": "IRS20260907989",
+    "kdv": 5368.05,
+    "total": 32208.3,
+    "irsaliye_no": "IRS20260930134",
     "buyer_approved": true,
     "scenario": "legit",
     "id": "INV-010"
@@ -297,87 +279,75 @@
     "due_date": "2026-11-23",
     "items": [
       {
-        "description": "Pamuklu tişört",
-        "unit": "adet",
-        "quantity": 200,
-        "unit_price": 120.67
-      },
-      {
         "description": "Kapüşonlu sweatshirt",
         "unit": "adet",
         "quantity": 240,
-        "unit_price": 213.19
-      },
-      {
-        "description": "Kot pantolon",
-        "unit": "adet",
-        "quantity": 60,
-        "unit_price": 375.9
+        "unit_price": 228.03
       }
     ],
-    "subtotal": 97853.6,
+    "subtotal": 54727.2,
     "kdv_rate": 0.2,
-    "kdv": 19570.72,
-    "total": 117424.32,
-    "irsaliye_no": "IRS20260924550",
+    "kdv": 10945.44,
+    "total": 65672.64,
+    "irsaliye_no": "IRS20260924398",
     "buyer_approved": true,
     "scenario": "legit",
     "id": "INV-011"
   },
   {
     "invoice_no": "VDZ2026000013",
-    "seller_vkn": "9200000303",
-    "buyer_vkn": "9100000022",
-    "issue_date": "2026-08-30",
-    "due_date": "2026-12-28",
+    "seller_vkn": "9200000101",
+    "buyer_vkn": "9100000033",
+    "issue_date": "2026-08-09",
+    "due_date": "2026-12-07",
     "items": [
       {
-        "description": "Streç film rulo",
-        "unit": "rulo",
-        "quantity": 240,
-        "unit_price": 277.41
+        "description": "Pamuklu tişört",
+        "unit": "adet",
+        "quantity": 40,
+        "unit_price": 129.31
+      },
+      {
+        "description": "Kot pantolon",
+        "unit": "adet",
+        "quantity": 150,
+        "unit_price": 318.87
+      },
+      {
+        "description": "Kapüşonlu sweatshirt",
+        "unit": "adet",
+        "quantity": 200,
+        "unit_price": 281.34
       }
     ],
-    "subtotal": 66578.4,
+    "subtotal": 109270.9,
     "kdv_rate": 0.2,
-    "kdv": 13315.68,
-    "total": 79894.08,
-    "irsaliye_no": "IRS20260830423",
+    "kdv": 21854.18,
+    "total": 131125.08,
+    "irsaliye_no": "IRS20260809660",
     "buyer_approved": true,
     "scenario": "legit",
     "id": "INV-012"
   },
   {
     "invoice_no": "VDZ2026000014",
-    "seller_vkn": "9200000101",
-    "buyer_vkn": "9100000033",
-    "issue_date": "2026-10-05",
-    "due_date": "2027-01-03",
+    "seller_vkn": "9200000404",
+    "buyer_vkn": "9100000011",
+    "issue_date": "2026-08-04",
+    "due_date": "2026-10-03",
     "items": [
       {
-        "description": "Pamuklu tişört",
-        "unit": "adet",
-        "quantity": 40,
-        "unit_price": 92.91
-      },
-      {
-        "description": "Kot pantolon",
-        "unit": "adet",
+        "description": "Gün kurusu kayısı",
+        "unit": "kg",
         "quantity": 120,
-        "unit_price": 298.81
-      },
-      {
-        "description": "Kapüşonlu sweatshirt",
-        "unit": "adet",
-        "quantity": 120,
-        "unit_price": 240.92
+        "unit_price": 320.78
       }
     ],
-    "subtotal": 68484.0,
+    "subtotal": 38493.6,
     "kdv_rate": 0.2,
-    "kdv": 13696.8,
-    "total": 82180.8,
-    "irsaliye_no": "IRS20261005545",
+    "kdv": 7698.72,
+    "total": 46192.32,
+    "irsaliye_no": "IRS20260804413",
     "buyer_approved": true,
     "scenario": "legit",
     "id": "INV-013"
@@ -386,27 +356,85 @@
     "invoice_no": "VDZ2026000015",
     "seller_vkn": "9200000202",
     "buyer_vkn": "9100000011",
-    "issue_date": "2026-10-03",
-    "due_date": "2026-12-02",
+    "issue_date": "2026-10-04",
+    "due_date": "2026-12-03",
     "items": [
       {
-        "description": "Kola 330 ml (24'lü koli)",
+        "description": "Maden suyu 200 ml (24'lü koli)",
         "unit": "koli",
         "quantity": 60,
-        "unit_price": 315.18
+        "unit_price": 158.03
+      },
+      {
+        "description": "Meyve suyu 1 L (12'li koli)",
+        "unit": "koli",
+        "quantity": 60,
+        "unit_price": 326.62
       }
     ],
-    "subtotal": 18910.8,
+    "subtotal": 29079.0,
     "kdv_rate": 0.2,
-    "kdv": 3782.16,
-    "total": 22692.96,
-    "irsaliye_no": "IRS20261003318",
+    "kdv": 5815.8,
+    "total": 34894.8,
+    "irsaliye_no": "IRS20261004805",
     "buyer_approved": true,
     "scenario": "legit",
     "id": "INV-014"
   },
   {
     "invoice_no": "VDZ2026000016",
+    "seller_vkn": "9200000101",
+    "buyer_vkn": "9100000033",
+    "issue_date": "2026-08-19",
+    "due_date": "2026-12-17",
+    "items": [
+      {
+        "description": "Pamuklu tişört",
+        "unit": "adet",
+        "quantity": 60,
+        "unit_price": 96.02
+      },
+      {
+        "description": "Kapüşonlu sweatshirt",
+        "unit": "adet",
+        "quantity": 200,
+        "unit_price": 257.89
+      }
+    ],
+    "subtotal": 57339.2,
+    "kdv_rate": 0.2,
+    "kdv": 11467.84,
+    "total": 68807.04,
+    "irsaliye_no": "IRS20260819323",
+    "buyer_approved": true,
+    "scenario": "legit",
+    "id": "INV-015"
+  },
+  {
+    "invoice_no": "VDZ2026000017",
+    "seller_vkn": "9200000404",
+    "buyer_vkn": "9100000011",
+    "issue_date": "2026-08-31",
+    "due_date": "2026-10-30",
+    "items": [
+      {
+        "description": "Ceviz içi",
+        "unit": "kg",
+        "quantity": 60,
+        "unit_price": 532.43
+      }
+    ],
+    "subtotal": 31945.8,
+    "kdv_rate": 0.2,
+    "kdv": 6389.16,
+    "total": 38334.96,
+    "irsaliye_no": "IRS20260831318",
+    "buyer_approved": true,
+    "scenario": "legit",
+    "id": "INV-016"
+  },
+  {
+    "invoice_no": "VDZ2026000018",
     "seller_vkn": "9200000707",
     "buyer_vkn": "9100000022",
     "issue_date": "2026-08-13",
@@ -426,183 +454,143 @@
     "irsaliye_no": "IRS20260813796",
     "buyer_approved": true,
     "scenario": "legit",
-    "id": "INV-015"
-  },
-  {
-    "invoice_no": "VDZ2026000017",
-    "seller_vkn": "9200000505",
-    "buyer_vkn": "9100000044",
-    "issue_date": "2026-08-22",
-    "due_date": "2026-10-21",
-    "items": [
-      {
-        "description": "Ofis masası",
-        "unit": "adet",
-        "quantity": 40,
-        "unit_price": 7053.92
-      }
-    ],
-    "subtotal": 282156.8,
-    "kdv_rate": 0.2,
-    "kdv": 56431.36,
-    "total": 338588.16,
-    "irsaliye_no": "IRS20260822649",
-    "buyer_approved": true,
-    "scenario": "legit",
-    "id": "INV-016"
-  },
-  {
-    "invoice_no": "VDZ2026000018",
-    "seller_vkn": "9200000404",
-    "buyer_vkn": "9100000011",
-    "issue_date": "2026-08-27",
-    "due_date": "2026-12-25",
-    "items": [
-      {
-        "description": "Gün kurusu kayısı",
-        "unit": "kg",
-        "quantity": 40,
-        "unit_price": 328.33
-      },
-      {
-        "description": "Ceviz içi",
-        "unit": "kg",
-        "quantity": 150,
-        "unit_price": 551.37
-      }
-    ],
-    "subtotal": 95838.7,
-    "kdv_rate": 0.2,
-    "kdv": 19167.74,
-    "total": 115006.44,
-    "irsaliye_no": "IRS20260827299",
-    "buyer_approved": true,
-    "scenario": "legit",
     "id": "INV-017"
   },
   {
     "invoice_no": "VDZ2026000019",
     "seller_vkn": "9200000505",
     "buyer_vkn": "9100000044",
-    "issue_date": "2026-09-26",
-    "due_date": "2027-01-24",
+    "issue_date": "2026-08-22",
+    "due_date": "2026-11-20",
     "items": [
-      {
-        "description": "Raf ünitesi",
-        "unit": "adet",
-        "quantity": 150,
-        "unit_price": 4166.24
-      },
       {
         "description": "Ofis masası",
         "unit": "adet",
-        "quantity": 150,
-        "unit_price": 8186.08
+        "quantity": 17,
+        "unit_price": 7266.05
       }
     ],
-    "subtotal": 1852848.0,
+    "subtotal": 123522.85,
     "kdv_rate": 0.2,
-    "kdv": 370569.6,
-    "total": 2223417.6,
-    "irsaliye_no": "IRS20260926399",
+    "kdv": 24704.57,
+    "total": 148227.42,
+    "irsaliye_no": "IRS20260822218",
     "buyer_approved": true,
     "scenario": "legit",
     "id": "INV-018"
   },
   {
     "invoice_no": "VDZ2026000020",
-    "seller_vkn": "9200000707",
-    "buyer_vkn": "9100000022",
-    "issue_date": "2026-09-30",
-    "due_date": "2026-12-29",
+    "seller_vkn": "9200000606",
+    "buyer_vkn": "9100000044",
+    "issue_date": "2026-08-27",
+    "due_date": "2026-12-25",
     "items": [
       {
-        "description": "Kaynaklı konstrüksiyon",
-        "unit": "kg",
-        "quantity": 916,
-        "unit_price": 122.33
+        "description": "NYM kablo 3x2,5 (100 m)",
+        "unit": "makara",
+        "quantity": 22,
+        "unit_price": 2910.92
+      },
+      {
+        "description": "LED panel 60x60",
+        "unit": "adet",
+        "quantity": 150,
+        "unit_price": 715.09
       }
     ],
-    "subtotal": 112054.28,
+    "subtotal": 171303.74,
     "kdv_rate": 0.2,
-    "kdv": 22410.86,
-    "total": 134465.14,
-    "irsaliye_no": "IRS20260930717",
+    "kdv": 34260.75,
+    "total": 205564.49,
+    "irsaliye_no": "IRS20260827790",
     "buyer_approved": true,
     "scenario": "legit",
     "id": "INV-019"
   },
   {
     "invoice_no": "VDZ2026000021",
-    "seller_vkn": "9200000202",
+    "seller_vkn": "9200000404",
     "buyer_vkn": "9100000011",
-    "issue_date": "2026-09-07",
-    "due_date": "2027-01-05",
+    "issue_date": "2026-10-14",
+    "due_date": "2027-01-12",
     "items": [
       {
-        "description": "Kola 330 ml (24'lü koli)",
-        "unit": "koli",
+        "description": "Kayısı pestili",
+        "unit": "kg",
         "quantity": 150,
-        "unit_price": 335.21
+        "unit_price": 402.22
+      },
+      {
+        "description": "Ceviz içi",
+        "unit": "kg",
+        "quantity": 150,
+        "unit_price": 636.46
+      },
+      {
+        "description": "Gün kurusu kayısı",
+        "unit": "kg",
+        "quantity": 300,
+        "unit_price": 345.23
       }
     ],
-    "subtotal": 50281.5,
+    "subtotal": 259371.0,
     "kdv_rate": 0.2,
-    "kdv": 10056.3,
-    "total": 60337.8,
-    "irsaliye_no": "IRS20260907529",
+    "kdv": 51874.2,
+    "total": 311245.2,
+    "irsaliye_no": "IRS20261014953",
     "buyer_approved": true,
     "scenario": "legit",
     "id": "INV-020"
   },
   {
     "invoice_no": "VDZ2026000022",
-    "seller_vkn": "9200000505",
-    "buyer_vkn": "9100000044",
-    "issue_date": "2026-08-04",
-    "due_date": "2026-10-03",
+    "seller_vkn": "9200000404",
+    "buyer_vkn": "9100000011",
+    "issue_date": "2026-08-08",
+    "due_date": "2026-10-07",
     "items": [
       {
-        "description": "Raf ünitesi",
-        "unit": "adet",
-        "quantity": 300,
-        "unit_price": 3515.29
-      },
-      {
-        "description": "Ofis masası",
-        "unit": "adet",
-        "quantity": 40,
-        "unit_price": 7876.31
+        "description": "Ceviz içi",
+        "unit": "kg",
+        "quantity": 150,
+        "unit_price": 542.32
       }
     ],
-    "subtotal": 1369639.4,
+    "subtotal": 81348.0,
     "kdv_rate": 0.2,
-    "kdv": 273927.88,
-    "total": 1643567.28,
-    "irsaliye_no": "IRS20260804627",
+    "kdv": 16269.6,
+    "total": 97617.6,
+    "irsaliye_no": "IRS20260808403",
     "buyer_approved": true,
     "scenario": "legit",
     "id": "INV-021"
   },
   {
     "invoice_no": "VDZ2026000023",
-    "seller_vkn": "9200000707",
-    "buyer_vkn": "9100000022",
-    "issue_date": "2026-08-01",
-    "due_date": "2026-11-29",
+    "seller_vkn": "9200000202",
+    "buyer_vkn": "9100000011",
+    "issue_date": "2026-10-12",
+    "due_date": "2027-01-10",
     "items": [
       {
-        "description": "CNC işlenmiş flanş",
-        "unit": "adet",
-        "quantity": 75,
-        "unit_price": 491.99
+        "description": "Meyve suyu 1 L (12'li koli)",
+        "unit": "koli",
+        "quantity": 40,
+        "unit_price": 320.4
+      },
+      {
+        "description": "Maden suyu 200 ml (24'lü koli)",
+        "unit": "koli",
+        "quantity": 200,
+        "unit_price": 166.69
       }
     ],
-    "subtotal": 36899.25,
+    "subtotal": 46154.0,
     "kdv_rate": 0.2,
-    "kdv": 7379.85,
-    "total": 44279.1,
-    "irsaliye_no": "IRS20260801756",
+    "kdv": 9230.8,
+    "total": 55384.8,
+    "irsaliye_no": "IRS20261012579",
     "buyer_approved": true,
     "scenario": "legit",
     "id": "INV-022"
@@ -611,21 +599,33 @@
     "invoice_no": "VDZ2026000024",
     "seller_vkn": "9200000101",
     "buyer_vkn": "9100000033",
-    "issue_date": "2026-09-15",
-    "due_date": "2027-01-13",
+    "issue_date": "2026-08-02",
+    "due_date": "2026-10-31",
     "items": [
+      {
+        "description": "Pamuklu tişört",
+        "unit": "adet",
+        "quantity": 60,
+        "unit_price": 92.41
+      },
+      {
+        "description": "Kot pantolon",
+        "unit": "adet",
+        "quantity": 60,
+        "unit_price": 351.68
+      },
       {
         "description": "Kapüşonlu sweatshirt",
         "unit": "adet",
-        "quantity": 240,
-        "unit_price": 264.47
+        "quantity": 200,
+        "unit_price": 223.01
       }
     ],
-    "subtotal": 63472.8,
+    "subtotal": 71247.4,
     "kdv_rate": 0.2,
-    "kdv": 12694.56,
-    "total": 76167.36,
-    "irsaliye_no": "IRS20260915879",
+    "kdv": 14249.48,
+    "total": 85496.88,
+    "irsaliye_no": "IRS20260802505",
     "buyer_approved": true,
     "scenario": "legit",
     "id": "INV-023"
@@ -797,56 +797,50 @@
       {
         "description": "Raf ünitesi",
         "unit": "adet",
-        "quantity": 300,
-        "unit_price": 4479.89
+        "quantity": 21,
+        "unit_price": 3804.55
       },
       {
         "description": "Ofis masası",
         "unit": "adet",
-        "quantity": 40,
-        "unit_price": 8281.93
+        "quantity": 14,
+        "unit_price": 6521.5
       }
     ],
-    "subtotal": 1675244.2,
+    "subtotal": 171196.55,
     "kdv_rate": 0.2,
-    "kdv": 335048.84,
-    "total": 2010293.04,
-    "irsaliye_no": "IRS20260920249",
+    "kdv": 34239.31,
+    "total": 205435.86,
+    "irsaliye_no": "IRS20260920761",
     "buyer_approved": true,
     "scenario": "legit",
     "id": "INV-029"
   },
   {
     "invoice_no": "VDZ2026000031",
-    "seller_vkn": "9200000606",
-    "buyer_vkn": "9100000044",
-    "issue_date": "2026-09-16",
-    "due_date": "2026-12-15",
+    "seller_vkn": "9200000303",
+    "buyer_vkn": "9100000022",
+    "issue_date": "2026-10-03",
+    "due_date": "2026-12-02",
     "items": [
       {
-        "description": "Sigorta 16A",
-        "unit": "adet",
+        "description": "Streç film rulo",
+        "unit": "rulo",
         "quantity": 40,
-        "unit_price": 125.32
+        "unit_price": 280.42
       },
       {
-        "description": "LED panel 60x60",
+        "description": "Oluklu karton kutu 40x30",
         "unit": "adet",
         "quantity": 240,
-        "unit_price": 767.84
-      },
-      {
-        "description": "NYM kablo 3x2,5 (100 m)",
-        "unit": "makara",
-        "quantity": 8,
-        "unit_price": 3154.0
+        "unit_price": 15.97
       }
     ],
-    "subtotal": 214526.4,
+    "subtotal": 15049.6,
     "kdv_rate": 0.2,
-    "kdv": 42905.28,
-    "total": 257431.68,
-    "irsaliye_no": "IRS20260916855",
+    "kdv": 3009.92,
+    "total": 18059.52,
+    "irsaliye_no": "IRS20261003861",
     "buyer_approved": true,
     "scenario": "legit",
     "id": "INV-030"
@@ -931,13 +925,13 @@
         "description": "Danışmanlık hizmeti",
         "unit": "hizmet",
         "quantity": 1,
-        "unit_price": 250000.0
+        "unit_price": 500000.0
       }
     ],
-    "subtotal": 250000.0,
+    "subtotal": 500000.0,
     "kdv_rate": 0.2,
-    "kdv": 50000.0,
-    "total": 300000.0,
+    "kdv": 100000.0,
+    "total": 600000.0,
     "irsaliye_no": null,
     "buyer_approved": true,
     "scenario": "ring",
@@ -954,13 +948,13 @@
         "description": "Danışmanlık hizmeti",
         "unit": "hizmet",
         "quantity": 1,
-        "unit_price": 750000.0
+        "unit_price": 500000.0
       }
     ],
-    "subtotal": 750000.0,
+    "subtotal": 500000.0,
     "kdv_rate": 0.2,
-    "kdv": 150000.0,
-    "total": 900000.0,
+    "kdv": 100000.0,
+    "total": 600000.0,
     "irsaliye_no": null,
     "buyer_approved": true,
     "scenario": "ring",
@@ -1023,13 +1017,13 @@
         "description": "Danışmanlık hizmeti",
         "unit": "hizmet",
         "quantity": 1,
-        "unit_price": 750000.0
+        "unit_price": 250000.0
       }
     ],
-    "subtotal": 750000.0,
+    "subtotal": 250000.0,
     "kdv_rate": 0.2,
-    "kdv": 150000.0,
-    "total": 900000.0,
+    "kdv": 50000.0,
+    "total": 300000.0,
     "irsaliye_no": null,
     "buyer_approved": true,
     "scenario": "ring",
@@ -1212,20 +1206,14 @@
       {
         "description": "Raf ünitesi",
         "unit": "adet",
-        "quantity": 75,
-        "unit_price": 4131.66
-      },
-      {
-        "description": "Ofis masası",
-        "unit": "adet",
-        "quantity": 40,
-        "unit_price": 6713.52
+        "quantity": 22,
+        "unit_price": 3209.39
       }
     ],
-    "subtotal": 578415.3,
+    "subtotal": 70606.58,
     "kdv_rate": 0.2,
-    "kdv": 115683.06,
-    "total": 694098.36,
+    "kdv": 14121.32,
+    "total": 84727.9,
     "irsaliye_no": "IRS20261012507",
     "buyer_approved": false,
     "scenario": "not_approved",
@@ -1233,23 +1221,29 @@
   },
   {
     "invoice_no": "VDZ2026000005",
-    "seller_vkn": "9200000101",
-    "buyer_vkn": "9100000033",
-    "issue_date": "2026-09-02",
-    "due_date": "2026-12-31",
+    "seller_vkn": "9200000505",
+    "buyer_vkn": "9100000044",
+    "issue_date": "2026-08-06",
+    "due_date": "2026-10-05",
     "items": [
       {
-        "description": "Kot pantolon",
+        "description": "Ofis masası",
         "unit": "adet",
-        "quantity": 240,
-        "unit_price": 364.03
+        "quantity": 15,
+        "unit_price": 8072.51
+      },
+      {
+        "description": "Raf ünitesi",
+        "unit": "adet",
+        "quantity": 18,
+        "unit_price": 4286.28
       }
     ],
-    "subtotal": 87367.2,
+    "subtotal": 198240.69,
     "kdv_rate": 0.2,
-    "kdv": 17473.44,
-    "total": 104840.64,
-    "irsaliye_no": "IRS20260902721",
+    "kdv": 39648.14,
+    "total": 237888.83,
+    "irsaliye_no": "IRS20260806305",
     "buyer_approved": true,
     "scenario": "duplicate",
     "id": "INV-047"

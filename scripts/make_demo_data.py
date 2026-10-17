@@ -91,7 +91,9 @@ def real_items(seller):
     picks = random.sample(CATALOG[seller], k=min(len(CATALOG[seller]), random.randint(1, 3)))
     items = []
     for desc, unit, (lo, hi) in picks:
-        qty = random.choice([40, 60, 75, 120, 150, 200, 240, 300]) if unit != "makara" else random.randint(8, 30)
+        qty = random.choice([40, 60, 75, 120, 150, 200, 240, 300])
+        if hi > 1000:  # furniture, cable drums: small batches
+            qty = random.randint(5, 25)
         if unit == "kg" and seller == "9200000707":
             qty = random.randint(800, 2500)
         items.append({"description": desc, "unit": unit, "quantity": qty, "unit_price": money(random.uniform(lo, hi))})
