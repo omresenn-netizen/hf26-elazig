@@ -81,6 +81,18 @@ def get_deal(invoice_no):
         return dict(row) if row else None
 
 
+def financing_volume():
+    with get_connection() as connection:
+        row = connection.execute(
+            """
+            SELECT COALESCE(SUM(offers.net_amount), 0) AS volume
+            FROM deals
+            LEFT JOIN offers ON offers.id = deals.offer_id
+            """
+        ).fetchone()
+        return float(row["volume"])
+
+
 def create_deal(invoice_no, offer_id, transfer_id):
     with get_connection() as connection:
         cursor = connection.execute(

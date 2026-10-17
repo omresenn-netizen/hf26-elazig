@@ -15,7 +15,13 @@ compare financing offers without sending invoice data to a cloud AI API.
   review offers and accept one using a simulated transfer.
 - **Finansör paneli:** browse demo invoices, inspect their risk score and status, view a
   Gemma risk report and mock buyer credit score, then save a net-amount/discount offer.
-- **Dedektör:** reserved for a later version.
+  The base discount is calculated deterministically from the 45% annual rate, time to
+  maturity and risk premium (with a 0.5% minimum); Gemma explains the result, and the
+  report is cached per invoice/input context.
+- **Dedektör:** explore the interactive seller-to-buyer invoice graph, review the top
+  ten risk-scored invoices, and request a Turkish Gemma summary of red-flagged networks.
+- **Shared metrics:** invoice count, GİB verification count, invoices under review and
+  accepted financing volume appear across all three panels.
 
 Risk flags support human review and never automatically reject an invoice. Invoice data,
 companies, tax numbers and sample images are fictional. GİB verification, buyer credit
@@ -39,7 +45,7 @@ in the ignored local `vadesiz.db`.
 
 ## Stack
 
-Python · Streamlit · Ollama/Gemma 4 · SQLite · networkx
+Python · Streamlit · Ollama/Gemma 4 · SQLite · networkx · PyVis
 
 ## Development setup check
 

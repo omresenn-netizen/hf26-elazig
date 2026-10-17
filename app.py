@@ -1,10 +1,14 @@
 """Streamlit UI for the first Vadesiz demo."""
+import html
 import hashlib
 import json
+import math
 import sqlite3
 from pathlib import Path
 
 import streamlit as st
+import streamlit.components.v1 as components
+from pyvis.network import Network
 
 import db
 import fraud
@@ -31,6 +35,23 @@ FLAG_LABELS = {
 @st.cache_data(show_spinner=False)
 def _cached_risk_report(invoice_no, invoice_json, buyer_json):
     return gemma.risk_report(json.loads(invoice_json), json.loads(buyer_json))
+
+
+def _show_header_metrics(companies, invoices):
+    verified_count = 0
+    review_count = 0
+    for source in invoices:
+        verified_count += bool(mocks.verify_invoice(source, invoices)["verified"])
+        invoice = _invoice_with_gib_approval(source, invoices)
+        review_count += bool(fraud.analyze_invoice(invoice, companies, invoices))
+    metrics = (
+        ("Fatura", len(invoices)),
+        ("GİB doğrulandı", verified_count),
+        ("İncelemede", review_count),
+        ("Finansman hacmi", _format_tl(db.financing_volume())),
+    )
+    for column, (label, value) in zip(st.columns(4), metrics):
+        column.metric(label, value)
 
 
 def _run_checks(invoice, companies, invoices):
@@ -216,6 +237,155 @@ def _build_financier_rows(companies, invoices):
     return rows
 
 
+def _detector_graph_html(companies, invoices, invoice_flags):
+    company_by_vkn = {company["vkn"]: company for company in companies}
+    totals = {company["vkn"]: 0.0 for company in companies}
+    suspicious_vkns = set()
+    suspicious_codes = {"network_cycle", "shell_company", "invoice_broker"}
+    for invoice in invoices:
+        seller_vkn = invoice.get("seller_vkn")
+        if seller_vkn in totals:
+            totals[seller_vkn] += float(invoice.get("total") or 0)
+        codes = {flag["code"] for flag in invoice_flags[invoice["invoice_no"]]}
+        if codes & suspicious_codes:
+            suspicious_vkns.update(
+                vkn for vkn in (seller_vkn, invoice.get("buyer_vkn")) if vkn in company_by_vkn
+            )
+
+    highest_total = max(totals.values(), default=0) or 1
+    network = Network(
+        height="620px",
+        width="100%",
+        directed=True,
+        notebook=False,
+        cdn_resources="in_line",
+    )
+    for company in companies:
+        vkn = company["vkn"]
+        total = totals[vkn]
+        node_size = 15 + 45 * math.sqrt(total / highest_total)
+        color = "#d94b4b" if vkn in suspicious_vkns else "#37a66b"
+        title = (
+            f"{html.escape(company.get('name', vkn))}<br>"
+            f"Satıcı faturaları toplamı: {html.escape(_format_tl(total))}"
+        )
+        network.add_node(
+            vkn,
+            label=company.get("name", vkn),
+            title=title,
+            size=node_size,
+            color=color,
+        )
+
+    for index, invoice in enumerate(invoices):
+        codes = {flag["code"] for flag in invoice_flags[invoice["invoice_no"]]}
+        suspicious = bool(codes & suspicious_codes)
+        labels = [
+            FLAG_LABELS.get(flag["code"], flag["code"])
+            for flag in invoice_flags[invoice["invoice_no"]]
+        ]
+        title = (
+            f"Fatura: {html.escape(str(invoice.get('invoice_no', '—')))}<br>"
+            f"Tutar: {html.escape(_format_tl(invoice.get('total')))}"
+        )
+        if labels:
+            title += "<br>Bayraklar: " + html.escape(", ".join(labels))
+        network.add_edge(
+            invoice["seller_vkn"],
+            invoice["buyer_vkn"],
+            id=f"invoice-{index}",
+            label=invoice.get("invoice_no", ""),
+            title=title,
+            color="#d94b4b" if suspicious else "#37a66b",
+            arrows="to",
+        )
+    return network.generate_html()
+
+
+def _show_detector_panel(companies, invoices):
+    st.header("Dedektör")
+    st.caption("Şirketler düğüm, faturalar satıcıdan alıcıya yönlü kenardır; renkler kural tabanlı sinyallerdir.")
+    invoices_with_approval = [
+        _invoice_with_gib_approval(invoice, invoices) for invoice in invoices
+    ]
+    flags_by_no = {
+        invoice["invoice_no"]: fraud.analyze_invoice(invoice, companies, invoices)
+        for invoice in invoices_with_approval
+    }
+    st.subheader("Fatura ağı")
+    st.caption("Düğüm büyüklüğü satıcının fatura hacmine göre ölçeklenir. Yeşil: seçili ağ bayrağı yok · Kırmızı: döngü, paravan veya fatura aracılığı sinyali.")
+    components.html(
+        _detector_graph_html(companies, invoices_with_approval, flags_by_no),
+        height=640,
+        scrolling=True,
+    )
+
+    company_by_vkn = {company["vkn"]: company for company in companies}
+    risk_rows = []
+    for invoice in invoices_with_approval:
+        flags = flags_by_no[invoice["invoice_no"]]
+        risk_rows.append({
+            "Fatura no": invoice["invoice_no"],
+            "Satıcı": company_by_vkn.get(invoice["seller_vkn"], {}).get("name", invoice["seller_vkn"]),
+            "Alıcı": company_by_vkn.get(invoice["buyer_vkn"], {}).get("name", invoice["buyer_vkn"]),
+            "Toplam": _format_tl(invoice.get("total")),
+            "Risk puanı": fraud.risk_score(flags),
+            "Bayraklar": ", ".join(FLAG_LABELS.get(flag["code"], flag["code"]) for flag in flags) or "Yok",
+        })
+    top_risks = sorted(
+        risk_rows,
+        key=lambda row: (-row["Risk puanı"], row["Fatura no"]),
+    )[:10]
+    st.subheader("En yüksek riskli 10 fatura")
+    st.dataframe(top_risks, hide_index=True, use_container_width=True)
+
+    suspicious_codes = {"network_cycle", "shell_company", "invoice_broker"}
+    suspicious_invoices = [
+        invoice for invoice in invoices_with_approval
+        if any(flag["code"] in suspicious_codes for flag in flags_by_no[invoice["invoice_no"]])
+    ]
+    st.subheader("Kırmızı ağ raporu")
+    if not suspicious_invoices:
+        st.info("Gemma incelemesi için kırmızı ağ sinyali bulunamadı.")
+        return
+    network_summary = {
+        "companies": [
+            {
+                "vkn": company["vkn"],
+                "name": company["name"],
+                "sector": company.get("sector"),
+            }
+            for company in companies
+            if any(
+                company["vkn"] in (invoice.get("seller_vkn"), invoice.get("buyer_vkn"))
+                for invoice in suspicious_invoices
+            )
+        ],
+        "invoices": [
+            {
+                "invoice_no": invoice["invoice_no"],
+                "seller_vkn": invoice["seller_vkn"],
+                "buyer_vkn": invoice["buyer_vkn"],
+                "total": invoice.get("total"),
+                "flags": [
+                    FLAG_LABELS.get(flag["code"], flag["code"])
+                    for flag in flags_by_no[invoice["invoice_no"]]
+                    if flag["code"] in suspicious_codes
+                ],
+            }
+            for invoice in suspicious_invoices
+        ],
+    }
+    if st.button("Gemma'dan şüpheli ağ raporu al"):
+        with st.spinner("Gemma kırmızı ağı inceliyor..."):
+            try:
+                st.session_state["detector_network_report"] = gemma.suspicious_network_report(network_summary)
+            except RuntimeError as exc:
+                st.error(f"Gemma ağ raporu alınamadı: {exc}")
+    if "detector_network_report" in st.session_state:
+        st.write(st.session_state["detector_network_report"])
+
+
 def _show_financier_panel(companies, invoices):
     st.header("Finansör paneli")
     st.caption("Faturalar yerel kurgusal veri setinden alınır; risk puanı karar desteğidir.")
@@ -343,11 +513,12 @@ def main():
     role = st.sidebar.selectbox("Panel", ("KOBİ paneli", "Finansör paneli", "Dedektör"))
     st.sidebar.info("DEMO / MOCK: GİB, kredi skoru, banka transferi ve e-imza gerçek servis değildir.")
     companies, invoices = fraud.load_demo_data()
+    _show_header_metrics(companies, invoices)
     if role == "Finansör paneli":
         _show_financier_panel(companies, invoices)
         return
-    if role != "KOBİ paneli":
-        st.info("Dedektör paneli sonraki sürümde hazırlanacak.")
+    if role == "Dedektör":
+        _show_detector_panel(companies, invoices)
         return
 
     st.header("Faturanı yükle")

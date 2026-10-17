@@ -40,7 +40,7 @@ def _log_call(task, prompt, image_filename, raw_response, parsed_result, duratio
         log_file.write(json.dumps(record, ensure_ascii=False) + "\n")
 
 
-def _chat(task, prompt, image_bytes=None, image_filename=None, expect_json=False):
+def _chat(task, prompt, image_bytes=None, image_filename=None, expect_json=False, options=None):
     last_raw = ""
     for attempt in range(2 if expect_json else 1):
         current_prompt = prompt
@@ -56,6 +56,8 @@ def _chat(task, prompt, image_bytes=None, image_filename=None, expect_json=False
             "stream": False,
             "think": False,
         }
+        if options:
+            payload["options"] = options
         if expect_json:
             payload["format"] = "json"
 
@@ -131,6 +133,17 @@ def risk_report(invoice, buyer_data):
         + json.dumps(buyer_data, ensure_ascii=False)
     )
     return _chat("risk_report", prompt, expect_json=True)
+
+
+def suspicious_network_report(network_summary):
+    prompt = (
+        "Şüpheli şirket/fatura ağı için Türkçe, kanıta dayalı, en fazla 100 kelimelik "
+        "tek paragraf bir inceleme özeti yaz. Tablo veya uzun liste kullanma. "
+        "Yalnızca verilen bayrakları, şirketleri ve faturaları anlat; suçluluk kararı verme. "
+        "Nihai değerlendirme insana ait olduğunu belirt.\nAğ bulguları: "
+        + json.dumps(network_summary, ensure_ascii=False)
+    )
+    return _chat("suspicious_network_report", prompt, options={"num_predict": 160})
 
 
 def compare_offers(offers):
