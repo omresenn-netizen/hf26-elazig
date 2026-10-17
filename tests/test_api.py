@@ -46,7 +46,6 @@ def client(tmp_path, monkeypatch):
     monkeypatch.setattr(server.gemma, "compare_offers", lambda offers: {"recommendation": "Teklif 1", "reason": "En yüksek net tutar."})
     monkeypatch.setattr(server.gemma, "risk_report", lambda invoice, buyer: {"summary": "Düşük risk."})
     monkeypatch.setattr(server.gemma, "suspicious_network_report", lambda graph: "Ağ raporu.")
-    monkeypatch.setattr(server, "_RISK_REPORT_CACHE", {})
     with TestClient(server.app) as test_client:
         yield test_client
 
@@ -88,6 +87,42 @@ def test_upload_and_duplicate_conflict(client, tmp_path):
     )
     assert duplicate.status_code == 409
     assert duplicate.json()["error"]
+    with db.get_connection() as connection:
+        rows = connection.execute(
+            "SELECT status FROM uploads ORDER BY id"
+        ).fetchall()
+    assert [row["status"] for row in rows] == ["incelemede", "reddedildi"]
+
+
+def test_upload_failure_keeps_audit_and_marks_upload_rejected(client, monkeypatch):
+    login(client, "kobi", "9200000101")
+
+    def fail_write(path, content):
+        raise OSError("disk is unavailable")
+
+    monkeypatch.setattr(Path, "write_bytes", fail_write)
+    response = client.post(
+        "/api/uploads",
+        files={"file": ("invoice.png", io.BytesIO(b"\x89PNG\r\n\x1a\nwrite-failure"), "image/png")},
+    )
+    assert response.status_code == 500
+    assert response.json() == {"error": "Dosya güvenli biçimde kaydedilemedi."}
+
+    with db.get_connection() as connection:
+        upload = connection.execute(
+            "SELECT id, status, flags_json FROM uploads"
+        ).fetchone()
+        audit_actions = [
+            row["action"]
+            for row in connection.execute(
+                "SELECT action FROM audit_log ORDER BY id"
+            ).fetchall()
+        ]
+    assert upload["status"] == "reddedildi"
+    failed_flag = json.loads(upload["flags_json"])[0]
+    assert failed_flag["code"] == "upload_failed"
+    assert failed_flag["reason"] == "disk is unavailable"
+    assert audit_actions[-2:] == ["upload", "upload_failed"]
 
 
 def test_market_contains_preloaded_invoices(client):
@@ -145,6 +180,8 @@ def test_accept_offer_finances_document(client):
     assert accepted.json()["document"]["status"] == "finanse_edildi"
     assert accepted.json()["receipt"]["simulated"] is True
     assert accepted.json()["receipt"]["mock"] is True
+    assert db.financing_volume() == 1100
+    assert client.get("/api/stats").json()["financed_total"] == 1100
 
 
 def test_preloaded_market_invoice_can_receive_offer(client):
@@ -192,4 +229,19 @@ def test_demo_sample_is_not_a_first_upload_duplicate(client, monkeypatch):
     ).json()["document"]["id"]
     fields = client.post(f"/api/documents/{second_upload}/extract").json()["fields"]
     duplicate = client.post(f"/api/documents/{second_upload}/check", json={"fields": fields})
-    assert duplicate.status_code == 409
+    assert duplicate.status_code == 200, duplicate.text
+    duplicate_document = duplicate.json()["document"]
+    assert duplicate_document["status"] == "incelemede"
+    assert any(flag["code"] == "duplicate_invoice" for flag in duplicate_document["flags"])
+
+    client.post("/api/logout")
+    login(client, "denetim", "denetim")
+    queue = client.get("/api/review-queue")
+    assert queue.status_code == 200
+    assert any(document["id"] == second_upload for document in queue.json())
+    reviewed = client.post(
+        f"/api/documents/{second_upload}/review",
+        json={"decision": "approve", "reason": ""},
+    )
+    assert reviewed.status_code == 200, reviewed.text
+    assert reviewed.json()["document"]["status"] == "teklif_bekliyor"

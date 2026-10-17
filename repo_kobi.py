@@ -174,8 +174,22 @@ def invoice_fingerprint_seen(fingerprint, exclude_upload_id=None):
 
 
 def open_financing(user, ip_address, upload_id, risk_score):
-    status = "incelemede" if risk_score >= 60 else "teklif_bekliyor"
     with db.get_connection() as connection:
+        upload = connection.execute(
+            "SELECT flags_json FROM uploads WHERE id = ? AND company_vkn = ?",
+            (upload_id, user.get("company_vkn")),
+        ).fetchone()
+        if not upload:
+            raise ValueError("Fatura finansmana açılamadı; durumunu yenileyip tekrar kontrol edin.")
+        duplicate_invoice = any(
+            flag.get("code") == "duplicate_invoice"
+            for flag in json.loads(upload["flags_json"] or "[]")
+        )
+        status = (
+            "incelemede"
+            if risk_score >= 60 or duplicate_invoice
+            else "teklif_bekliyor"
+        )
         cursor = connection.execute(
             """
             UPDATE uploads SET status = ?

@@ -491,6 +491,37 @@ def create_upload(user, company_vkn, ip_address, user_agent, file_name, file_byt
     return {"id": upload_id, "file_sha256": file_sha256, "duplicate": bool(duplicate)}
 
 
+def fail_upload(upload_id, user, ip_address, user_agent, reason):
+    flags = [{
+        "code": "upload_failed",
+        "detail": "Dosya güvenli biçimde kaydedilemedi.",
+        "reason": reason,
+    }]
+    with get_connection() as connection:
+        row = connection.execute(
+            "SELECT file_sha256 FROM uploads WHERE id = ?", (upload_id,)
+        ).fetchone()
+        if not row:
+            raise ValueError(f"Upload {upload_id} does not exist.")
+        connection.execute(
+            "UPDATE uploads SET status = 'reddedildi', flags_json = ? WHERE id = ?",
+            (json.dumps(flags, ensure_ascii=False), upload_id),
+        )
+        _write_audit(
+            connection,
+            user["username"],
+            ip_address,
+            "upload_failed",
+            user_id=user["id"],
+            detail={
+                "upload_id": upload_id,
+                "file_sha256": row["file_sha256"],
+                "reason": reason,
+                "user_agent": user_agent or "",
+            },
+        )
+
+
 def save_upload_extraction(upload_id, user, ip_address, invoice, risk_score, flags):
     fingerprint = _invoice_fingerprint(invoice)
     invoice_no = invoice.get("invoice_no")
@@ -514,12 +545,14 @@ def save_upload_extraction(upload_id, user, ip_address, invoice, risk_score, fla
             ).fetchone()
         saved_flags = list(flags)
         if duplicate:
-            status = "reddedildi"
+            import fraud
+
             if not any(flag.get("code") == "duplicate_invoice" for flag in saved_flags):
                 saved_flags.append({
                     "code": "duplicate_invoice",
                     "detail": "Fatura satıcı, numara, tutar ve tarihle daha önce yüklenmiş.",
                 })
+            risk_score = max(risk_score, fraud.risk_score(saved_flags))
         connection.execute(
             """
             UPDATE uploads
@@ -643,111 +676,37 @@ def audit_filter_options():
         return [dict(row) for row in companies], [row["action"] for row in actions]
 
 
-def save_offer(
-    invoice_no,
-    financier_name,
-    discount_rate,
-    net_amount,
-    audit_user=None,
-    ip_address="127.0.0.1",
-):
-    with get_connection() as connection:
-        cursor = connection.execute(
-            "INSERT INTO legacy_offers (invoice_no, financier_name, discount_rate, net_amount) VALUES (?, ?, ?, ?)",
-            (invoice_no, financier_name, discount_rate, net_amount),
-        )
-        if audit_user:
-            _write_audit(
-                connection,
-                audit_user["username"],
-                ip_address,
-                "offer_created",
-                user_id=audit_user["id"],
-                detail={
-                    "invoice_no": invoice_no,
-                    "offer_id": cursor.lastrowid,
-                    "discount_rate": discount_rate,
-                    "net_amount": net_amount,
-                },
-            )
-        return cursor.lastrowid
-
-
-def list_offers(invoice_no=None):
-    with get_connection() as connection:
-        if invoice_no is None:
-            rows = connection.execute("SELECT * FROM legacy_offers ORDER BY created_at DESC").fetchall()
-        else:
-            rows = connection.execute(
-                "SELECT * FROM legacy_offers WHERE invoice_no = ? ORDER BY created_at DESC",
-                (invoice_no,),
-            ).fetchall()
-        return [dict(row) for row in rows]
-
-
-def get_deal(invoice_no):
-    with get_connection() as connection:
-        row = connection.execute(
-            """
-            SELECT deals.*, legacy_offers.financier_name, legacy_offers.discount_rate,
-                   legacy_offers.net_amount
-            FROM deals
-            LEFT JOIN legacy_offers ON legacy_offers.id = deals.offer_id
-            WHERE deals.invoice_no = ?
-            """,
-            (invoice_no,),
-        ).fetchone()
-        return dict(row) if row else None
-
-
 def financing_volume():
     with get_connection() as connection:
         row = connection.execute(
             """
-            SELECT COALESCE(SUM(legacy_offers.net_amount), 0) AS volume
+            SELECT COALESCE(SUM(
+                CASE
+                    WHEN deals.offer_id IS NOT NULL THEN legacy_offers.net_amount
+                    ELSE COALESCE(
+                        (
+                            SELECT offers.net_amount
+                            FROM offers
+                            JOIN uploads ON uploads.id = offers.upload_id
+                            WHERE uploads.invoice_no = deals.invoice_no
+                              AND offers.status = 'kabul'
+                            ORDER BY offers.id DESC
+                            LIMIT 1
+                        ),
+                        (
+                            SELECT legacy_offers.net_amount
+                            FROM legacy_offers
+                            WHERE legacy_offers.invoice_no = deals.invoice_no
+                              AND legacy_offers.status = 'accepted'
+                            ORDER BY legacy_offers.id DESC
+                            LIMIT 1
+                        ),
+                        0
+                    )
+                END
+            ), 0) AS volume
             FROM deals
             LEFT JOIN legacy_offers ON legacy_offers.id = deals.offer_id
             """
         ).fetchone()
         return float(row["volume"])
-
-
-def create_deal(
-    invoice_no,
-    offer_id,
-    transfer_id,
-    audit_user=None,
-    ip_address="127.0.0.1",
-    transfer_amount=None,
-):
-    with get_connection() as connection:
-        cursor = connection.execute(
-            "INSERT INTO deals (invoice_no, offer_id, transfer_id) VALUES (?, ?, ?)",
-            (invoice_no, offer_id, transfer_id),
-        )
-        if offer_id is not None:
-            connection.execute(
-                "UPDATE legacy_offers SET status = 'accepted' WHERE id = ?", (offer_id,)
-            )
-        if audit_user:
-            _write_audit(
-                connection,
-                audit_user["username"],
-                ip_address,
-                "offer_accepted",
-                user_id=audit_user["id"],
-                detail={"invoice_no": invoice_no, "offer_id": offer_id},
-            )
-            _write_audit(
-                connection,
-                audit_user["username"],
-                ip_address,
-                "transfer_mock",
-                user_id=audit_user["id"],
-                detail={
-                    "invoice_no": invoice_no,
-                    "transfer_id": transfer_id,
-                    "amount": transfer_amount,
-                },
-            )
-        return cursor.lastrowid

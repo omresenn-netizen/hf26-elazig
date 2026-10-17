@@ -30,6 +30,7 @@ Vadesiz handles invoice data, financed amounts, and buyer/seller identifiers for
 - Allowed types are PNG, JPG, JPEG, and PDF, validated by file magic bytes instead of extension alone.
 - File names are sanitised to avoid path traversal, and files are not allowed outside the fixed upload root.
 - Duplicate SHA-256 values are rejected and recorded as a duplicate upload.
+- Matching invoice fingerprints are flagged and sent for human review rather than automatically rejected.
 
 ### Gemma and model handling
 

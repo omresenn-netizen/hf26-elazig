@@ -1,12 +1,15 @@
 """Local Ollama calls used by Vadesiz."""
 import base64
+from io import BytesIO
 import json
+import math
 import re
 import threading
 import time
 from datetime import datetime, timezone
 from pathlib import Path
 
+import pypdfium2 as pdfium
 import requests
 
 ROOT = Path(__file__).resolve().parent
@@ -89,6 +92,37 @@ def _chat(task, prompt, image_bytes=None, image_filename=None, expect_json=False
     return last_raw
 
 
+def _pdf_to_png(pdf_bytes):
+    document = page = bitmap = image = None
+    try:
+        document = pdfium.PdfDocument(pdf_bytes)
+        if len(document) == 0:
+            raise ValueError("PDF belgesinde sayfa bulunamadı.")
+        page = document[0]
+        width, height = page.get_size()
+        if (
+            not math.isfinite(width)
+            or not math.isfinite(height)
+            or width <= 0
+            or height <= 0
+            or width * height * 4 > 30_000_000
+        ):
+            raise ValueError("PDF'nin ilk sayfası desteklenen çözünürlük sınırını aşıyor.")
+        bitmap = page.render(scale=2)
+        image = bitmap.to_pil()
+        with BytesIO() as output:
+            image.save(output, format="PNG")
+            return output.getvalue()
+    except (pdfium.PdfiumError, OSError, ValueError, RuntimeError, IndexError) as exc:
+        raise ValueError(
+            "PDF'nin ilk sayfası görsele dönüştürülemedi; lütfen dosyayı kontrol edin."
+        ) from exc
+    finally:
+        for resource in (image, bitmap, page, document):
+            if resource is not None:
+                resource.close()
+
+
 def extract_invoice(image_bytes, image_filename):
     prompt = """Görseldeki Türk e-Faturasını oku. Yalnızca geçerli JSON döndür.
 Şema: {"invoice_no":null,"issue_date":null,"due_date":null,"seller_vkn":null,
@@ -98,6 +132,8 @@ def extract_invoice(image_bytes, image_filename):
 Tarihleri YYYY-MM-DD, sayıları JSON number olarak yaz. Okunmayan alanı null yap.
 buyer_approved yalnızca belgede açıkça onay bilgisi varsa true/false, aksi halde null olsun.
 Belgede bulunmayan bir bilgiyi tahmin etme."""
+    if Path(image_filename or "").suffix.casefold() == ".pdf":
+        image_bytes = _pdf_to_png(image_bytes)
     return _chat("extract_invoice", prompt, image_bytes=image_bytes, image_filename=image_filename, expect_json=True)
 
 

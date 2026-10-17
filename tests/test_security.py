@@ -2,6 +2,7 @@ import hashlib
 from pathlib import Path
 
 import db
+import repo_kobi
 import views.kobi as kobi
 
 
@@ -62,3 +63,48 @@ def test_duplicate_hash_is_recorded(monkeypatch, tmp_path):
     assert first["duplicate"] is False
     assert second["duplicate"] is True
     assert second["file_sha256"] == first["file_sha256"]
+
+
+def test_streamlit_invoice_duplicate_remains_in_review(monkeypatch, tmp_path):
+    monkeypatch.setattr(db, "DB_PATH", tmp_path / "streamlit-duplicate.db")
+    db.init_db()
+    with db.get_connection() as connection:
+        user = dict(connection.execute(
+            "SELECT id, username, role, company_vkn FROM users WHERE role = 'kobi' LIMIT 1"
+        ).fetchone())
+    invoice = {
+        "invoice_no": "STREAMLIT-DUP-1",
+        "issue_date": "2026-10-01",
+        "due_date": "2026-12-01",
+        "seller_vkn": user["company_vkn"],
+        "seller_name": "Test seller",
+        "buyer_vkn": "9100000011",
+        "buyer_name": "Test buyer",
+        "items": [{"description": "kumaş", "unit": "metre", "quantity": 10, "unit_price": 100}],
+        "subtotal": 1000,
+        "kdv": 200,
+        "total": 1200,
+        "irsaliye_no": "IRS-TEST-1",
+        "buyer_approved": True,
+    }
+    first_upload = db.create_upload(
+        user, user["company_vkn"], "127.0.0.1", "", "first.png",
+        b"\x89PNG\r\n\x1a\nfirst",
+    )
+    kobi._run_invoice_checks(
+        invoice, [], [], first_upload["id"], user, "127.0.0.1"
+    )
+    second_upload = db.create_upload(
+        user, user["company_vkn"], "127.0.0.1", "", "second.png",
+        b"\x89PNG\r\n\x1a\nsecond",
+    )
+
+    result = kobi._run_invoice_checks(
+        invoice, [], [], second_upload["id"], user, "127.0.0.1"
+    )
+
+    assert result["status"] == "incelemede"
+    assert any(flag["code"] == "duplicate_invoice" for flag in result["flags"])
+    assert repo_kobi.open_financing(
+        user, "127.0.0.1", second_upload["id"], result["score"]
+    ) == "incelemede"
