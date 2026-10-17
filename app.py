@@ -1,9 +1,12 @@
 """Streamlit UI for the first Vadesiz demo."""
+import csv
 import html
 import hashlib
+import io
 import json
 import math
 import sqlite3
+from datetime import date, timedelta
 from pathlib import Path
 
 import streamlit as st
@@ -14,6 +17,7 @@ import db
 import fraud
 import gemma
 import mocks
+import ui
 
 ROOT = Path(__file__).resolve().parent
 SAMPLE_DIR = ROOT / "samples"
@@ -129,7 +133,7 @@ def _invoice_with_gib_approval(invoice, invoices):
     return enriched
 
 
-def _display_offer_workflow(invoice):
+def _display_offer_workflow(invoice, user, ip_address):
     invoice_no = invoice.get("invoice_no")
     if not invoice_no:
         return
@@ -195,7 +199,14 @@ def _display_offer_workflow(invoice):
             selected = next(offer for offer in open_offers if offer["id"] == selected_offer_id)
             transfer = mocks.bank_transfer(invoice_no, selected["net_amount"])
             try:
-                db.create_deal(invoice_no, selected["id"], transfer["transfer_id"])
+                db.create_deal(
+                    invoice_no,
+                    selected["id"],
+                    transfer["transfer_id"],
+                    audit_user=user,
+                    ip_address=ip_address,
+                    transfer_amount=transfer["amount"],
+                )
             except sqlite3.Error as exc:
                 st.error(f"Teklif kabul edilemedi: {exc}")
                 return
@@ -386,7 +397,128 @@ def _show_detector_panel(companies, invoices):
         st.write(st.session_state["detector_network_report"])
 
 
-def _show_financier_panel(companies, invoices):
+def _request_metadata():
+    ip_address = getattr(st.context, "ip_address", None)
+    if not isinstance(ip_address, str) or not ip_address.strip():
+        ip_address = "127.0.0.1"
+    headers = getattr(st.context, "headers", None)
+    user_agent = headers.get("User-Agent", "") if headers else ""
+    if not isinstance(user_agent, str):
+        user_agent = ""
+    return ip_address, user_agent
+
+
+def _show_audit_ledger():
+    st.header("Kayıt Defteri")
+    companies, actions = db.audit_filter_options()
+    company_options = {"Tüm şirketler": ""}
+    company_options.update({
+        f"{company['name']} · {company['vkn']}": company["vkn"]
+        for company in companies
+    })
+    filter_columns = st.columns(4)
+    selected_company = filter_columns[0].selectbox(
+        "Şirket",
+        list(company_options),
+        key="audit_company_filter",
+    )
+    start_date = filter_columns[1].date_input(
+        "Başlangıç",
+        value=date.today() - timedelta(days=30),
+        key="audit_start_date",
+    )
+    end_date = filter_columns[2].date_input(
+        "Bitiş",
+        value=date.today(),
+        key="audit_end_date",
+    )
+    action_options = {"Tüm işlemler": ""}
+    action_options.update({action: action for action in actions})
+    selected_action = filter_columns[3].selectbox(
+        "İşlem",
+        list(action_options),
+        key="audit_action_filter",
+    )
+
+    records = db.list_audit_records(
+        start_date=start_date.isoformat() if start_date else None,
+        end_date=end_date.isoformat() if end_date else None,
+        company_vkn=company_options[selected_company],
+        action=action_options[selected_action],
+    )
+    st.caption(f"{len(records)} kayıt")
+    csv_output = io.StringIO()
+    columns = (
+        "time",
+        "company",
+        "user",
+        "ip",
+        "file",
+        "sha256",
+        "invoice_no",
+        "risk",
+        "status",
+        "action",
+    )
+    writer = csv.DictWriter(csv_output, fieldnames=columns)
+    writer.writeheader()
+    table_rows = []
+    for record in records:
+        row = {
+            "time": record["at"],
+            "company": record["company_name"] or record["company_vkn"] or "—",
+            "user": record["username"],
+            "ip": record["ip_address"],
+            "file": record["file_name"] or "—",
+            "sha256": record["file_sha256"] or "",
+            "invoice_no": record["invoice_no"] or "—",
+            "risk": record["risk_score"] if record["risk_score"] is not None else "—",
+            "status": record["status"] or "—",
+            "action": record["action"],
+        }
+        writer.writerow(row)
+        cells = []
+        for column in columns:
+            value = str(row[column])
+            if column == "sha256" and value:
+                cell = (
+                    f'<td title="{html.escape(value, quote=True)}">'
+                    f"{html.escape(value[:16])}…</td>"
+                )
+            else:
+                cell = f"<td>{html.escape(value)}</td>"
+            cells.append(cell)
+        table_rows.append("<tr>" + "".join(cells) + "</tr>")
+    headers = (
+        "Zaman",
+        "Şirket",
+        "Kullanıcı",
+        "IP",
+        "Dosya",
+        "SHA-256",
+        "Fatura no",
+        "Risk",
+        "Durum",
+        "İşlem",
+    )
+    table_html = (
+        '<div style="overflow-x:auto"><table class="vadesiz-audit-table"><thead><tr>'
+        + "".join(f"<th>{header}</th>" for header in headers)
+        + "</tr></thead><tbody>"
+        + "".join(table_rows)
+        + "</tbody></table></div>"
+    )
+    st.download_button(
+        "CSV dışa aktar",
+        data=csv_output.getvalue().encode("utf-8-sig"),
+        file_name="vadesiz-kayit-defteri.csv",
+        mime="text/csv",
+        use_container_width=False,
+    )
+    st.markdown(table_html, unsafe_allow_html=True)
+
+
+def _show_financier_panel(companies, invoices, user, ip_address):
     st.header("Finansör paneli")
     st.caption("Faturalar yerel kurgusal veri setinden alınır; risk puanı karar desteğidir.")
     rows = _build_financier_rows(companies, invoices)
@@ -497,6 +629,8 @@ def _show_financier_panel(companies, invoices):
                     financier_name.strip(),
                     discount_rate,
                     net_amount,
+                    audit_user=user,
+                    ip_address=ip_address,
                 )
             except sqlite3.Error as exc:
                 st.error(f"Teklif kaydedilemedi: {exc}")
@@ -505,22 +639,47 @@ def _show_financier_panel(companies, invoices):
 
 
 def main():
-    st.set_page_config(page_title="Vadesiz", page_icon="🧾", layout="centered")
+    st.set_page_config(page_title="Vadesiz", page_icon="🧾", layout="wide")
+    ui.apply_styles()
     db.init_db()
-    st.title("Vadesiz")
+    user = st.session_state.get("authenticated_user")
+    ip_address, user_agent = _request_metadata()
+    if not user:
+        ui.render_topbar()
+        authenticated_user = ui.render_login(db.authenticate_user, ip_address)
+        if authenticated_user:
+            st.session_state["authenticated_user"] = authenticated_user
+            st.rerun()
+        ui.render_footer()
+        return
+
+    if ui.render_topbar(user):
+        db.logout_user(user, ip_address)
+        st.session_state.pop("authenticated_user", None)
+        st.rerun()
+
     st.caption("KOBİ'ler için fatura finansmanı • Yerel yapay zekâ ile demo")
-
-    role = st.sidebar.selectbox("Panel", ("KOBİ paneli", "Finansör paneli", "Dedektör"))
-    st.sidebar.info("DEMO / MOCK: GİB, kredi skoru, banka transferi ve e-imza gerçek servis değildir.")
     companies, invoices = fraud.load_demo_data()
-    _show_header_metrics(companies, invoices)
-    if role == "Finansör paneli":
-        _show_financier_panel(companies, invoices)
+    if user["role"] == "finansor":
+        _show_header_metrics(companies, invoices)
+        _show_financier_panel(companies, invoices, user, ip_address)
+        ui.render_footer()
         return
-    if role == "Dedektör":
-        _show_detector_panel(companies, invoices)
+    if user["role"] == "denetim":
+        audit_page = st.sidebar.selectbox(
+            "Denetim sayfası",
+            ("Dedektör", "Kayıt Defteri"),
+        )
+        if audit_page == "Dedektör":
+            _show_header_metrics(companies, invoices)
+            _show_detector_panel(companies, invoices)
+        else:
+            _show_audit_ledger()
+        ui.render_footer()
         return
 
+    _show_header_metrics(companies, invoices)
+    st.sidebar.info("DEMO / MOCK: GİB, kredi skoru, banka transferi ve e-imza gerçek servis değildir.")
     st.header("Faturanı yükle")
     sample_files = sorted(SAMPLE_DIR.glob("*.png"))
     sample_names = ["— Örnek seçmeden yükle —", *[path.name for path in sample_files]]
@@ -539,26 +698,65 @@ def main():
 
     if image_bytes is None:
         st.info("Bir demo görseli seçin veya kendi fatura görselinizi yükleyin.")
+        ui.render_footer()
         return
 
     st.image(image_bytes, caption=filename, use_container_width=True)
     digest = hashlib.sha256(image_bytes).hexdigest()
     if st.button("Gemma ile faturayı oku ve risk kontrolü yap", type="primary"):
+        upload = db.create_upload(
+            user,
+            user.get("company_vkn"),
+            ip_address,
+            user_agent,
+            filename,
+            image_bytes,
+        )
+        if upload["duplicate"]:
+            st.error(
+                "Bu dosya daha önce yüklenmiş. SHA-256 eşleşmesi nedeniyle tekrar işlenmedi "
+                "ve denetim kaydına alındı."
+            )
+            ui.render_footer()
+            return
+        st.session_state["active_upload_id"] = upload["id"]
+        st.session_state["active_upload_digest"] = digest
         with st.spinner("Gemma faturayı okuyor; ilk çağrı daha uzun sürebilir..."):
             try:
                 extracted = gemma.extract_invoice(image_bytes, filename)
             except RuntimeError as exc:
+                db.log_audit(
+                    "extract",
+                    user,
+                    ip_address,
+                    {"upload_id": upload["id"], "error": str(exc)},
+                )
                 st.error(str(exc))
                 st.info("Ollama'nın http://localhost:11434 adresinde çalıştığını ve gemma4 modelinin kurulu olduğunu kontrol edin.")
+                ui.render_footer()
                 return
         if isinstance(extracted, dict) and _is_complete_invoice(extracted):
             gib_result = mocks.verify_invoice(extracted, invoices)
             extracted["buyer_approved"] = gib_result["buyer_approved"]
             try:
-                st.session_state["invoice_analysis"] = _run_checks(extracted, companies, invoices)
+                result = _run_checks(extracted, companies, invoices)
+                saved = db.save_upload_extraction(
+                    upload["id"],
+                    user,
+                    ip_address,
+                    result["invoice"],
+                    result["score"],
+                    result["flags"],
+                )
+                result["flags"] = saved["flags"]
+                result["score"] = fraud.risk_score(saved["flags"])
+                if saved["duplicate"]:
+                    st.error("Fatura bilgileri daha önce yüklenmiş; kayıt reddedildi ve denetime alındı.")
+                st.session_state["invoice_analysis"] = result
                 st.session_state["invoice_analysis_digest"] = digest
             except RuntimeError as exc:
                 st.error(f"Gemma açıklaması alınamadı: {exc}")
+                ui.render_footer()
                 return
         else:
             st.session_state["invoice_raw"] = (
@@ -568,6 +766,12 @@ def main():
             )
             st.session_state["invoice_raw_digest"] = digest
             st.warning("Gemma çıktısı geçersiz veya eksik. JSON'u düzeltip tekrar deneyebilirsiniz.")
+            db.log_audit(
+                "extract",
+                user,
+                ip_address,
+                {"upload_id": upload["id"], "parse_success": False},
+            )
 
     if st.session_state.get("invoice_raw_digest") == digest:
         raw_text = st.text_area("Gemma çıktısını düzeltin (JSON)", value=st.session_state.get("invoice_raw", ""))
@@ -578,7 +782,20 @@ def main():
                     raise ValueError("Fatura no, tarih, satıcı/alıcı VKN, kalemler ve toplam alanlarını kontrol edin.")
                 gib_result = mocks.verify_invoice(corrected, invoices)
                 corrected["buyer_approved"] = gib_result["buyer_approved"]
-                st.session_state["invoice_analysis"] = _run_checks(corrected, companies, invoices)
+                result = _run_checks(corrected, companies, invoices)
+                upload_id = st.session_state.get("active_upload_id")
+                if upload_id and st.session_state.get("active_upload_digest") == digest:
+                    saved = db.save_upload_extraction(
+                        upload_id,
+                        user,
+                        ip_address,
+                        result["invoice"],
+                        result["score"],
+                        result["flags"],
+                    )
+                    result["flags"] = saved["flags"]
+                    result["score"] = fraud.risk_score(saved["flags"])
+                st.session_state["invoice_analysis"] = result
                 st.session_state["invoice_analysis_digest"] = digest
                 del st.session_state["invoice_raw"]
                 del st.session_state["invoice_raw_digest"]
@@ -590,9 +807,10 @@ def main():
     if st.session_state.get("invoice_analysis_digest") == digest:
         result = st.session_state["invoice_analysis"]
         _show_analysis(result)
-        _display_offer_workflow(result["invoice"])
+        _display_offer_workflow(result["invoice"], user, ip_address)
 
     st.caption("Risk puanı yalnızca karar desteğidir. Nihai değerlendirme insana aittir.")
+    ui.render_footer()
 
 
 if __name__ == "__main__":

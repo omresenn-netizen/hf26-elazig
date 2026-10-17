@@ -10,6 +10,12 @@ compare financing offers without sending invoice data to a cloud AI API.
 
 ## Current demo
 
+- **Login and audit:** role-specific KOBİ, financier and auditor login tabs with seeded
+  demo accounts. Passwords are stored as salted PBKDF2-HMAC hashes. Login attempts,
+  logout and invoice file processing are written to SQLite with request IP metadata;
+  uploads also retain the browser user-agent and file SHA-256. Auditors can search and
+  export the activity ledger.
+
 - **KOBİ paneli:** select a fictional sample invoice or upload a PNG/JPG; Gemma extracts
   fields, rule checks show Turkish-labelled flags and a risk score, and the user can
   review offers and accept one using a simulated transfer.
@@ -26,6 +32,12 @@ compare financing offers without sending invoice data to a cloud AI API.
 Risk flags support human review and never automatically reject an invoice. Invoice data,
 companies, tax numbers and sample images are fictional. GİB verification, buyer credit
 scores and bank transfers are deterministic **DEMO / MOCK** responses.
+
+Every demo account uses password `demo1234`. SME usernames are the VKNs listed in
+`data/companies.json`; financier usernames are `anadolu_faktoring`, `firat_finans` and
+`harput_katilim`; the auditor username is `denetim`. Runtime tables are created
+idempotently in the ignored `vadesiz.db`; existing demo offers and deals are preserved
+during the schema upgrade.
 
 ## Run locally
 
