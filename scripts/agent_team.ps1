@@ -6,6 +6,8 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+# "-Agents a,b" arrives as one string when called through -File
+$Agents = $Agents | ForEach-Object { $_ -split "," } | Where-Object { $_ }
 $repo = Split-Path -Parent $PSScriptRoot
 $env:GH_TOKEN = & "C:\Program Files\GitHub CLI\gh.exe" auth token
 New-Item -ItemType Directory -Force $WorktreeRoot, "$repo\sessions" | Out-Null
