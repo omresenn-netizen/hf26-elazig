@@ -315,3 +315,9 @@ ul.flags li.hi { border-left-color: var(--bad); background: var(--bad-bg); }
 /* legacy explanation box used by the upload wizard */
 .gemma { border: 1px solid #b9dde1; background: linear-gradient(180deg, #f1f9fa, #fff); border-radius: 12px; padding: 12px 14px; font-size: 14px; white-space: pre-wrap; }
 .gemma .by { display: block; font-family: var(--head); font-size: 11.5px; font-weight: 600; color: var(--teal-2); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .5px; }
+.ai .ai-h .chip { white-space: nowrap; flex: none; }
+.ai .ai-h h4 { flex: 1; min-width: 0; }
+.split > div, .shell > main { min-width: 0; }
+.offer > div { min-width: 0; }
+.offer .net { white-space: nowrap; }
+body { overflow-x: hidden; }

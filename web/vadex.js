@@ -467,7 +467,7 @@ async function detail(id) {
     right = `<div class="panel"><div class="ph"><h3>Denetim kararı</h3></div><div class="pb">${d.status === "incelemede" ? `<div class="field"><label class="f" for="rs">Gerekçe</label><textarea class="f" id="rs" placeholder="Karar gerekçesi"></textarea></div><div style="display:flex;gap:8px"><button class="btn primary" data-act="review" data-v="approve" data-id="${esc(d.id)}">Onayla, pazara aç</button><button class="btn" data-act="review" data-v="reject" data-id="${esc(d.id)}">Reddet</button></div>` : `<p class="muted" style="margin:0">Belge durumu: ${st(d.status)}</p>`}</div></div><div id="pay"></div>`;
   }
   const back = { kobi: "kobi/belgeler", finansor: "finansor", denetim: "denetim" }[role];
-  app.innerHTML = shell(back, `<a href="#/${back}">Geri</a> / ${esc(d.invoice_no)}`, d.invoice_no, esc(d.seller?.name) + " → " + esc(d.buyer?.name), `<div class="split">${left}<div>${right}</div></div>`);
+  app.innerHTML = shell(back, `<a href="#/${back}">Geri</a> / ${esc(d.invoice_no)}`, d.invoice_no, esc(d.seller?.name) + " → " + esc(d.buyer?.name), `<div class="split"><div>${left}</div><div>${right}</div></div>`);
   S.detailKey = id + ":" + offers.map(o => o.id + o.status + o.net_amount).join(",");
   invoiceInsight("#ins", d.id);
   paymentProfile("#pay", d.buyer?.vkn);
