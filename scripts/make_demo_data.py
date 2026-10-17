@@ -239,7 +239,8 @@ def main():
         "03_supheli_sektor.png": next(i for i in invoices if i["scenario"] == "sector_mismatch"),
         "04_naylon_danismanlik.png": next(i for i in invoices if i["scenario"] == "broker" and i["buyer_vkn"] == "9200000707"),
         "05_dongu_sebeke.png": next(i for i in invoices if i["scenario"] == "ring"),
-        "06_gercek_mobilya.png": next(i for i in invoices if i["scenario"] == "legit" and i["seller_vkn"] == "9200000505"),
+        # last legit furniture invoice, so it is never the one copied as the duplicate scenario
+        "06_gercek_mobilya.png": [i for i in invoices if i["scenario"] == "legit" and i["seller_vkn"] == "9200000505"][-1],
     }
     for name, inv in picks.items():
         draw_invoice(inv, by_vkn, SAMPLES / name)
