@@ -58,6 +58,14 @@ def authenticate(username, password, role, ip_address, user_agent):
         user = connection.execute(
             "SELECT * FROM users WHERE username = ?", (username,)
         ).fetchone()
+        if user and db._account_locked(user):
+            detail = {"role": role, "user_agent": user_agent or "", "reason": "account_locked", "locked_until": user["login_locked_until"]}
+            db._write_audit(
+                connection, username, ip_address, "login_locked",
+                user_id=user["id"], detail=detail,
+            )
+            return None
+
         valid_password = False
         if user:
             valid_password = hmac.compare_digest(
@@ -69,15 +77,35 @@ def authenticate(username, password, role, ip_address, user_agent):
         valid = bool(user and user["role"] == role and valid_password)
         detail = {"role": role, "user_agent": user_agent or ""}
         if valid:
+            connection.execute(
+                "UPDATE users SET failed_login_attempts = 0, login_locked_until = NULL WHERE id = ?",
+                (user["id"],),
+            )
             db._write_audit(
                 connection, username, ip_address, "login",
                 user_id=user["id"], detail=detail,
             )
             return api_user(dict(user))
+
         if user and user["role"] != role:
             detail["reason"] = "role_mismatch"
         else:
             detail["reason"] = "invalid_credentials"
+        if user and user["role"] == role:
+            attempts = int(db._user_value(user, "failed_login_attempts") or 0) + 1
+            lock_until = None
+            if attempts >= db.MAX_LOGIN_ATTEMPTS:
+                lock_until = (db.datetime.now(db.timezone.utc) + db.timedelta(minutes=db.LOGIN_LOCK_MINUTES)).isoformat()
+                db._write_audit(
+                    connection, username, ip_address, "login_locked",
+                    user_id=user["id"], detail={**detail, "reason": "max_attempts_reached", "locked_until": lock_until},
+                )
+            connection.execute(
+                "UPDATE users SET failed_login_attempts = ?, login_locked_until = ? WHERE id = ?",
+                (attempts, lock_until, user["id"]),
+            )
+            if attempts >= db.MAX_LOGIN_ATTEMPTS:
+                detail["reason"] = "max_attempts_reached"
         db._write_audit(
             connection, username or "(empty)", ip_address, "login_failed",
             user_id=user["id"] if user else None, detail=detail,

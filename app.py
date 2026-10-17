@@ -15,6 +15,10 @@ def main():
     ui.apply_styles()
     db.init_db()
     user = st.session_state.get("authenticated_user")
+    if user and user.get("role") not in {"kobi", "finansor", "denetim"}:
+        for key in list(st.session_state.keys()):
+            st.session_state.pop(key, None)
+        user = None
     ip_address, _ = _request_metadata()
     if not user:
         ui.render_topbar()
@@ -27,7 +31,8 @@ def main():
 
     if ui.render_topbar(user):
         db.logout_user(user, ip_address)
-        st.session_state.pop("authenticated_user", None)
+        for key in list(st.session_state.keys()):
+            st.session_state.pop(key, None)
         st.rerun()
 
     st.caption("KOB\u0130'ler i\u00e7in fatura finansman\u0131 \u2022 Yerel yapay zek\u00e2 ile demo")
