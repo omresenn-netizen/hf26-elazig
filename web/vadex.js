@@ -57,13 +57,27 @@ const MENU = {
 };
 const ROLE_NAME = { kobi: "KOBİ hesabı", finansor: "Finansör hesabı", denetim: "Denetim hesabı" };
 
+const caret = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M6 9l6 6 6-6"/></svg>';
+const AUD = [
+  ["kobi", "KOBİ'yim", "Vadeli faturamı beklemeden nakde çevirmek istiyorum", icon.up],
+  ["finansor", "Finansörüm", "Doğrulanmış alacaklara teklif vermek istiyorum", icon.bank],
+  ["alici", "Alıcı firmayım", "Tedarikçilerime ödeme yapan taraf benim", icon.doc],
+];
+const LOGINS = [
+  ["kobi", "KOBİ girişi", "VKN ve parola ile", icon.up],
+  ["finansor", "Finansör girişi", "Lisanslı kuruluş kullanıcıları", icon.bank],
+  ["denetim", "Denetim girişi", "İnceleme ve kayıt defteri", icon.shield],
+];
 function nav() {
+  const open = k => S.menu === k ? "open" : "";
   $("#nav").innerHTML = S.user
     ? `<a href="#/${ROLE_HOME[S.user.role]}">Panelim</a>
        <span class="bell"><button class="btn ghost sm" data-act="bell" aria-label="Bildirimler">${icon.bell}</button>${unread() ? `<span class="dot">${unread()}</span>` : ""}
-       ${S.ddOpen ? `<div class="dd">${S.notes.length ? S.notes.slice(0, 6).map(n => `<div class="it ${n.read ? "" : "unread"}"><b>${esc(n.subject)}</b><small>${DT(n.created_at)}</small></div>`).join("") : '<div class="it muted">Bildirim yok.</div>'}<div class="it"><a href="#/bildirimler">Tümünü gör</a></div></div>` : ""}</span>
+       ${S.ddOpen ? `<div class="dd">${S.notes.length ? S.notes.slice(0, 6).map(n => `<div class="it ${n.read ? "" : "unread"}"><b>${esc(n.subject)}</b><div class="small">${esc(n.body)}</div><small>${DT(n.created_at)}</small></div>`).join("") : '<div class="it muted">Bildirim yok.</div>'}<div class="it"><a href="#/bildirimler">Tümünü gör</a></div></div>` : ""}</span>
        <button class="btn sm" data-act="logout">Çıkış</button>`
-    : `<a href="#/#surec">İşlem adımları</a><a href="#/#kontroller">Kontroller</a><a href="#/mevzuat">Mevzuat</a><a class="btn primary" href="#/giris">Giriş yap</a>`;
+    : `<div class="menu ${open("aud")}"><button data-act="menu" data-v="aud">Kimler için ${caret}</button><div class="drop-list">${AUD.map(([k, t, s, i]) => `<a href="#/kimler/${k}"><span class="ico">${i}</span><span><b>${t}</b><small>${s}</small></span></a>`).join("")}</div></div>
+       <a href="#/#surec">Nasıl çalışır</a><a href="#/sahtecilik">Sahte fatura</a><a href="#/mevzuat">Mevzuat</a>
+       <div class="menu login ${open("login")}"><button data-act="menu" data-v="login">Giriş ${caret}</button><div class="drop-list">${LOGINS.map(([k, t, s, i]) => `<a href="#/giris/${k}"><span class="ico">${i}</span><span><b>${t}</b><small>${s}</small></span></a>`).join("")}</div></div>`;
 }
 const unread = () => S.notes.filter(n => !n.read).length;
 
@@ -85,7 +99,9 @@ async function render() {
       refreshNotes();
     }
     nav();
-    const view = ROUTES[r] || (p[0] === "belge" ? () => detail(p.slice(1).join("/")) : home);
+    S.menu = null; nav();
+    const view = ROUTES[r] || (p[0] === "belge" ? () => detail(p.slice(1).join("/"))
+      : p[0] === "giris" ? () => login(p[1]) : p[0] === "kimler" ? () => audience(p[1]) : home);
     await view();
   } catch (e) {
     app.innerHTML = `<div class="wrap"><div class="panel" style="margin:40px 0"><div class="pb"><b>Bir hata oluştu.</b><p class="muted">${esc(e.message)}</p></div></div></div>`;
@@ -96,30 +112,51 @@ async function render() {
 async function refreshNotes() { try { S.notes = await api("/notifications"); nav(); } catch { /* ignore */ } }
 
 // ---------- public pages ----------
+const ext = '<svg class="ext" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h5"/></svg>';
+const FLAG = '<svg class="flag" viewBox="0 0 1200 800" role="img" aria-label="Türk bayrağı"><rect width="1200" height="800" fill="#e30a17"/><circle cx="425" cy="400" r="200" fill="#fff"/><circle cx="475" cy="400" r="160" fill="#e30a17"/><path fill="#fff" d="M583.334 400l180.901 58.779-111.804-153.885v190.212l111.804-153.885z"/></svg>';
+
+const posters = () => `<section class="band" id="sahtecilik-afis"><div class="wrap">
+  <div class="campaign-head"><span class="no">#FaturaSahteciliğineHayır</span></div>
+  <div class="posters">
+    <article class="poster p1"><span class="kicker">Vergi Usul Kanunu md. 359</span><h3>Naylon fatura<br>suçtur.</h3><p>Gerçek bir satış olmadan fatura düzenlemek de, o faturayı gider göstermek de hapis cezası gerektirir. Komisyon teklifi “küçük bir iyilik” değildir.</p><div class="foot"><span class="stamp">3–8 YIL</span><span>hapis cezası öngörülür</span></div></article>
+    <article class="poster p2"><span class="kicker">Fatura satın alınmaz, satılmaz</span><h3>“Sende fatura var mı?”<br>sorusuna hayır de.</h3><p>Size komisyon karşılığı fatura kesmeniz teklif edildiyse Vergi İletişim Merkezi'ni arayabilir veya resmî ihbar kanallarını kullanabilirsiniz.</p><div class="foot"><span class="stamp">VİMER 189</span><span>Vergi İletişim Merkezi</span></div></article>
+    <article class="poster p3"><span class="kicker">Yasal finansman</span><h3>Gerçek mal,<br>gerçek fatura.</h3><p>Nakit sıkışıklığının çözümü sahte belge değil. Gerçek satışınızın faturasını lisanslı finansman kuruluşlarına devrederek vadeyi beklemeden tahsil edin.</p><div class="foot"><a class="btn sm" style="background:#fff;border-color:#fff;color:#0a5f67" href="#/kimler/kobi">Nasıl yapılır?</a></div></article>
+  </div>
+</div></section>`;
+
 function home() {
   app.innerHTML = `
   <section class="hero"><div class="wrap">
     <div>
-      <span class="tag">KOBİ'ler ve lisanslı finansman kuruluşları için</span>
-      <h1>Vadeli faturanızı doğrulanmış biçimde finansmana açın.</h1>
-      <p class="lead">Yüklediğiniz e-fatura, kurum içinde çalışan açık kaynak bir yapay zekâ modeliyle okunur ve sahte belge kontrollerinden geçer. Faktoring şirketleri ve bankalar doğrulanmış belgeye teklif verir; kabul ettiğiniz tutar vadeyi beklemeden hesabınıza geçer.</p>
-      <div class="actions"><a class="btn primary" href="#/giris">KOBİ girişi</a><a class="btn" href="#/giris" data-role="finansor">Finansör girişi</a></div>
+      <span class="pill navy">Fatura finansmanı</span>
+      <h1>Vadeli faturanızı<br>güvenle nakde çevirin</h1>
+      <p class="lead">Faturanız platform sunucusunda çalışan Gemma 4 modeliyle okunur, sahte belge kontrollerinden geçer ve lisanslı finansman kuruluşlarının teklifine açılır. Kabul ettiğiniz tutar vadeyi beklemeden hesabınıza geçer.</p>
+      <div class="actions"><a class="btn primary" href="#/giris/kobi">KOBİ girişi</a><a class="btn" href="#/giris/finansor">Finansör girişi</a></div>
     </div>
-    <div class="quick"><h3>Hızlı işlemler</h3>
-      <a href="#/giris"><span class="ico">${icon.up}</span><span class="t"><b>Fatura yükle</b><small>PNG, JPG veya PDF · en fazla 10 MB</small></span>${icon.chev}</a>
-      <a href="#/giris"><span class="ico">${icon.doc}</span><span class="t"><b>Belge durumunu sorgula</b><small>Doğrulama, teklif ve ödeme aşamaları</small></span>${icon.chev}</a>
-      <a href="#/giris" data-role="finansor"><span class="ico">${icon.bank}</span><span class="t"><b>Fatura pazarına eriş</b><small>Lisanslı finansman kuruluşları için</small></span>${icon.chev}</a>
-      <a href="#/guvenlik"><span class="ico">${icon.hash}</span><span class="t"><b>Kayıt ve bütünlük</b><small>Her belge SHA-256 özetiyle saklanır</small></span>${icon.chev}</a>
+    <div class="side-cards">
+      <a class="scard" href="#/kimler/kobi"><span class="pill">KOBİ'ler için</span><div class="row"><div><h4>Vadeyi beklemeden tahsilat</h4><p>90 gün vadeli faturanızı bugün finansmana açın, teklifleri karşılaştırın.</p></div>${ext}</div></a>
+      <a class="scard" href="#/kimler/finansor"><span class="pill">Finansörler için</span><div class="row"><div><h4>Doğrulanmış alacak pazarı</h4><p>Her belge Gemma 4 risk raporu ve alıcı ödeme geçmişiyle birlikte gelir.</p></div>${ext}</div></a>
+      <a class="scard" href="#/sahtecilik"><span class="pill red">Sahte belgeyle mücadele</span><div class="row"><div><h4>Naylon fatura tespiti</h4><p>Döngüsel fatura zincirleri ve fatura simsarları ağ analiziyle işaretlenir.</p></div>${ext}</div></a>
+    </div>
+  </div></section>
+
+  <section class="band alt"><div class="wrap">
+    <h2>Hizmetler</h2><p class="sub">Platformda tarafına göre kullanabileceğiniz başlıca işlemler.</p>
+    <div class="services">
+      <a class="service" href="#/giris/kobi"><span class="ico">${icon.up}</span><h4>Fatura yükleme</h4><p>PNG, JPG veya PDF faturanızı yükleyin; okuma ve kontrol adımlarını izleyin.</p><span class="go">Başla ${icon.chev}</span></a>
+      <a class="service" href="#/giris/kobi"><span class="ico">${icon.doc}</span><h4>Teklif karşılaştırma</h4><p>Gelen teklifleri Gemma 4 yorumlarıyla birlikte net tutar ve yıllık maliyete göre görün.</p><span class="go">Belgelerim ${icon.chev}</span></a>
+      <a class="service" href="#/giris/finansor"><span class="ico">${icon.bank}</span><h4>Fatura pazarı</h4><p>Risk sınıfı, vade ve alıcının ödeme geçmişine göre filtreleyip teklif verin.</p><span class="go">Pazara git ${icon.chev}</span></a>
+      <a class="service" href="#/guvenlik"><span class="ico">${icon.hash}</span><h4>Kayıt ve bütünlük</h4><p>Her belge SHA-256 özeti, yükleme zamanı ve IP adresiyle kayıt defterinde saklanır.</p><span class="go">Güvenlik ${icon.chev}</span></a>
     </div>
   </div></section>
 
   <section class="band" id="surec"><div class="wrap">
-    <h2>İşlem adımları</h2><p class="sub">Belgenin yüklenmesinden ödemeye kadar her adım kayıt altına alınır ve panelinizden izlenir.</p>
+    <h2>Nasıl çalışır?</h2><p class="sub">Belgenin yüklenmesinden ödemeye kadar her adım panelinizden izlenir.</p>
     <div class="steps">
-      <div><span class="n">01</span><h4>Yükleme</h4><p>Fatura yüklenir; dosya özeti (SHA-256), yükleme zamanı ve IP adresi kaydedilir.</p></div>
-      <div><span class="n">02</span><h4>Okuma ve doğrulama</h4><p>Gemma 4 faturayı okur. Bilgiler e-Fatura kaydıyla ve alıcı onayıyla karşılaştırılır.</p></div>
-      <div><span class="n">03</span><h4>Teklif</h4><p>Risk raporu hazırlanan belge pazara açılır, finansörler teklif verir.</p></div>
-      <div><span class="n">04</span><h4>Ödeme</h4><p>Kabul ettiğiniz teklifin tutarı hesabınıza aktarılır, alıcı vadede finansöre öder.</p></div>
+      <div><h4>Yükleme</h4><p>Fatura yüklenir; dosya özeti, zaman ve IP adresi kaydedilir.</p></div>
+      <div><h4>Okuma ve doğrulama</h4><p>Gemma 4 faturayı okur; e-Fatura kaydı, alıcı onayı ve sahte belge kurallarıyla karşılaştırılır.</p></div>
+      <div><h4>Teklif</h4><p>Belge pazara açılır; finansörler alıcının ödeme geçmişini görerek teklif verir.</p></div>
+      <div><h4>Ödeme</h4><p>Kabul ettiğiniz tutar hesabınıza geçer; alıcı vadede finansöre öder.</p></div>
     </div>
   </div></section>
 
@@ -130,38 +167,39 @@ function home() {
       <tr><td>Teslimat belgesi</td><td>Mal satışı içeren faturada irsaliye bilgisinin bulunup bulunmadığı.</td></tr>
       <tr><td>Faaliyet uyumu</td><td>Satıcının faaliyet alanı ile faturadaki mal ve hizmetin uyumu.</td></tr>
       <tr><td>Kapasite</td><td>Kesilen fatura tutarlarının işletmenin çalışan sayısıyla orantısı.</td></tr>
-      <tr><td>Fatura ağı</td><td>Firmalar arasında dönen fatura zincirleri ve aynı adresi paylaşan yeni kurulmuş şirketler.</td></tr>
-      <tr><td>Alıcı onayı</td><td>Faturayı ödeyecek firmanın belgeyi kabul edip etmediği.</td></tr>
+      <tr><td>Fatura ağı</td><td>Firmalar arasında dönen fatura zincirleri, aynı adresi paylaşan yeni şirketler ve fatura simsarları.</td></tr>
+      <tr><td>Alıcı onayı ve ödeme geçmişi</td><td>Faturayı ödeyecek firmanın belgeyi kabul edip etmediği ve geçmiş ödemelerindeki gecikmeler.</td></tr>
     </tbody></table>
   </div></section>
 
   <section class="band"><div class="wrap">
     <h2>Bilgilendirme</h2><p class="sub">Platformun dayandığı temel düzenlemeler.</p>
     <div class="notice">
-      <article><span class="tag">Faktoring</span><h4>6361 sayılı Kanun</h4><p>Alacakları satın alan taraflar, BDDK lisanslı faktoring şirketleri ve bankalardır. Bireysel yatırımcıya açık değildir.</p></article>
-      <article><span class="tag">Vergi</span><h4>VUK md. 359</h4><p>Gerçek bir mal veya hizmet satışına dayanmayan belge düzenlemek ve kullanmak suçtur. Şüpheli belgeler ilgili mercilere bildirilebilir.</p></article>
-      <article><span class="tag">Kişisel veri</span><h4>6698 sayılı KVKK</h4><p>Fatura verileri platform sunucusunda çalışan model ile işlenir; üçüncü taraf yapay zekâ servislerine gönderilmez.</p></article>
+      <article><span class="pill">Faktoring</span><h4>6361 sayılı Kanun</h4><p>Alacakları satın alan taraflar BDDK lisanslı faktoring şirketleri ve bankalardır. Bireysel yatırımcıya açık değildir.</p></article>
+      <article><span class="pill red">Vergi</span><h4>VUK md. 359</h4><p>Gerçek bir mal veya hizmet satışına dayanmayan belge düzenlemek ve kullanmak suçtur.</p></article>
+      <article><span class="pill navy">Kişisel veri</span><h4>6698 sayılı KVKK</h4><p>Fatura verileri platform sunucusundaki model ile işlenir; üçüncü taraf yapay zekâ servislerine gönderilmez.</p></article>
     </div>
   </div></section>
+  ${posters()}
   ${footer()}`;
 }
 
 const footer = () => `<footer class="site"><div class="wrap">
-  <div><b style="color:#fff;font-size:16px">VadeX</b><p style="margin:8px 0 0;max-width:320px">Vadeli alacakların doğrulanarak lisanslı finansman kuruluşlarına devri için geliştirilmiş platform. Hacktoberfest 2026 Elazığ projesidir.</p></div>
-  <div><h5>Platform</h5><a href="#/#surec">İşlem adımları</a><a href="#/#kontroller">Kontroller</a><a href="#/giris">Giriş</a></div>
-  <div><h5>Kurumsal</h5><a href="#/guvenlik">Güvenlik</a><a href="#/mevzuat">Mevzuat</a></div>
-  <div><h5>Teknoloji</h5><span>Gemma 4 · Ollama · GitHub Copilot</span></div>
-  <div class="bottom"><span>© 2026 VadeX · Demo sürümü</span><span>Kişisel Verilerin Korunması · Kullanım Koşulları</span></div>
+  <div><b style="color:#fff;font-size:16px;font-family:var(--head)">VadeX</b><p style="margin:8px 0 0;max-width:340px">Vadeli alacakların doğrulanarak lisanslı finansman kuruluşlarına devri için geliştirilmiş özel bir platformdur; bir kamu kurumu değildir. Hacktoberfest 2026 Elazığ projesi.</p></div>
+  <div><h5>Kimler için</h5><a href="#/kimler/kobi">KOBİ'ler</a><a href="#/kimler/finansor">Finansörler</a><a href="#/kimler/alici">Alıcı firmalar</a></div>
+  <div><h5>Kurumsal</h5><a href="#/guvenlik">Güvenlik</a><a href="#/mevzuat">Mevzuat</a><a href="#/sahtecilik">Sahte faturayla mücadele</a></div>
+  <div><h5>Giriş</h5><a href="#/giris/kobi">KOBİ girişi</a><a href="#/giris/finansor">Finansör girişi</a><a href="#/giris/denetim">Denetim girişi</a></div>
+  <div class="bottom"><span>© 2026 VadeX · Demo sürümü · Gemma 4 · Ollama · GitHub Copilot</span><span>Kişisel Verilerin Korunması · Kullanım Koşulları</span></div>
 </div></footer>`;
 
-function staticPage(title, html) {
-  app.innerHTML = `<div class="wrap" style="padding:36px 20px 60px;max-width:860px"><div class="crumbs"><a href="#/">Ana sayfa</a> / ${esc(title)}</div><h1 style="font-size:26px;margin-bottom:16px">${esc(title)}</h1>${html}</div>${footer()}`;
+function staticPage(title, html, withPosters) {
+  app.innerHTML = `<div class="wrap" style="padding:40px 24px 60px;max-width:900px"><div class="crumbs"><a href="#/">Ana sayfa</a> / ${esc(title)}</div><h1 style="font-size:30px;margin-bottom:18px">${esc(title)}</h1>${html}</div>${withPosters ? posters() : ""}${footer()}`;
 }
 const guvenlik = () => staticPage("Güvenlik", `
   <div class="panel"><div class="pb"><dl class="kv">
     <dt>Model</dt><dd>Gemma 4, platform sunucusunda Ollama ile çalışır. Belge içeriği dış servislere gönderilmez.</dd>
     <dt>Bütünlük</dt><dd>Her dosyanın SHA-256 özeti saklanır; aynı belge ikinci kez finansmana açılamaz.</dd>
-    <dt>Kayıt defteri</dt><dd>Giriş, yükleme, teklif ve kabul işlemleri kullanıcı, zaman, IP ve cihaz bilgisiyle kaydedilir.</dd>
+    <dt>Kayıt defteri</dt><dd>Giriş, yükleme, teklif ve kabul işlemleri kullanıcı, zaman, IP ve cihaz bilgisiyle kaydedilir; kayıtlar değiştirilemez.</dd>
     <dt>Kimlik doğrulama</dt><dd>Parolalar tuzlanmış PBKDF2 özetiyle saklanır; rol bazlı erişim her istekte kontrol edilir.</dd>
     <dt>İnsan denetimi</dt><dd>Yapay zekâ ve kural motoru karar destek aracıdır. Yüksek riskli belgeler denetim ekibine gider.</dd>
   </dl></div></div>`);
@@ -172,20 +210,79 @@ const mevzuat = () => staticPage("Mevzuat", `
     <dt>6698 sayılı KVKK</dt><dd>Kişisel verilerin işlenmesi ve korunması.</dd>
     <dt>e-Fatura</dt><dd>Bu demoda e-Fatura sorgusu simüle edilmektedir.</dd>
   </dl></div></div>`);
+const sahtecilik = () => staticPage("Sahte faturayla mücadele", `
+  <p class="muted" style="font-size:16px;margin-top:0">Naylon fatura; gerçekte satılmayan bir mal veya hizmet için düzenlenen faturadır. Faturayı alan taraf bunu gider gösterip vergisini düşürür, düzenleyen taraf komisyon alır. İki taraf da suç işler.</p>
+  <div class="panel"><div class="ph"><h3>Örnek: 200.000 TL'lik naylon fatura</h3><span class="pill red">Suç</span></div><div class="pb"><dl class="kv">
+    <dt>Faturayı kullanan</dt><dd>200.000 TL'yi gider yazar; kurumlar vergisinden 50.000 TL, KDV'den 40.000 TL olmak üzere yaklaşık 90.000 TL vergi kaçırır.</dd>
+    <dt>Faturayı düzenleyen</dt><dd>Örneğin 16.000 TL komisyon alır, ancak kâğıt üzerinde 90.000 TL vergi borcunun altına girer.</dd>
+    <dt>Yakalanırsa</dt><dd>Her iki taraf için 3–8 yıl hapis; kaçırılan verginin üç katı vergi ziyaı cezası ve gecikme faizi.</dd>
+  </dl><p class="muted small" style="margin:12px 0 0">Oranlar örnek amaçlıdır; kesin hesap için mali müşavirinize danışın.</p></div></div>
+  <div class="panel"><div class="ph"><h3>VadeX naylon faturayı nasıl yakalar?</h3></div><div class="pb"><ul style="margin:0;padding-left:18px">
+    <li>Alıcı onayı olmayan fatura pazara çıkmaz.</li><li>İrsaliyesiz mal faturası, faaliyetle uyumsuz kalem ve kapasiteyi aşan tutarlar işaretlenir.</li>
+    <li>Fatura ağında A → B → C → A döngüleri, aynı adresli yeni şirketler ve onlarca ilgisiz firmaya fatura kesen simsarlar tespit edilir.</li>
+    <li>Gemma 4 her bulguyu sade bir dille açıklar; son kararı denetim ekibi verir.</li></ul></div></div>`, true);
+
+// audience pages
+const AUDIENCE = {
+  kobi: {
+    pill: "KOBİ'ler için", title: "Sattınız, teslim ettiniz. Paranız için 90 gün beklemeyin.",
+    lead: "Büyük bir firmaya kestiğiniz vadeli faturayı yükleyin; doğrulandıktan sonra lisanslı finansman kuruluşları teklif versin. Kredi başvurusu, ipotek veya kefil gerekmez; risk, faturayı ödeyecek alıcıya göre ölçülür.",
+    calc: [["Fatura tutarı (90 gün vade)", "100.000,00 TL"], ["Örnek kırma bedeli (%5,5)", "−5.500,00 TL"], ["Platform hizmet bedeli (%0,5)", "−500,00 TL"], ["Bugün hesabınıza geçen", "94.000,00 TL"]],
+    benefits: [["Teminat istenmez", "Değerlendirme alıcı firmanın ödeme gücüne göre yapılır; işletmenizin mülkü teminat gösterilmez."], ["Rekabetçi teklif", "Birden fazla finansör aynı faturaya teklif verir; en yüksek net tutarı siz seçersiniz."], ["Gemma 4 ile yorum", "Her teklifin yıllık maliyeti ve uygunluğu sade bir dille açıklanır."], ["Şeffaf süreç", "Okuma, doğrulama, teklif ve ödeme adımları panelinizde anlık görünür."], ["Yasal ve kayıtlı", "Tüm işlem e-Fatura kaydına dayanır; tefecilik veya kayıt dışı finansmana gerek kalmaz."], ["Veriniz sizde kalır", "Fatura içeriği platform dışındaki yapay zekâ servislerine gönderilmez."]],
+    cta: ["kobi", "KOBİ girişi"],
+  },
+  finansor: {
+    pill: "Finansman kuruluşları için", title: "Doğrulanmış alacaklara, risk raporuyla birlikte teklif verin.",
+    lead: "Pazardaki her fatura e-Fatura kaydı, alıcı onayı ve sahte belge kontrollerinden geçmiş olarak gelir. Alıcının ödeme geçmişi ve Gemma 4 risk özeti, analiz süresini dakikalara indirir.",
+    calc: [["Nominal alacak", "100.000,00 TL"], ["Teklifiniz (bugün ödenen)", "94.500,00 TL"], ["Vade (gün)", "90"], ["Vade sonu brüt getiri", "5.500,00 TL · yıllık ≈ %23,6"]],
+    benefits: [["Ön doğrulama", "Çift kullanım, irsaliye, faaliyet uyumu ve fatura ağı kontrolleri tamamlanmış belgeler."], ["Alıcı ödeme geçmişi", "Alıcının son 18 aydaki ödeme davranışı ve gecikme eğilimi tek ekranda."], ["Gemma 4 risk özeti", "Her belge için önerilen iskonto ve gerekçesi; karar sizde kalır."], ["Filtreli pazar", "Risk sınıfı, tutar, vade ve sektöre göre listeleme."], ["Kayıt defteri", "Teklif ve kabul işlemleri değiştirilemez şekilde kayıt altında."], ["Veri yerelliği", "Model platform sunucusunda çalışır; müşteri verisi dışarı çıkmaz."]],
+    cta: ["finansor", "Finansör girişi"],
+  },
+  alici: {
+    pill: "Alıcı firmalar için", title: "Tedarikçinizi ayakta tutun, nakdiniz kasanızda kalsın.",
+    lead: "Faturayı ödeyecek taraf sizsiniz. Tedarikçileriniz faturalarını finansmana açarak vadeyi beklemeden nakde ulaşır; siz ödemeyi aynı vadede yaparsınız. Üretim zinciriniz nakit sıkışıklığı yüzünden durmaz.",
+    calc: [["Tedarikçi faturası", "100.000,00 TL"], ["Sizin ödeme tarihiniz", "Değişmez (vade sonu)"], ["Tedarikçinin bugün aldığı", "≈ 94.000,00 TL"], ["Sizin ek maliyetiniz", "0 TL"]],
+    benefits: [["Kesintisiz tedarik", "Tedarikçileriniz hammadde ve maaş ödemelerini aksatmadan üretime devam eder."], ["Vade gücü", "Tedarikçiniz nakde erken ulaştığı için vade görüşmelerinde esneklik kazanırsınız."], ["Tek onay", "Faturayı e-Fatura üzerinden onaylamanız yeterli; ödeme yönlendirmesi platformda görünür."], ["Ödeme itibarı", "Zamanında ödeme geçmişiniz, tedarikçilerinizin daha iyi teklif almasını sağlar."], ["Sahte belgeye karşı", "Adınıza düzenlenmiş ancak onaylamadığınız faturalar pazara çıkmaz."], ["Raporlama", "Hangi tedarikçinizin hangi faturayı finansmana açtığını izleyin."]],
+    cta: ["giris/kobi", "Tedarikçilerinizi davet edin"],
+  },
+};
+function audience(kind) {
+  const a = AUDIENCE[kind] || AUDIENCE.kobi;
+  app.innerHTML = `<section class="aud-hero"><div class="wrap"><div>
+      <div class="tabs-aud">${AUD.map(([k, t]) => `<a class="pill ${k === kind ? "navy" : ""}" href="#/kimler/${k}">${t}</a>`).join("")}</div>
+      <h1>${esc(a.title)}</h1><p>${esc(a.lead)}</p>
+      <div class="actions" style="display:flex;gap:12px;flex-wrap:wrap"><a class="btn primary" href="#/${a.cta[0].includes("/") ? a.cta[0] : "giris/" + a.cta[0]}">${esc(a.cta[1])}</a><a class="btn" href="#/#surec">Nasıl çalışır?</a></div></div>
+    <div class="calc"><h4>Örnek hesap</h4>${a.calc.map(([l, v], i) => `<div class="line ${i === a.calc.length - 1 ? "total" : ""}"><span>${esc(l)}</span><b>${esc(v)}</b></div>`).join("")}<p class="muted small" style="margin:10px 0 0">Oranlar örnek amaçlıdır; gerçek oran piyasa faizine ve alıcının riskine göre belirlenir.</p></div>
+  </div></section>
+  <section class="band"><div class="wrap"><h2>Avantajlar</h2><p class="sub">${esc(a.pill)} VadeX'in sağladıkları.</p>
+    <div class="benefits">${a.benefits.map(([t, p], i) => `<div class="benefit"><span class="ico">${[icon.shield, icon.bank, icon.doc, icon.up, icon.hash, icon.shield][i]}</span><h4>${esc(t)}</h4><p>${esc(p)}</p></div>`).join("")}</div></div></section>
+  ${posters()}${footer()}`;
+}
 
 // ---------- login ----------
-async function login() {
-  let demo = {};
+async function login(roleFromUrl) {
+  if (roleFromUrl) S.loginRole = roleFromUrl;
+  let demo = [];
   try { demo = await api("/demo-accounts"); } catch { /* optional */ }
   const role = S.loginRole;
   const label = { kobi: "Vergi kimlik numarası", finansor: "Kurum kullanıcı adı", denetim: "Kullanıcı adı" }[role];
-  const list = (demo[role] || []).slice(0, 4).map(u => `<code>${esc(u)}</code>`).join(", ");
-  app.innerHTML = `<div class="wrap"><div class="auth"><div class="head"><h2>Platform girişi</h2><p class="muted small" style="margin:4px 0 0">Hesap türünüzü seçin.</p>
-    <div class="roles">${[["kobi", "KOBİ"], ["finansor", "Finansör"], ["denetim", "Denetim"]].map(([k, l]) => `<button data-act="role" data-v="${k}" class="${k === role ? "on" : ""}">${l}</button>`).join("")}</div></div>
-    <form class="body" id="lf"><div class="field"><label class="f" for="u">${label}</label><input class="f" id="u" autocomplete="username" required></div>
-    <div class="field"><label class="f" for="pw">Parola</label><input class="f" id="pw" type="password" autocomplete="current-password" required></div>
-    <button class="btn primary block" type="submit">Giriş yap</button><div class="err" id="le"></div>
-    <div class="hint">Demo hesapları: ${list || "–"}${list ? " · parola <code>demo1234</code>" : ""}</div></form></div></div>${footer()}`;
+  const accounts = (Array.isArray(demo) ? demo.find(d => d.role === role)?.accounts : demo[role]) || [];
+  const list = accounts.slice(0, 4).map(u => { const n = typeof u === "string" ? u : u.username; return `<code data-act="fill" data-v="${esc(n)}" title="${esc(u.display_name || "")}">${esc(n)}</code>`; }).join(" ");
+  app.innerHTML = `<div class="login-wrap">
+    <div class="login-art">${FLAG}
+      <h2>Kayıtlı ticaret, güvenli finansman.</h2>
+      <p>VadeX, gerçek satışa dayanan faturaların doğrulanarak lisanslı finansman kuruluşlarına devredildiği yerli bir platformdur.</p>
+      <ul><li>Gemma 4 modeli platform sunucusunda çalışır; verileriniz dışarı çıkmaz.</li><li>Her belge SHA-256 özetiyle kayıt altına alınır.</li><li>Naylon fatura ve çift kullanım kontrolleri her yüklemede çalışır.</li></ul>
+      <div class="note">VadeX özel bir platformdur; Gelir İdaresi Başkanlığı veya başka bir kamu kurumu ile bağlantılı değildir. Demo ortamıdır.</div>
+    </div>
+    <div class="login-form"><div class="auth"><h2>${{ kobi: "KOBİ girişi", finansor: "Finansör girişi", denetim: "Denetim girişi" }[role]}</h2><p class="muted small" style="margin:4px 0 0">Hesap türünüzü seçip bilgilerinizi girin.</p>
+      <div class="roles">${[["kobi", "KOBİ"], ["finansor", "Finansör"], ["denetim", "Denetim"]].map(([k, l]) => `<button type="button" data-act="role" data-v="${k}" class="${k === role ? "on" : ""}">${l}</button>`).join("")}</div>
+      <form id="lf"><div class="field"><label class="f" for="u">${label}</label><input class="f" id="u" autocomplete="username" required></div>
+      <div class="field"><label class="f" for="pw">Parola</label><input class="f" id="pw" type="password" autocomplete="current-password" required></div>
+      <button class="btn primary block" type="submit">Giriş yap</button><div class="err" id="le"></div></form>
+      <div class="hint"><b>Demo hesapları</b> (tıklayınca dolar): ${list || "–"}<br>Parola: <code>demo1234</code></div>
+      <div class="secure">${icon.shield}<span>Oturum açma denemeleri IP ve cihaz bilgisiyle kayıt defterine işlenir.</span></div>
+    </div></div></div>`;
   $("#lf").onsubmit = async e => {
     e.preventDefault();
     try {
@@ -205,15 +302,38 @@ function docTable(list, mode) {
 }
 const kpis = a => `<div class="kpis">${a.map(([l, v]) => `<div class="kpi"><small>${esc(l)}</small><b>${v}</b></div>`).join("")}</div>`;
 
+// ---------- Gemma 4 visibility ----------
+const aiHead = (title, r) => `<div class="ai-h"><span class="chip">GEMMA 4 · YEREL</span><h4>${esc(title)}</h4>${r?.generated_at ? `<time>${DT(r.generated_at)}</time>` : ""}</div>`;
+const aiLoading = title => `<div class="ai">${aiHead(title)}<div class="skeleton" style="width:92%"></div><div class="skeleton" style="width:76%"></div><div class="skeleton" style="width:58%"></div></div>`;
+const VERDICT = { uygun: "Uygun", dikkat: "Dikkat", riskli: "Riskli" };
+async function aiInto(sel, title, path, draw) {
+  const el = $(sel); if (!el) return;
+  el.innerHTML = aiLoading(title);
+  try { const r = await api(path); if ($(sel)) $(sel).innerHTML = `<div class="ai">${aiHead(title, r)}${draw(r)}</div>`; }
+  catch (e) { if ($(sel)) $(sel).innerHTML = `<div class="ai">${aiHead(title)}<p class="muted small">Gemma yorumu şu an alınamadı: ${esc(e.message)}</p></div>`; }
+}
+const digest = sel => aiInto(sel, "Sizin için özet", "/my/ai-digest", r => `<ul>${(r.bullets || []).map(b => `<li>${esc(b)}</li>`).join("")}</ul>`);
+const invoiceInsight = (sel, id) => aiInto(sel, "Fatura değerlendirmesi", `/documents/${encodeURIComponent(id)}/insight`, r =>
+  `<p>${r.verdict ? `<span class="verdict ${esc(r.verdict)}">${VERDICT[r.verdict] || esc(r.verdict)}</span> ` : ""}${esc(r.summary)}</p>
+   <div class="cols"><div><h5>Güçlü yönler</h5><ul class="pro">${(r.strengths || []).map(s => `<li>${esc(s)}</li>`).join("") || "<li>–</li>"}</ul></div><div><h5>Dikkat edilecekler</h5><ul class="con">${(r.concerns || []).map(s => `<li>${esc(s)}</li>`).join("") || "<li>–</li>"}</ul></div></div>`);
+const paymentProfile = (sel, vkn) => vkn && aiInto(sel, "Alıcının ödeme geçmişi", `/companies/${encodeURIComponent(vkn)}/payment-profile`, r => {
+  const s = r.stats || {}, h = [...(r.history || [])].reverse();
+  const max = Math.max(10, ...h.map(x => x.days_late || 0));
+  return `<dl class="kv" style="grid-template-columns:170px 1fr"><dt>Zamanında ödeme oranı</dt><dd><b>${s.on_time_ratio != null ? PCT(s.on_time_ratio) : "–"}</b></dd><dt>Ortalama gecikme</dt><dd>${s.avg_days_late != null ? (+s.avg_days_late).toFixed(1) + " gün" : "–"} · en fazla ${s.max_days_late ?? "–"} gün</dd><dt>Son 12 ay hacim</dt><dd>${TL0(s.volume_12m)}</dd></dl>
+    ${h.length ? `<div class="bars" title="Her çubuk bir ödeme: yükseklik gecikme günü">${h.map(x => `<span class="${x.days_late > 15 ? "vlate" : x.days_late > 5 ? "late" : ""}" style="height:${Math.max(4, (x.days_late || 0) / max * 100)}%" title="${esc(x.invoice_no)} · ${x.days_late} gün"></span>`).join("")}</div><div class="muted small">Son ${h.length} ödeme, soldan sağa eskiden yeniye · yükseklik = gecikme günü</div>` : ""}
+    <p style="margin-top:10px">${esc(r.ai_comment)}</p>`;
+});
+
 // ---------- KOBİ ----------
 async function kobiHome() {
   const [stats, docs] = await Promise.all([api("/stats"), api("/my/documents")]);
   const waiting = docs.filter(d => d.status === "teklif_var");
   app.innerHTML = shell("kobi", "Panel", "Genel bakış", "Belgelerinizin ve tekliflerin güncel durumu.",
-    kpis([["Finanse edilen", TL0(stats.financed_total)], ["Teklif bekleyen belge", stats.waiting_count ?? 0], ["Alınan teklif", stats.offer_count ?? 0], ["Ortalama iskonto", stats.avg_discount != null ? PCT(stats.avg_discount) : "–"]]) +
+    `<div id="dg" style="margin-bottom:18px"></div>` + kpis([["Finanse edilen", TL0(stats.financed_total)], ["Teklif bekleyen belge", stats.waiting_count ?? 0], ["Alınan teklif", stats.offer_count ?? 0], ["Ortalama iskonto", stats.avg_discount != null ? PCT(stats.avg_discount) : "–"]]) +
     `<div class="split"><div class="panel"><div class="ph"><h3>Son belgeler</h3><a class="btn sm" href="#/kobi/belgeler">Tümü</a></div>${docTable(docs.slice(0, 6))}</div>
      <div class="panel"><div class="ph"><h3>İşlem bekleyenler</h3></div><div class="pb">${waiting.length ? waiting.map(d => `<div class="offer"><div><b>${esc(d.buyer?.name)}</b><div class="muted small">${esc(d.invoice_no)} · ${d.offer_count} teklif · en iyi ${TL0(d.best_offer)}</div></div><a class="btn primary sm" href="#/belge/${esc(d.id)}">İncele</a></div>`).join("") : '<p class="muted" style="margin:0">Teklif bekleyen işlem yok.</p>'}
      <a class="btn teal block" style="margin-top:14px" href="#/kobi/yukle">Yeni fatura yükle</a></div></div></div>`);
+  digest("#dg");
 }
 
 async function kobiDocs() {
@@ -311,32 +431,43 @@ async function detail(id) {
       <dt>Alıcı kredi skoru</dt><dd>${d.buyer?.credit_score ?? "–"} <span class="badge">simülasyon</span></dd><dt>Düzenleme</dt><dd>${DATE(d.issue_date)}</dd><dt>İrsaliye</dt><dd>${esc(d.irsaliye_no || "Yok")}</dd>
       ${d.file ? `<dt>SHA-256</dt><dd class="mono" title="${esc(d.file.sha256)}">${short(d.file.sha256)}</dd><dt>Yükleme</dt><dd>${DT(d.file.uploaded_at)} · ${esc(d.file.ip_address)}</dd>` : ""}</dl>
       <h4 style="margin:20px 0 10px;font-size:14px">Doğrulama adımları</h4>${timeline(d.steps)}
-      ${d.flags?.length ? `<h4 style="margin:6px 0 10px;font-size:14px">Bulgular</h4><ul class="flags">${d.flags.map(fl => `<li class="${d.risk_score >= 60 ? "hi" : ""}"><b>${esc(fl.label)}</b> – ${esc(fl.detail)}</li>`).join("")}</ul>` : ""}</div></div>`;
+      ${d.flags?.length ? `<h4 style="margin:6px 0 10px;font-size:14px">Bulgular</h4><ul class="flags">${d.flags.map(fl => `<li class="${d.risk_score >= 60 ? "hi" : ""}"><b>${esc(fl.label)}</b> – ${esc(fl.detail)}</li>`).join("")}</ul>` : ""}</div></div>
+      <div id="ins" style="margin-bottom:18px"></div>`;
   let right = "";
   if (role === "kobi") {
     right = `<div class="panel"><div class="ph"><h3>Gelen teklifler</h3><span class="muted small">${offers.length} teklif</span></div><div class="pb">
       ${offers.length ? [...offers].sort((a, b) => b.net_amount - a.net_amount).map((o, i) => `<div class="offer"><div><b>${esc(o.financier?.name)}</b> ${i === 0 && o.status === "beklemede" ? '<span class="badge ok">En yüksek</span>' : ""} ${o.status !== "beklemede" ? st(o.status) : ""}<div class="muted small">İskonto ${PCT(o.discount_rate)} · yıllık ${PCT(o.annual_rate)} · ${DT(o.created_at)}</div>${o.note ? `<div class="small">${esc(o.note)}</div>` : ""}</div><div class="net">${TL(o.net_amount)}</div>
+        ${o.status === "beklemede" ? `<div class="ai-line" id="oc-${o.id}"><span class="skeleton" style="display:inline-block;width:60%;margin:0;vertical-align:middle"></span></div>` : ""}
         ${o.status === "beklemede" && !["finanse_edildi", "reddedildi"].includes(d.status) ? `<div class="acts"><button class="btn primary sm" data-act="accept" data-id="${o.id}">Kabul et</button><button class="btn sm" data-act="reject" data-id="${o.id}">Reddet</button></div>` : ""}</div>`).join("")
         : `<p class="muted" style="margin:0">${d.status === "incelemede" ? "Belge denetim incelemesinde. Onaylandıktan sonra pazara açılacak." : "Henüz teklif gelmedi. Teklif geldiğinde bildirim ve e-posta alacaksınız."}</p>`}
-      ${offers.filter(o => o.status === "beklemede").length > 1 ? `<button class="btn block" style="margin-top:12px" data-act="compare" data-id="${esc(d.id)}">Teklifleri Gemma ile karşılaştır</button><div id="cmp"></div>` : ""}</div></div>`;
+      </div></div><div id="cmp" style="margin-bottom:18px"></div><div id="pay"></div>`;
   } else if (role === "finansor") {
     const mine = offers.find(o => o.financier?.id === S.user.id && o.status === "beklemede");
-    right = `<div class="panel"><div class="ph"><h3>Risk raporu</h3><span class="badge info">Gemma 4</span></div><div class="pb" id="rr">${spin} <span class="muted">Rapor hazırlanıyor…</span></div></div>
+    right = `<div id="rr" style="margin-bottom:18px"></div><div id="pay" style="margin-bottom:18px"></div>
       <div class="panel"><div class="ph"><h3>${mine ? "Teklifinizi güncelleyin" : "Teklif ver"}</h3><span class="muted small">${offers.filter(o => o.status === "beklemede").length} aktif teklif</span></div><div class="pb">
       ${["teklif_bekliyor", "teklif_var"].includes(d.status) ? `<form id="of"><div class="field"><label class="f" for="na">Ödenecek net tutar (TL)</label><input class="f" id="na" type="number" step="0.01" max="${d.total}" value="${mine ? mine.net_amount : ""}" required></div>
         <div class="muted small" id="calc" style="margin:-6px 0 12px">Nominal ${TL(d.total)}</div><div class="field"><label class="f" for="nt">Not (isteğe bağlı)</label><textarea class="f" id="nt">${esc(mine?.note || "")}</textarea></div>
         <button class="btn primary block" type="submit">${mine ? "Teklifi güncelle" : "Teklif ver"}</button>${mine ? `<button class="btn block" type="button" style="margin-top:8px" data-act="withdraw" data-id="${mine.id}">Teklifi geri çek</button>` : ""}<div class="err" id="oe"></div></form>`
         : '<p class="muted" style="margin:0">Bu belge teklife kapalı.</p>'}</div></div>`;
   } else {
-    right = `<div class="panel"><div class="ph"><h3>Denetim kararı</h3></div><div class="pb">${d.status === "incelemede" ? `<div class="field"><label class="f" for="rs">Gerekçe</label><textarea class="f" id="rs" placeholder="Karar gerekçesi"></textarea></div><div style="display:flex;gap:8px"><button class="btn primary" data-act="review" data-v="approve" data-id="${esc(d.id)}">Onayla, pazara aç</button><button class="btn" data-act="review" data-v="reject" data-id="${esc(d.id)}">Reddet</button></div>` : `<p class="muted" style="margin:0">Belge durumu: ${st(d.status)}</p>`}</div></div>`;
+    right = `<div class="panel"><div class="ph"><h3>Denetim kararı</h3></div><div class="pb">${d.status === "incelemede" ? `<div class="field"><label class="f" for="rs">Gerekçe</label><textarea class="f" id="rs" placeholder="Karar gerekçesi"></textarea></div><div style="display:flex;gap:8px"><button class="btn primary" data-act="review" data-v="approve" data-id="${esc(d.id)}">Onayla, pazara aç</button><button class="btn" data-act="review" data-v="reject" data-id="${esc(d.id)}">Reddet</button></div>` : `<p class="muted" style="margin:0">Belge durumu: ${st(d.status)}</p>`}</div></div><div id="pay"></div>`;
   }
   const back = { kobi: "kobi/belgeler", finansor: "finansor", denetim: "denetim" }[role];
   app.innerHTML = shell(back, `<a href="#/${back}">Geri</a> / ${esc(d.invoice_no)}`, d.invoice_no, esc(d.seller?.name) + " → " + esc(d.buyer?.name), `<div class="split">${left}<div>${right}</div></div>`);
+  S.detailKey = id + ":" + offers.map(o => o.id + o.status + o.net_amount).join(",");
+  invoiceInsight("#ins", d.id);
+  paymentProfile("#pay", d.buyer?.vkn);
+  if (role === "kobi" && offers.some(o => o.status === "beklemede")) {
+    aiInto("#cmp", "Teklif değerlendirmesi", `/documents/${encodeURIComponent(d.id)}/offers-insight`, r => {
+      (r.offers || []).forEach(o => { const el = $("#oc-" + o.offer_id); if (el) el.textContent = o.comment; });
+      return `<p><b>${esc(r.recommendation)}</b></p><p class="small" style="margin:0">${esc(r.reason)}</p>`;
+    }).then(() => document.querySelectorAll(".ai-line .skeleton").forEach(s => s.parentElement.textContent = "Bu teklif için ayrı yorum üretilmedi."));
+  }
   if (role === "finansor") {
-    api(`/documents/${encodeURIComponent(id)}/risk-report`).then(rr => {
-      $("#rr").innerHTML = `<div class="gemma"><span class="by">Gemma 4 risk özeti</span>${esc(rr.summary)}</div><dl class="kv" style="margin-top:12px"><dt>Önerilen iskonto</dt><dd>${PCT(rr.suggested_discount_rate)}</dd><dt>Önerilen net tutar</dt><dd>${TL(rr.suggested_net_amount)}</dd></dl>`;
-      const na = $("#na"); if (na && !na.value && rr.suggested_net_amount) { na.value = rr.suggested_net_amount.toFixed(2); na.dispatchEvent(new Event("input")); }
-    }).catch(e => { $("#rr").innerHTML = `<span class="err">${esc(e.message)}</span>`; });
+    aiInto("#rr", "Risk raporu", `/documents/${encodeURIComponent(id)}/risk-report`, rr => {
+      setTimeout(() => { const na = $("#na"); if (na && !na.value && rr.suggested_net_amount) { na.value = (+rr.suggested_net_amount).toFixed(2); na.dispatchEvent(new Event("input")); } });
+      return `<p>${esc(rr.summary)}</p><dl class="kv"><dt>Önerilen iskonto</dt><dd><b>${PCT(rr.suggested_discount_rate)}</b></dd><dt>Önerilen net tutar</dt><dd>${TL(rr.suggested_net_amount)}</dd></dl>`;
+    });
     const na = $("#na");
     if (na) {
       na.oninput = () => { const v = +na.value, disc = 1 - v / d.total, yr = disc / Math.max(1, d.days_left || 1) * 365; $("#calc").textContent = v ? (v > d.total ? "Teklif nominal tutarı aşamaz." : `İskonto ${PCT(disc)} · yıllık ${PCT(yr)} · vade sonunda kazanç ${TL(d.total - v)}`) : "Nominal " + TL(d.total); };
@@ -355,9 +486,10 @@ async function market() {
     $("#lst").innerHTML = docTable(list, "market");
   };
   app.innerHTML = shell("finansor", "Panel / Fatura pazarı", "Fatura pazarı", "Doğrulanmış ve finansmana açılmış faturalar. Satırı seçerek risk raporunu görün ve teklif verin.",
-    `<div id="mk"></div><div class="panel"><div class="filters"><input class="f" id="mq" placeholder="Firma veya belge no"><select class="f" id="mr"><option value="">Tüm risk sınıfları</option><option value="A">A · düşük</option><option value="B">B · orta</option><option value="C">C · yüksek</option></select><input class="f" id="mm" type="number" placeholder="Min. tutar (TL)"><select class="f" id="md"><option value="">Tüm vadeler</option><option>30</option><option>60</option><option>90</option><option>120</option></select><select class="f" id="ms"><option value="amount">Tutara göre</option><option value="due">Vadeye göre</option></select></div><div id="lst"></div></div>`);
+    `<div id="dg" style="margin-bottom:18px"></div><div id="mk"></div><div class="panel"><div class="filters"><input class="f" id="mq" placeholder="Firma veya belge no"><select class="f" id="mr"><option value="">Tüm risk sınıfları</option><option value="A">A · düşük</option><option value="B">B · orta</option><option value="C">C · yüksek</option></select><input class="f" id="mm" type="number" placeholder="Min. tutar (TL)"><select class="f" id="md"><option value="">Tüm vadeler</option><option>30</option><option>60</option><option>90</option><option>120</option></select><select class="f" id="ms"><option value="amount">Tutara göre</option><option value="due">Vadeye göre</option></select></div><div id="lst"></div></div>`);
   ["mq", "mm"].forEach(i => $("#" + i).oninput = debounce(draw, 300));
   ["mr", "md", "ms"].forEach(i => $("#" + i).onchange = draw);
+  digest("#dg");
   await draw();
 }
 const debounce = (f, ms) => { let t; return () => { clearTimeout(t); t = setTimeout(f, ms); }; };
@@ -377,7 +509,8 @@ async function portfolio() {
 async function reviewQueue() {
   const list = await api("/review-queue");
   app.innerHTML = shell("denetim", "Denetim / İnceleme kuyruğu", "İnceleme kuyruğu", "Risk puanı 60 ve üzeri olan belgeler pazara açılmadan önce burada incelenir.",
-    `<div class="panel">${docTable(list, "market")}</div>`);
+    `<div id="dg" style="margin-bottom:18px"></div><div class="panel">${docTable(list, "market")}</div>`);
+  digest("#dg");
 }
 async function network() {
   app.innerHTML = shell("denetim/ag", "Denetim / Fatura ağı analizi", "Fatura ağı analizi", "Firmalar arası fatura akışı. Döngüsel zincirler, paravan şirketler ve fatura simsarları kırmızıyla işaretlenir.",
@@ -425,7 +558,7 @@ async function notifications() {
 }
 
 const ROUTES = {
-  "": home, giris: login, guvenlik, mevzuat,
+  "": home, giris: () => login(), guvenlik, mevzuat, sahtecilik,
   kobi: kobiHome, "kobi/belgeler": kobiDocs, "kobi/yukle": kobiUpload,
   finansor: market, "finansor/teklifler": myOffers, "finansor/portfoy": portfolio,
   denetim: reviewQueue, "denetim/ag": network, "denetim/kayit": ledger,
@@ -441,7 +574,9 @@ document.addEventListener("click", async e => {
   if (!b) return;
   const a = b.dataset.act, id = b.dataset.id;
   try {
-    if (a === "role") { S.loginRole = b.dataset.v; login(); }
+    if (a === "role") { go("giris/" + b.dataset.v); }
+    if (a === "menu") { S.menu = S.menu === b.dataset.v ? null : b.dataset.v; nav(); }
+    if (a === "fill") { $("#u").value = b.dataset.v; $("#pw").value = "demo1234"; $("#pw").focus(); }
     if (a === "logout") { await api("/logout", { method: "POST" }).catch(() => {}); S.user = null; S.upload = null; go(""); }
     if (a === "bell") { S.ddOpen = !S.ddOpen; nav(); }
     if (a === "newupload") { S.upload = null; kobiUpload(); }
@@ -467,7 +602,22 @@ document.addEventListener("click", async e => {
     if (a === "netreport") { $("#nr").innerHTML = `<div class="pb">${spin} <span class="muted">Gemma şüpheli kümeyi raporluyor…</span></div>`; const r = await api("/network/report", { method: "POST" }); $("#nr").innerHTML = `<div class="pb"><div class="gemma"><span class="by">Gemma 4 ağ raporu</span>${esc(r.report)}</div></div>`; }
   } catch (err) { toast(err.message); const ue = $("#ue"); if (ue) ue.textContent = err.message; }
 });
-document.addEventListener("click", e => { if (S.ddOpen && !e.target.closest(".bell")) { S.ddOpen = false; nav(); } }, true);
+document.addEventListener("click", e => {
+  if (S.ddOpen && !e.target.closest(".bell")) { S.ddOpen = false; nav(); }
+  if (S.menu && !e.target.closest(".menu")) { S.menu = null; nav(); }
+}, true);
 addEventListener("hashchange", render);
+
+// live updates: a financier's offer shows up on the KOBİ screen without a reload
+setInterval(async () => {
+  if (!S.user || document.hidden) return;
+  const before = unread();
+  await refreshNotes();
+  if (unread() > before) {
+    toast(S.notes[0]?.subject || "Yeni bildirim");
+    const r = (location.hash || "").slice(2);
+    if (r.startsWith("belge/") || r === "kobi" || r === "kobi/belgeler") render();
+  }
+}, 10000);
 
 (async () => { try { S.user = (await api("/me")).user; } catch { S.user = null; } render(); })();
