@@ -306,6 +306,19 @@ const kpis = a => `<div class="kpis">${a.map(([l, v]) => `<div class="kpi"><smal
 const aiHead = (title, r) => `<div class="ai-h"><span class="chip">GEMMA 4 · YEREL</span><h4>${esc(title)}</h4>${r?.generated_at ? `<time>${DT(r.generated_at)}</time>` : ""}</div>`;
 const aiLoading = title => `<div class="ai">${aiHead(title)}<div class="skeleton" style="width:92%"></div><div class="skeleton" style="width:76%"></div><div class="skeleton" style="width:58%"></div></div>`;
 const VERDICT = { uygun: "Uygun", dikkat: "Dikkat", riskli: "Riskli" };
+// minimal, safe markdown for model text: escape first, then **bold**, headings and bullet lists
+const md = t => {
+  const lines = esc(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").split(/\n+/);
+  let out = "", inList = false;
+  for (const raw of lines) {
+    const l = raw.trim(); if (!l) continue;
+    const item = l.match(/^(?:[*\-•]|\d+\.)\s+(.*)$/);
+    if (item) { if (!inList) { out += "<ul>"; inList = true; } out += `<li>${item[1]}</li>`; continue; }
+    if (inList) { out += "</ul>"; inList = false; }
+    out += `<p>${l.replace(/^#+\s*/, "")}</p>`;
+  }
+  return out + (inList ? "</ul>" : "");
+};
 async function aiInto(sel, title, path, draw) {
   const el = $(sel); if (!el) return;
   el.innerHTML = aiLoading(title);
@@ -314,14 +327,14 @@ async function aiInto(sel, title, path, draw) {
 }
 const digest = sel => aiInto(sel, "Sizin için özet", "/my/ai-digest", r => `<ul>${(r.bullets || []).map(b => `<li>${esc(b)}</li>`).join("")}</ul>`);
 const invoiceInsight = (sel, id) => aiInto(sel, "Fatura değerlendirmesi", `/documents/${encodeURIComponent(id)}/insight`, r =>
-  `<p>${r.verdict ? `<span class="verdict ${esc(r.verdict)}">${VERDICT[r.verdict] || esc(r.verdict)}</span> ` : ""}${esc(r.summary)}</p>
+  `<p>${r.verdict ? `<span class="verdict ${esc(r.verdict)}">${VERDICT[r.verdict] || esc(r.verdict)}</span> ` : ""}</p>${md(r.summary)}
    <div class="cols"><div><h5>Güçlü yönler</h5><ul class="pro">${(r.strengths || []).map(s => `<li>${esc(s)}</li>`).join("") || "<li>–</li>"}</ul></div><div><h5>Dikkat edilecekler</h5><ul class="con">${(r.concerns || []).map(s => `<li>${esc(s)}</li>`).join("") || "<li>–</li>"}</ul></div></div>`);
 const paymentProfile = (sel, vkn) => vkn && aiInto(sel, "Alıcının ödeme geçmişi", `/companies/${encodeURIComponent(vkn)}/payment-profile`, r => {
   const s = r.stats || {}, h = [...(r.history || [])].reverse();
   const max = Math.max(10, ...h.map(x => x.days_late || 0));
   return `<dl class="kv" style="grid-template-columns:170px 1fr"><dt>Zamanında ödeme oranı</dt><dd><b>${s.on_time_ratio != null ? PCT(s.on_time_ratio) : "–"}</b></dd><dt>Ortalama gecikme</dt><dd>${s.avg_days_late != null ? (+s.avg_days_late).toFixed(1) + " gün" : "–"} · en fazla ${s.max_days_late ?? "–"} gün</dd><dt>Son 12 ay hacim</dt><dd>${TL0(s.volume_12m)}</dd></dl>
     ${h.length ? `<div class="bars" title="Her çubuk bir ödeme: yükseklik gecikme günü">${h.map(x => `<span class="${x.days_late > 15 ? "vlate" : x.days_late > 5 ? "late" : ""}" style="height:${Math.max(4, (x.days_late || 0) / max * 100)}%" title="${esc(x.invoice_no)} · ${x.days_late} gün"></span>`).join("")}</div><div class="muted small">Son ${h.length} ödeme, soldan sağa eskiden yeniye · yükseklik = gecikme günü</div>` : ""}
-    <p style="margin-top:10px">${esc(r.ai_comment)}</p>`;
+    <div style="margin-top:10px">${md(r.ai_comment)}</div>`;
 });
 
 // ---------- KOBİ ----------
@@ -378,6 +391,7 @@ function fieldsPanel(U) {
   const f = U.fields, ro = U.step > 2 ? "readonly" : "";
   const inp = (k, l) => `<div class="field"><label class="f">${l}</label><input class="f" data-k="${k}" value="${esc(f[k] ?? "")}" ${ro}></div>`;
   return `<div class="panel"><div class="ph"><h3>Okunan bilgiler</h3><span class="badge info">Gemma 4</span></div><div class="pb">
+    ${(f.corrections || []).map(c => `<div class="ai-line" style="margin-bottom:10px">${esc(c.field === "buyer_vkn" ? "Alıcı" : "Satıcı")} VKN'si <span class="mono">${esc(c.read)}</span> okundu, kayıtlarla eşleştirilip <b class="mono">${esc(c.corrected)}</b> olarak düzeltildi. Lütfen kontrol edin.</div>`).join("")}
     <div class="grid-2">${inp("invoice_no", "Fatura no")}${inp("irsaliye_no", "İrsaliye no")}${inp("issue_date", "Düzenleme tarihi")}${inp("due_date", "Vade tarihi")}${inp("seller_name", "Satıcı")}${inp("seller_vkn", "Satıcı VKN")}${inp("buyer_name", "Alıcı")}${inp("buyer_vkn", "Alıcı VKN")}</div>
     <table class="items"><thead><tr><th>Mal / hizmet</th><th>Miktar</th><th>Birim</th><th>Birim fiyat</th></tr></thead><tbody>${(f.items || []).map((it, i) => `<tr><td><input data-i="${i}" data-ik="description" value="${esc(it.description)}" ${ro}></td><td><input data-i="${i}" data-ik="quantity" value="${esc(it.quantity)}" ${ro}></td><td><input data-i="${i}" data-ik="unit" value="${esc(it.unit)}" ${ro}></td><td><input data-i="${i}" data-ik="unit_price" value="${esc(it.unit_price)}" ${ro}></td></tr>`).join("")}</tbody></table>
     <div class="grid-3" style="margin-top:14px">${inp("subtotal", "Ara toplam")}${inp("kdv", "KDV")}${inp("total", "Genel toplam")}</div></div></div>`;
@@ -388,7 +402,7 @@ function checkPanel(U) {
     <div class="risk ${cls}"><span class="score">${d.risk_score}</span><div><b>Risk sınıfı ${esc(cls)}</b><div class="muted small">0–29 düşük · 30–59 orta · 60+ yüksek</div></div></div>
     <h4 style="margin:18px 0 10px;font-size:14px">Doğrulama adımları</h4>${timeline(d.steps)}
     ${d.flags?.length ? `<h4 style="margin:6px 0 10px;font-size:14px">Tespit edilen bulgular</h4><ul class="flags">${d.flags.map(fl => `<li class="${d.risk_score >= 60 ? "hi" : ""}"><b>${esc(fl.label)}</b> – ${esc(fl.detail)}</li>`).join("")}</ul>` : '<p class="badge ok">Kural ihlali bulunmadı</p>'}
-    <div class="gemma" style="margin-top:12px"><span class="by">Gemma 4 değerlendirmesi</span>${esc(U.check.explanation)}</div>
+    <div class="gemma" style="margin-top:12px"><span class="by">Gemma 4 değerlendirmesi</span>${md(U.check.explanation)}</div>
     ${U.step === 3 ? `<button class="btn teal block" style="margin-top:16px" data-act="publish">${d.risk_score >= 60 ? "Denetim incelemesine gönder" : "Finansmana aç"}</button>` : ""}
     ${U.step === 4 ? `<div class="hint"><b>${d.status === "incelemede" ? "Belge denetim incelemesine gönderildi." : "Belge fatura pazarına açıldı."}</b> Teklif geldiğinde bildirim ve e-posta alacaksınız.</div><div style="display:flex;gap:8px;margin-top:12px"><a class="btn primary" href="#/belge/${esc(d.id)}">Belgeye git</a><button class="btn" data-act="newupload">Yeni fatura</button></div>` : ""}
   </div></div>`;
@@ -460,13 +474,13 @@ async function detail(id) {
   if (role === "kobi" && offers.some(o => o.status === "beklemede")) {
     aiInto("#cmp", "Teklif değerlendirmesi", `/documents/${encodeURIComponent(d.id)}/offers-insight`, r => {
       (r.offers || []).forEach(o => { const el = $("#oc-" + o.offer_id); if (el) el.textContent = o.comment; });
-      return `<p><b>${esc(r.recommendation)}</b></p><p class="small" style="margin:0">${esc(r.reason)}</p>`;
+      return `<p><b>${esc(r.recommendation)}</b></p><div class="small">${md(r.reason)}</div>`;
     }).then(() => document.querySelectorAll(".ai-line .skeleton").forEach(s => s.parentElement.textContent = "Bu teklif için ayrı yorum üretilmedi."));
   }
   if (role === "finansor") {
     aiInto("#rr", "Risk raporu", `/documents/${encodeURIComponent(id)}/risk-report`, rr => {
       setTimeout(() => { const na = $("#na"); if (na && !na.value && rr.suggested_net_amount) { na.value = (+rr.suggested_net_amount).toFixed(2); na.dispatchEvent(new Event("input")); } });
-      return `<p>${esc(rr.summary)}</p><dl class="kv"><dt>Önerilen iskonto</dt><dd><b>${PCT(rr.suggested_discount_rate)}</b></dd><dt>Önerilen net tutar</dt><dd>${TL(rr.suggested_net_amount)}</dd></dl>`;
+      return `${md(rr.summary)}<dl class="kv"><dt>Önerilen iskonto</dt><dd><b>${PCT(rr.suggested_discount_rate)}</b></dd><dt>Önerilen net tutar</dt><dd>${TL(rr.suggested_net_amount)}</dd></dl>`;
     });
     const na = $("#na");
     if (na) {

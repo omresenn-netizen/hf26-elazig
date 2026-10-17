@@ -4,6 +4,7 @@ import io
 import json
 import math
 import os
+import re
 import secrets
 import uuid
 from contextlib import asynccontextmanager
@@ -307,11 +308,34 @@ def extract_document(document_id: str, request: Request):
     fields = gemma.extract_invoice(path.read_bytes(), path.name)
     if not isinstance(fields, dict):
         return {"fields": fields, **ai_metadata()}
+    corrections = _reconcile_parties(fields)
+    if corrections:
+        fields["corrections"] = corrections
     try:
         repo_api.save_pending_extraction(upload_id, user, request, fields)
     except ValueError as exc:
         raise HTTPException(409, "Fatura artık okunabilir durumda değil.") from exc
     return {"fields": fields, **ai_metadata()}
+
+
+def _reconcile_parties(fields):
+    """Fix OCR slips in VKNs (e.g. a dropped zero) by matching the party name against the registry."""
+    corrections = []
+    for side in ("seller", "buyer"):
+        vkn = re.sub(r"\D", "", str(fields.get(f"{side}_vkn") or ""))
+        name = str(fields.get(f"{side}_name") or "").casefold().strip()
+        if len(vkn) == 10 and vkn in repo_api.COMPANY_BY_VKN:
+            fields[f"{side}_vkn"] = vkn
+            continue
+        match = next((c for c in repo_api.COMPANY_BY_VKN.values()
+                      if name and str(c.get("name", "")).casefold() == name), None)
+        if match:
+            corrections.append({
+                "field": f"{side}_vkn", "read": fields.get(f"{side}_vkn"), "corrected": match["vkn"],
+                "reason": "Okunan VKN kayıtlı değil veya 10 hane değil; firma unvanıyla eşleştirildi.",
+            })
+            fields[f"{side}_vkn"] = match["vkn"]
+    return corrections
 
 
 @app.post("/api/documents/{document_id}/check")
