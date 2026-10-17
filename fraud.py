@@ -32,6 +32,8 @@ ITEM_TERMS = {
 }
 FLAG_POINTS = {
     "duplicate_invoice": 45,
+    "invoice_broker": 30,
+    "year_end_cluster": 20,
     "network_cycle": 30,
     "shell_company": 25,
     "buyer_not_approved": 20,
@@ -41,6 +43,10 @@ FLAG_POINTS = {
     "round_amount": 10,
     "missing_delivery_note": 10,
 }
+
+
+def _format_tl(value):
+    return f"{value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".") + " TL"
 
 
 def load_demo_data():
@@ -174,11 +180,11 @@ def analyze_invoice(invoice, companies, invoices):
     employees = seller.get("employees") or 0
     monthly_total = _seller_month_total(invoice, invoices)
     if employees and monthly_total > max(1_000_000, employees * 100_000):
-        add("capacity_outlier", f"Aylık fatura toplamı çalışan sayısına göre yüksek ({employees} çalışan, {monthly_total:,.2f} TL).")
+        add("capacity_outlier", f"Aylık fatura toplamı çalışan sayısına göre yüksek ({employees} çalışan, {_format_tl(monthly_total)}).")
 
-    amount = _number(invoice.get("total", invoice.get("amount")))
+    amount = _number(invoice.get("subtotal", invoice.get("amount")))
     if amount is not None and amount >= 100_000 and abs(amount / 50_000 - round(amount / 50_000)) < 0.000001:
-        add("round_amount", f"Fatura toplamı olağandışı yuvarlak bir tutar ({amount:,.2f} TL).")
+        add("round_amount", f"KDV öncesi ara toplam olağandışı yuvarlak bir tutar ({_format_tl(amount)}).")
     vague = sorted({
         term for item in items
         for term in VAGUE_TERMS
@@ -186,6 +192,42 @@ def analyze_invoice(invoice, companies, invoices):
     })
     if vague:
         add("vague_item", f"Belirsiz mal/hizmet açıklaması: {', '.join(vague)}.")
+
+    seller_invoices = [
+        item for item in invoices
+        if item.get("seller_vkn") == invoice.get("seller_vkn")
+    ]
+    if not any(item.get("invoice_no") == invoice.get("invoice_no") for item in seller_invoices):
+        seller_invoices.append(invoice)
+    buyer_sectors = {
+        company_by_vkn.get(item.get("buyer_vkn"), {}).get("sector")
+        for item in seller_invoices
+        if item.get("buyer_vkn") and item.get("buyer_vkn") != invoice.get("seller_vkn")
+        and company_by_vkn.get(item.get("buyer_vkn"), {}).get("sector")
+    }
+    buyer_ids = {
+        item.get("buyer_vkn")
+        for item in seller_invoices
+        if item.get("buyer_vkn") and item.get("buyer_vkn") != invoice.get("seller_vkn")
+    }
+    seller_has_suspicious_invoice = any(
+        any(term in str(line.get("description", "")).casefold() for term in VAGUE_TERMS)
+        or str(item.get("irsaliye_no") or "").strip().casefold() in {"", "-", "yok", "null", "none"}
+        for item in seller_invoices
+        for line in item.get("items") or []
+    )
+    if len(buyer_ids) >= 3 and len(buyer_sectors) >= 3 and seller_has_suspicious_invoice:
+        add("invoice_broker", f"Satıcı, en az üç farklı sektörden {len(buyer_ids)} alıcıya şüpheli açıklama veya irsaliyesiz fatura kesmiş.")
+
+    year_end_keys = set()
+    for item in seller_invoices:
+        item_date = _issue_date(item)
+        if item_date and item_date.month == 12 and item_date.day >= 27:
+            identity = item.get("invoice_no") or _fingerprint(item)
+            if identity:
+                year_end_keys.add(identity)
+    if len(year_end_keys) >= 3:
+        add("year_end_cluster", f"Aynı satıcıdan yılın son beş gününde {len(year_end_keys)} farklı fatura kesilmiş.")
 
     if invoice.get("buyer_approved") is False:
         add("buyer_not_approved", "Alıcı faturayı henüz onaylamamış.")

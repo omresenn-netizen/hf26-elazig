@@ -16,6 +16,7 @@ def verify_invoice(invoice, invoices):
         "service": "DEMO / MOCK — GİB e-Fatura",
         "verified": found is not None,
         "invoice_no": invoice_no,
+        "buyer_approved": found.get("buyer_approved") if found else None,
     }
 
 

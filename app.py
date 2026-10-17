@@ -8,9 +8,23 @@ import streamlit as st
 import db
 import fraud
 import gemma
+import mocks
 
 ROOT = Path(__file__).resolve().parent
 SAMPLE_DIR = ROOT / "samples"
+FLAG_LABELS = {
+    "duplicate_invoice": "Mükerrer fatura",
+    "invoice_broker": "Fatura aracılığı şüphesi",
+    "year_end_cluster": "Yıl sonu fatura yoğunlaşması",
+    "network_cycle": "Fatura ağında döngü",
+    "shell_company": "Paravan şirket şüphesi",
+    "buyer_not_approved": "Alıcı faturayı onaylamadı",
+    "sector_mismatch": "Sektör ve ürün uyuşmazlığı",
+    "capacity_outlier": "Kapasite aşımı şüphesi",
+    "vague_item": "Belirsiz mal/hizmet açıklaması",
+    "round_amount": "Yuvarlak tutar",
+    "missing_delivery_note": "İrsaliye eksik",
+}
 
 
 def _run_checks(invoice, companies, invoices):
@@ -73,7 +87,8 @@ def _show_analysis(result):
         st.warning("İnceleme gerekli — bu araç faturayı otomatik reddetmez.")
         st.subheader("Tespit edilen bayraklar")
         for flag in result["flags"]:
-            st.markdown(f"- **{flag['code']}** — {flag['detail']}")
+            label = FLAG_LABELS.get(flag["code"], flag["code"])
+            st.markdown(f"- **{label}** — {flag['detail']}")
     else:
         st.success("Otomatik kurallarda belirgin bir uyarı bulunmadı; yine de insan incelemesi gerekir.")
     st.subheader("Gemma açıklaması")
@@ -124,6 +139,8 @@ def main():
                 st.info("Ollama'nın http://localhost:11434 adresinde çalıştığını ve gemma4 modelinin kurulu olduğunu kontrol edin.")
                 return
         if isinstance(extracted, dict) and _is_complete_invoice(extracted):
+            gib_result = mocks.verify_invoice(extracted, invoices)
+            extracted["buyer_approved"] = gib_result["buyer_approved"]
             try:
                 st.session_state["invoice_analysis"] = _run_checks(extracted, companies, invoices)
                 st.session_state["invoice_analysis_digest"] = digest
@@ -146,6 +163,8 @@ def main():
                 corrected = json.loads(raw_text)
                 if not isinstance(corrected, dict) or not _is_complete_invoice(corrected):
                     raise ValueError("Fatura no, tarih, satıcı/alıcı VKN, kalemler ve toplam alanlarını kontrol edin.")
+                gib_result = mocks.verify_invoice(corrected, invoices)
+                corrected["buyer_approved"] = gib_result["buyer_approved"]
                 st.session_state["invoice_analysis"] = _run_checks(corrected, companies, invoices)
                 st.session_state["invoice_analysis_digest"] = digest
                 del st.session_state["invoice_raw"]
