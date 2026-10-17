@@ -7,7 +7,7 @@ import os
 import secrets
 import uuid
 from contextlib import asynccontextmanager
-from datetime import date
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
@@ -22,6 +22,7 @@ import fraud
 import gemma
 import mocks
 import repo_api
+import repo_ai
 
 ROOT = Path(__file__).resolve().parent
 UPLOADS = ROOT / "uploads"
@@ -87,11 +88,34 @@ def require_role(user, *roles):
     return user
 
 
+def ai_metadata():
+    return {
+        "model": gemma.MODEL,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+    }
+
+
+def annual_rate(discount_rate, days_left):
+    days = max(days_left if isinstance(days_left, int) else 1, 1)
+    return float(discount_rate or 0) / days * 365
+
+
+def normalize_document_annual_rate(document):
+    if not document:
+        return document
+    best_offer = document.get("best_offer")
+    if best_offer:
+        best_offer["annual_rate"] = annual_rate(
+            best_offer.get("discount_rate"), document.get("days_left")
+        )
+    return document
+
+
 def document_or_404(document_id):
     document = repo_api.make_document(document_id)
     if not document:
         raise HTTPException(404, "Fatura bulunamadı.")
-    return document
+    return normalize_document_annual_rate(document)
 
 
 def upload_id_from(document_id):
@@ -130,7 +154,17 @@ def serialize_offers(document_id):
     upload_id = upload_id_from(document_id)
     if upload_id is None:
         upload_id = repo_api.preloaded_upload_id(document_id)
-    return repo_api.offer_objects(upload_id) if upload_id else []
+    if not upload_id:
+        return []
+    document = repo_api.make_document(document_id) or {}
+    days_left = document.get("days_left")
+    return [
+        {
+            **offer,
+            "annual_rate": annual_rate(offer.get("discount_rate"), days_left),
+        }
+        for offer in repo_api.offer_objects(upload_id)
+    ]
 
 
 def validate_fields(invoice, user):
@@ -272,12 +306,12 @@ def extract_document(document_id: str, request: Request):
         raise HTTPException(404, "Yüklenen fatura dosyası bulunamadı.")
     fields = gemma.extract_invoice(path.read_bytes(), path.name)
     if not isinstance(fields, dict):
-        return {"fields": fields}
+        return {"fields": fields, **ai_metadata()}
     try:
         repo_api.save_pending_extraction(upload_id, user, request, fields)
     except ValueError as exc:
         raise HTTPException(409, "Fatura artık okunabilir durumda değil.") from exc
-    return {"fields": fields}
+    return {"fields": fields, **ai_metadata()}
 
 
 @app.post("/api/documents/{document_id}/check")
@@ -323,6 +357,7 @@ def check_document(document_id: str, payload: dict, request: Request):
     return {
         "document": document,
         "explanation": explanation,
+        **ai_metadata(),
         "services": {
             "gib": {**gib_result, "mock": True},
             "buyer": {**buyer_result, "mock": True},
@@ -395,13 +430,23 @@ def compare_document_offers(document_id: str, request: Request):
     user = require_role(session_user(request), "kobi")
     document = user_can_view_document(user, document_id)
     offers = serialize_offers(document_id)
-    result = gemma.compare_offers(offers)
-    if isinstance(result, dict):
-        return {
-            "recommendation": result.get("recommendation", ""),
-            "reason": result.get("reason", ""),
-        }
-    return {"recommendation": "", "reason": result}
+    invoice = document_invoice(document_id)
+
+    def generate():
+        result = gemma.compare_offers(offers)
+        if isinstance(result, dict):
+            return {
+                "recommendation": result.get("recommendation", ""),
+                "reason": result.get("reason", ""),
+            }
+        return {"recommendation": "", "reason": str(result)}
+
+    return repo_ai.cached_ai_result(
+        "compare_offers",
+        document_id,
+        {"invoice": invoice, "offers": offers},
+        generate,
+    )
 
 
 @app.post("/api/offers/{offer_id}/accept")
@@ -530,11 +575,11 @@ def market(
     documents = []
     for doc in [repo_api.make_document(item["id"]) for item in repo_api.load_invoices()]:
         if doc and doc["status"] in {"teklif_bekliyor", "teklif_var"}:
-            documents.append(doc)
+            documents.append(normalize_document_annual_rate(doc))
     for row in repo_api.all_upload_rows():
         doc = repo_api.make_document(f"U-{row['id']}")
         if doc and doc["status"] in {"teklif_bekliyor", "teklif_var"}:
-            documents.append(doc)
+            documents.append(normalize_document_annual_rate(doc))
     filtered = []
     for doc in documents:
         if min is not None and (doc.get("total") is None or doc["total"] < min):
@@ -563,19 +608,261 @@ def risk_report(document_id: str, request: Request):
     score = document["risk_score"]
     rate = fraud.base_discount_rate(invoice, score) if invoice.get("due_date") else 0.0
     total = float(document.get("total") or 0)
-    key = document_id
-    if key not in _RISK_REPORT_CACHE:
-        buyer_data = mocks.buyer_credit_score(invoice.get("buyer_vkn"))
+    buyer_data = mocks.buyer_credit_score(invoice.get("buyer_vkn"))
+
+    def generate():
         response = gemma.risk_report(invoice, buyer_data)
-        if isinstance(response, dict):
-            summary = response.get("summary", "")
-        else:
-            summary = str(response)
-        _RISK_REPORT_CACHE[key] = summary
+        return {
+            "summary": response.get("summary", "")
+            if isinstance(response, dict) else str(response)
+        }
+
+    result = repo_ai.cached_ai_result(
+        "risk_report",
+        document_id,
+        {"invoice": invoice, "buyer": buyer_data, "rate": rate, "total": total},
+        generate,
+    )
     return {
-        "summary": _RISK_REPORT_CACHE[key],
+        **result,
         "suggested_discount_rate": rate,
         "suggested_net_amount": round(total * (1 - rate), 2),
+    }
+
+
+def _normalized_insight(value):
+    result = value if isinstance(value, dict) else {"summary": str(value or "")}
+    verdict = result.get("verdict")
+    return {
+        "summary": str(result.get("summary") or ""),
+        "strengths": [str(item) for item in result.get("strengths", []) if item is not None]
+        if isinstance(result.get("strengths", []), list) else [],
+        "concerns": [str(item) for item in result.get("concerns", []) if item is not None]
+        if isinstance(result.get("concerns", []), list) else [],
+        "verdict": verdict if verdict in {"uygun", "dikkat", "riskli"} else "dikkat",
+    }
+
+
+@app.get("/api/documents/{document_id}/insight")
+def document_insight(document_id: str, request: Request):
+    user = session_user(request)
+    document = user_can_view_document(user, document_id)
+    invoice = document_invoice(document_id)
+    buyer_vkn = invoice.get("buyer_vkn")
+    buyer_company = repo_api.COMPANY_BY_VKN.get(buyer_vkn, {})
+    buyer_profile = {
+        **{
+            key: buyer_company.get(key)
+            for key in ("vkn", "name", "sector", "founded", "employees")
+        },
+        **(mocks.buyer_credit_score(buyer_vkn) if buyer_vkn else {}),
+        "payment_stats": repo_ai.payment_stats(buyer_vkn) if buyer_vkn else {},
+    }
+    flags = document.get("flags") or []
+    result = repo_ai.cached_ai_result(
+        "invoice_insight",
+        document_id,
+        {"invoice": invoice, "flags": flags, "buyer_profile": buyer_profile},
+        lambda: _normalized_insight(
+            gemma.invoice_insight(invoice, flags, buyer_profile)
+        ),
+    )
+    return {
+        **_normalized_insight(result),
+        "model": result["model"],
+        "generated_at": result["generated_at"],
+    }
+
+
+@app.get("/api/companies/{vkn}/payment-profile")
+def payment_profile(vkn: str, request: Request):
+    user = session_user(request)
+    if user["role"] == "kobi":
+        own_buyer_vkns = {
+            str(invoice.get("buyer_vkn") or "")
+            for row in repo_api.all_upload_rows()
+            if row.get("user_id") == user["id"]
+            if (invoice := repo_api.invoice_for_row(row))
+        }
+        if str(vkn) not in own_buyer_vkns:
+            raise HTTPException(404, "Şirket ödeme profili bulunamadı.")
+    else:
+        require_role(user, "finansor", "denetim")
+
+    company_data = repo_api.COMPANY_BY_VKN.get(vkn)
+    if not company_data:
+        raise HTTPException(404, "Şirket bulunamadı.")
+    company = {
+        key: company_data.get(key)
+        for key in ("vkn", "name", "sector", "founded", "employees")
+    }
+    stats = repo_ai.payment_stats(vkn)
+    history = repo_ai.get_payment_history(vkn, limit=12)
+    result = repo_ai.cached_ai_result(
+        "payment_comment",
+        vkn,
+        {"company": company, "stats": stats, "history": history},
+        lambda: {"ai_comment": str(gemma.payment_comment(company, stats, history) or "")},
+    )
+    return {
+        "company": company,
+        "stats": stats,
+        "history": history,
+        "ai_comment": result["ai_comment"],
+        "model": result["model"],
+        "generated_at": result["generated_at"],
+    }
+
+
+@app.get("/api/documents/{document_id}/offers-insight")
+def document_offers_insight(document_id: str, request: Request):
+    user = require_role(session_user(request), "kobi")
+    document = user_can_view_document(user, document_id)
+    invoice = document_invoice(document_id)
+    active_offers = [
+        offer for offer in serialize_offers(document_id)
+        if offer.get("status") == "beklemede"
+    ]
+    model_offers = [
+        {
+            "offer_id": offer["id"],
+            "financier": offer["financier"]["name"],
+            "net_amount": offer["net_amount"],
+            "discount_rate": offer["discount_rate"],
+            "annual_rate": offer["annual_rate"],
+            "note": offer.get("note"),
+        }
+        for offer in active_offers
+    ]
+
+    def generate():
+        raw = gemma.offers_insight(invoice, model_offers)
+        generated = raw if isinstance(raw, dict) else {}
+        comments = {
+            item.get("offer_id"): item.get("comment", "")
+            for item in generated.get("offers", [])
+            if isinstance(item, dict)
+        } if isinstance(generated.get("offers", []), list) else {}
+        raw_text = str(raw) if not isinstance(raw, dict) else ""
+        return {
+            "offers": [
+                {
+                    "offer_id": offer["id"],
+                    "financier": offer["financier"]["name"],
+                    "net_amount": offer["net_amount"],
+                    "discount_rate": offer["discount_rate"],
+                    "annual_rate": offer["annual_rate"],
+                    "comment": str(comments.get(offer["id"]) or raw_text),
+                }
+                for offer in active_offers
+            ],
+            "recommendation": str(generated.get("recommendation") or ""),
+            "reason": str(generated.get("reason") or raw_text),
+        }
+
+    result = repo_ai.cached_ai_result(
+        "offers_insight",
+        document_id,
+        {"invoice": invoice, "offers": model_offers},
+        generate,
+    )
+    return {
+        **result,
+        "offers": result.get("offers", []),
+        "recommendation": result.get("recommendation", ""),
+        "reason": result.get("reason", ""),
+    }
+
+
+def _digest_context(user):
+    if user["role"] == "kobi":
+        rows = [
+            row for row in repo_api.all_upload_rows()
+            if row.get("user_id") == user["id"]
+        ]
+        documents = [
+            normalize_document_annual_rate(document)
+            for row in rows
+            if (document := repo_api.make_document(f"U-{row['id']}"))
+        ]
+        documents.sort(
+            key=lambda item: item.get("days_left")
+            if item.get("days_left") is not None else 10**9
+        )
+        return {
+            "documents": [
+                {
+                    "invoice_no": item["invoice_no"],
+                    "status": item["status"],
+                    "days_left": item["days_left"],
+                    "offer_count": item["offer_count"],
+                    "best_offer": item["best_offer"],
+                }
+                for item in documents[:10]
+            ]
+        }
+    if user["role"] == "finansor":
+        documents = [
+            normalize_document_annual_rate(repo_api.make_document(item["id"]))
+            for item in repo_api.load_invoices()
+        ]
+        documents.extend(
+            normalize_document_annual_rate(repo_api.make_document(f"U-{row['id']}"))
+            for row in repo_api.all_upload_rows()
+        )
+        opportunities = [
+            item for item in documents
+            if item and item.get("status") in {"teklif_bekliyor", "teklif_var"}
+        ]
+        opportunities.sort(
+            key=lambda item: (
+                item.get("risk_score") if item.get("risk_score") is not None else 100,
+                -(item.get("total") or 0),
+            )
+        )
+        return {
+            "opportunities": [
+                {
+                    "invoice_no": item["invoice_no"],
+                    "total": item["total"],
+                    "risk_score": item["risk_score"],
+                    "risk_class": item["risk_class"],
+                    "days_left": item["days_left"],
+                    "best_offer": item["best_offer"],
+                }
+                for item in opportunities[:10]
+            ]
+        }
+    return network_data_for_report()
+
+
+@app.get("/api/my/ai-digest")
+def ai_digest(request: Request):
+    user = session_user(request)
+    context = _digest_context(user)
+
+    def generate():
+        raw = gemma.ai_digest(user["role"], context)
+        if isinstance(raw, dict) and isinstance(raw.get("bullets"), list):
+            bullets = [str(item) for item in raw["bullets"] if item is not None]
+        else:
+            bullets = [str(raw or "Gemma özeti oluşturulamadı.")]
+        if len(bullets) < 3:
+            bullets.extend(
+                ["Güncel belge ve teklif durumunuzu düzenli olarak kontrol edin."]
+                * (3 - len(bullets))
+            )
+        return {"bullets": bullets[:5]}
+
+    result = repo_ai.cached_ai_result(
+        "ai_digest",
+        user.get("id") or user["role"],
+        {"role": user["role"], "context": context},
+        generate,
+    )
+    return {
+        **result,
+        "bullets": result.get("bullets", []),
     }
 
 
@@ -687,13 +974,32 @@ def withdraw_offer(offer_id: int, request: Request):
 @app.get("/api/my/offers")
 def my_offers(request: Request):
     user = require_role(session_user(request), "finansor")
-    return repo_api.financier_offer_list(user["id"])
+    offers = repo_api.financier_offer_list(user["id"])
+    return [
+        {
+            **offer,
+            "annual_rate": annual_rate(
+                offer.get("discount_rate"),
+                (offer.get("document") or {}).get("days_left"),
+            ),
+            "document": normalize_document_annual_rate(offer["document"])
+            if offer.get("document") else offer.get("document"),
+        }
+        for offer in offers
+    ]
 
 
 @app.get("/api/portfolio")
 def portfolio(request: Request):
     user = require_role(session_user(request), "finansor")
     offers = [offer for offer in repo_api.financier_offer_list(user["id"]) if offer["status"] == "kabul"]
+    for offer in offers:
+        offer["annual_rate"] = annual_rate(
+            offer.get("discount_rate"),
+            (offer.get("document") or {}).get("days_left"),
+        )
+        if offer.get("document"):
+            normalize_document_annual_rate(offer["document"])
     invested = sum(item["net_amount"] for item in offers)
     expected = sum((item["document"].get("total") or item["net_amount"]) for item in offers)
     return {
@@ -846,8 +1152,12 @@ def network(request: Request):
 def network_report(request: Request):
     require_role(session_user(request), "denetim")
     graph = network_data_for_report()
-    report = gemma.suspicious_network_report(graph)
-    return {"report": report}
+    return repo_ai.cached_ai_result(
+        "network_report",
+        "flagged-network",
+        graph,
+        lambda: {"report": gemma.suspicious_network_report(graph)},
+    )
 
 
 def network_data_for_report():
@@ -876,7 +1186,9 @@ def notifications(request: Request):
         rows = connection.execute(
             """
             SELECT id, created_at, subject, body, read_at
-            FROM notifications WHERE user_id = ? ORDER BY created_at DESC, id DESC
+            FROM notifications
+            WHERE user_id = ? AND channel = 'panel'
+            ORDER BY created_at DESC, id DESC
             """,
             (user["id"],),
         ).fetchall()
@@ -895,7 +1207,10 @@ def read_notifications(request: Request):
     user = session_user(request)
     with db.get_connection() as connection:
         cursor = connection.execute(
-            "UPDATE notifications SET read_at = CURRENT_TIMESTAMP WHERE user_id = ? AND read_at IS NULL",
+            """
+            UPDATE notifications SET read_at = CURRENT_TIMESTAMP
+            WHERE user_id = ? AND channel = 'panel' AND read_at IS NULL
+            """,
             (user["id"],),
         )
         if cursor.rowcount:
