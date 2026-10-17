@@ -1,0 +1,16 @@
+.git
+.venv
+venv
+__pycache__
+**/__pycache__
+*.py[cod]
+*.db
+*.sqlite
+*.sqlite3
+.env
+.env.*
+.streamlit/secrets.toml
+logs/*
+uploads/*
+sessions/
+tests/

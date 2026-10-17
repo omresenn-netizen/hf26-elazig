@@ -1,0 +1,60 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      OLLAMA_HOST: 127.0.0.1:11434
+      OLLAMA_KEEP_ALIVE: 5m
+      OLLAMA_NUM_PARALLEL: "1"
+      OLLAMA_MAX_LOADED_MODELS: "1"
+    volumes:
+      - ollama_models:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 30s
+      timeout: 10s
+      start_period: 20s
+      retries: 3
+    # Optional NVIDIA acceleration; install the NVIDIA Container Toolkit, then uncomment:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+
+  vadex:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    network_mode: host
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      VADEX_SECRET: ${VADEX_SECRET:?Set VADEX_SECRET in .env}
+      VADEX_COOKIE_SECURE: ${VADEX_COOKIE_SECURE:-true}
+      OLLAMA_URL: http://localhost:11434/api/chat
+    volumes:
+      - ./vadesiz.db:/app/vadesiz.db
+      - ./uploads:/app/uploads
+      - vadex_logs:/app/logs
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.error, urllib.request; status = 0; exec(\"try:\\n urllib.request.urlopen(\\\"http://127.0.0.1:8600/api/me\\\")\\nexcept urllib.error.HTTPError as error:\\n status = error.code\"); raise SystemExit(status != 401)",
+        ]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+
+volumes:
+  ollama_models:
+  vadex_logs:
