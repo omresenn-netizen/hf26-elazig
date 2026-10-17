@@ -1,0 +1,137 @@
+[
+  {
+    "vkn": "9100000011",
+    "name": "Anadolu Market Zinciri A.Ş.",
+    "sector": "perakende",
+    "employees": 4200,
+    "founded": 1998,
+    "address": "Sanayi Cad. No:1, Merkez/Elazığ",
+    "type": "buyer"
+  },
+  {
+    "vkn": "9100000022",
+    "name": "Fırat Beyaz Eşya A.Ş.",
+    "sector": "beyaz eşya üretimi",
+    "employees": 1800,
+    "founded": 2003,
+    "address": "OSB 3. Cad. No:7, Merkez/Elazığ",
+    "type": "buyer"
+  },
+  {
+    "vkn": "9100000033",
+    "name": "Harput Giyim Mağazaları A.Ş.",
+    "sector": "giyim perakende",
+    "employees": 950,
+    "founded": 2006,
+    "address": "Gazi Cad. No:45, Merkez/Elazığ",
+    "type": "buyer"
+  },
+  {
+    "vkn": "9100000044",
+    "name": "Doğu Yapı Market A.Ş.",
+    "sector": "yapı market",
+    "employees": 600,
+    "founded": 2009,
+    "address": "Malatya Yolu No:12, Merkez/Elazığ",
+    "type": "buyer"
+  },
+  {
+    "vkn": "9200000101",
+    "name": "Hazar Tekstil Atölyesi Ltd. Şti.",
+    "sector": "tekstil",
+    "employees": 18,
+    "founded": 2015,
+    "address": "Hilalkent Mah. 3. Sok. No:9, Merkez/Elazığ",
+    "type": "sme"
+  },
+  {
+    "vkn": "9200000202",
+    "name": "Keban İçecek Dağıtım Ltd. Şti.",
+    "sector": "içecek dağıtım",
+    "employees": 25,
+    "founded": 2012,
+    "address": "Abdullahpaşa Mah. No:21, Merkez/Elazığ",
+    "type": "sme"
+  },
+  {
+    "vkn": "9200000303",
+    "name": "Palu Ambalaj Ltd. Şti.",
+    "sector": "ambalaj",
+    "employees": 12,
+    "founded": 2017,
+    "address": "OSB 1. Cad. No:14, Merkez/Elazığ",
+    "type": "sme"
+  },
+  {
+    "vkn": "9200000404",
+    "name": "Kayısı Diyarı Gıda Ltd. Şti.",
+    "sector": "gıda",
+    "employees": 30,
+    "founded": 2010,
+    "address": "Sürsürü Mah. No:5, Merkez/Elazığ",
+    "type": "sme"
+  },
+  {
+    "vkn": "9200000505",
+    "name": "Elazığ Mobilya Ltd. Şti.",
+    "sector": "mobilya",
+    "employees": 15,
+    "founded": 2014,
+    "address": "Ataşehir Mah. No:33, Merkez/Elazığ",
+    "type": "sme"
+  },
+  {
+    "vkn": "9200000606",
+    "name": "Sivrice Elektrik Malzemeleri Ltd. Şti.",
+    "sector": "elektrik malzemesi",
+    "employees": 9,
+    "founded": 2016,
+    "address": "Rızaiye Mah. No:8, Merkez/Elazığ",
+    "type": "sme"
+  },
+  {
+    "vkn": "9200000707",
+    "name": "Mastar Metal İşleme Ltd. Şti.",
+    "sector": "metal işleme",
+    "employees": 22,
+    "founded": 2011,
+    "address": "OSB 5. Cad. No:2, Merkez/Elazığ",
+    "type": "sme"
+  },
+  {
+    "vkn": "9300000801",
+    "name": "Yıldız Danışmanlık Ltd. Şti.",
+    "sector": "danışmanlık",
+    "employees": 1,
+    "founded": 2026,
+    "address": "Cumhuriyet Mah. 12. Sok. No:4, Merkez/Elazığ",
+    "type": "shell"
+  },
+  {
+    "vkn": "9300000802",
+    "name": "Akarsu Ticaret Ltd. Şti.",
+    "sector": "genel ticaret",
+    "employees": 1,
+    "founded": 2026,
+    "address": "Cumhuriyet Mah. 12. Sok. No:4, Merkez/Elazığ",
+    "type": "shell"
+  },
+  {
+    "vkn": "9300000803",
+    "name": "Bereket Pazarlama Ltd. Şti.",
+    "sector": "pazarlama",
+    "employees": 2,
+    "founded": 2026,
+    "address": "Cumhuriyet Mah. 12. Sok. No:4, Merkez/Elazığ",
+    "type": "shell"
+  },
+  {
+    "vkn": "9300000904",
+    "name": "Kartal Genel Ticaret Ltd. Şti.",
+    "sector": "genel ticaret",
+    "employees": 2,
+    "founded": 2025,
+    "address": "Yeni Mah. 41. Sok. No:1, Merkez/Elazığ",
+    "type": "broker"
+  }
+]
