@@ -1,0 +1,30 @@
+Second pass on the docs, on main. Fix every point below; check facts against the code, git log and logs before writing.
+
+A) docs/DEV_POST.md corrections
+1. Title/heading mismatch ("batch-funded" vs "cash-crunched"): use one title: "VadeX: catching fake invoices before they get financed — with Gemma 4 running locally".
+2. Hook is factually wrong. The real story: an outside acquaintance phoned the author's father asking "do you have an invoice? I need 200k" — he wanted a 200,000 TL invoice with nothing sold, paying a commission. A fake invoice ("naylon fatura") is TAX fraud: the buyer books it as an expense (lower corporate tax) and deducts its VAT. Give the numbers: 200,000 TL + 20% VAT = 240,000 TL; buyer avoids ~50,000 TL corporate tax (25%) + 40,000 TL VAT = ~90,000 TL; issuer gets a small commission but is on paper liable; both risk 3–8 years under Turkish Tax Procedure Law art. 359. Then the bridge: the same cash crunch that pushes small businesses towards fake-invoice deals is what *legal* invoice financing solves — and fake invoices are exactly the risk a financier must filter out. Remove "the question was about speed" and "turns paper into liquidity".
+3. Replace "pay per inference rather than per document" with: no per-call API fee; runs on hardware the lender already controls (measured: RTX 4070 laptop GPU, warm call ~2.5 s).
+4. Remove features that do not exist (e.g. "send it back for more evidence"). The review queue supports approve / reject with reason. Discount suggestion is one rate, not a range.
+5. VKN slip: describe exactly what happened — Gemma read buyer VKN 9100000044 as 910000044 (dropped a zero). `server.py` `_reconcile_parties` now checks 10 digits + registry, matches by exact company name, corrects it and shows the user a "VKN corrected, please check" notice. Link the commit.
+6. Gemma section: list ALL Gemma tasks with counts and mean durations from logs/gemma.jsonl (extract_invoice, explain_flags, risk_report, compare_offers, invoice_insight, payment_comment, offers_insight, ai_digest, suspicious_network_report). Mention Copilot Chat in VS Code was also connected to the same local gemma4 through the Ollama provider.
+7. Add a TabPFN section: forecast.py, features, chronological holdout 160/41 rows, MAE 4.36 days, 78.05% accuracy (from docs/FORECAST.md), live example (Doğu Yapı ~23 days late, 56% probability), Gemma explains the forecast in the risk report. Startup warm-up.
+8. Commit counts are wrong (they counted shared history). Facts: each agent delivered its work as one reviewed commit merged with `--no-ff` into main; repository has 52+ commits, 22+ carry "Co-authored-by: Copilot" (recount at the end). Show a table: agent → what it built → merge commit link (https://github.com/omresenn-netizen/hf26-elazig/commit/<sha>) → session file link. Agents: architect, kobi-builder, market-builder, api-builder, db-architect, ai-insights, devops, security-auditor, fixer, tabpfn-engineer, integrator, writer. Agent definitions live in .github/agents/ and are run by scripts/agent_team.ps1 in parallel git worktrees. Also mention GitHub Actions CI (bandit + pytest) and that Copilot fixed a CI failure.
+9. Demo: the fake invoice 04 must be uploaded by the broker account 9300000904 (the security agent enforces that a KOBİ can only finance invoices where it is the seller). Clean demo: 9200000202 + 01_gercek_icecek.png, or show seeded data for 9200000505.
+10. Project name: VadeX only. Prize categories: Best Use of Gemma, GitHub Copilot, TabPFN (remove Entire — we did not use the Entire product). Also the Elazığ fest local prizes: Best Use of Gemma 4, Best Use of GitHub Copilot, Best Open-Source AI Project.
+11. Team: Ömer Esen (@TODO-dev-username) and Onur (@TODO-dev-username), Fırat University, Hacktoberfest Elazığ fest.
+12. Keep the AI disclosure honest (Copilot agents wrote most code; Gemma 4 inside the product; Claude assisted with planning, code review and parts of the front end and demo data).
+13. Use absolute GitHub URLs (https://github.com/omresenn-netizen/hf26-elazig/blob/main/...) for all file and session links, not relative paths.
+
+B) docs/PITCH.md corrections
+- Scenario B must log in as the broker 9300000904, not 9200000505. Scenario A: 9200000202 with 01_gercek_icecek.png.
+- Two speakers (Ömer, Onur), not three. Add the father's phone call as the opening line.
+- Add a pre-demo checklist: Ollama running, `scripts/check_setup.ps1`, seed data present, warm Gemma and TabPFN by opening one detail page, browser zoom 90%.
+- Fix typos ("Finasör"), use Turkish words instead of "buyer/seller/cluster/network".
+
+C) README.md – make it detailed and evidence-linked
+Sections: what/why (with the fake-invoice numbers), architecture diagram (Mermaid: browser → FastAPI → SQLite / fraud rules / Gemma via Ollama / TabPFN), features per role, how Gemma is used (table task → file/function → link), TabPFN, fraud rules table (rule → `fraud.py` function → link), run locally, seed demo, demo accounts, tests & CI badge (https://github.com/omresenn-netizen/hf26-elazig/actions/workflows/ci.yml/badge.svg), "Built by a GitHub Copilot agent team" table with commit links, mocks/limitations, license. Every claim links to the file (and line anchors where stable) or commit on GitHub.
+
+D) SECURITY.md – detailed and evidence-linked
+Threat model table: threat → control → where in code (GitHub link to file/function) → test that proves it (link to tests/*.py) → commit link. Cover: fake invoices, double financing (file SHA-256 + invoice fingerprint), account takeover (PBKDF2 + salt + lockout), session/role checks, upload validation (size, magic bytes, PDF→PNG), prompt injection (untrusted document text), append-only audit log (SQLite triggers), data leakage (local model, ground-truth `scenario` field stripped in repo_api.load_invoices), XSS (escaping in web/vadex.js), dependency scanning (bandit/pip-audit in CI). Add a "Reporting a vulnerability" section.
+
+Verify all links point to files that exist on main. Run the test suite (no code changes expected). Commit with clear messages. Do not push.
