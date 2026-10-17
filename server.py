@@ -20,6 +20,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 import db
 import fraud
+import forecast
 import gemma
 import mocks
 import repo_api
@@ -653,6 +654,19 @@ def risk_report(document_id: str, request: Request):
     rate = fraud.base_discount_rate(invoice, score) if invoice.get("due_date") else 0.0
     total = float(document.get("total") or 0)
     buyer_data = mocks.buyer_credit_score(invoice.get("buyer_vkn"))
+    delay_forecast = forecast.forecast_delay(
+        invoice.get("buyer_vkn"),
+        total,
+        invoice.get("due_date"),
+    )
+    buyer_data = {
+        **buyer_data,
+        "payment_delay_forecast": delay_forecast,
+        "tabpfn_summary": (
+            f"TabPFN tahmini: ~{round(delay_forecast['expected_days_late'])} gün gecikme, "
+            f"%{round(delay_forecast['late_probability'] * 100)} olasılık."
+        ),
+    }
 
     def generate():
         response = gemma.risk_report(invoice, buyer_data)
@@ -672,6 +686,22 @@ def risk_report(document_id: str, request: Request):
         "suggested_discount_rate": rate,
         "suggested_net_amount": round(total * (1 - rate), 2),
     }
+
+
+@app.get("/api/documents/{document_id}/delay-forecast")
+def document_delay_forecast(document_id: str, request: Request):
+    user = require_role(session_user(request), "finansor", "denetim", "kobi")
+    document = user_can_view_document(user, document_id)
+    invoice = document_invoice(document_id)
+    buyer_vkn = invoice.get("buyer_vkn")
+    due_date = invoice.get("due_date")
+    if not buyer_vkn or not due_date:
+        raise HTTPException(422, "Faturada alıcı veya vade tarihi bulunamadı.")
+    return forecast.forecast_delay(
+        buyer_vkn,
+        float(document.get("total") or invoice.get("total") or 0),
+        due_date,
+    )
 
 
 def _normalized_insight(value):

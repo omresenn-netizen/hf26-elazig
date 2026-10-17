@@ -45,6 +45,13 @@ def client(tmp_path, monkeypatch):
     monkeypatch.setattr(server.gemma, "explain_flags", lambda invoice, flags: "İnsan incelemesi gerekir.")
     monkeypatch.setattr(server.gemma, "compare_offers", lambda offers: {"recommendation": "Teklif 1", "reason": "En yüksek net tutar."})
     monkeypatch.setattr(server.gemma, "risk_report", lambda invoice, buyer: {"summary": "Düşük risk."})
+    monkeypatch.setattr(server.forecast, "forecast_delay", lambda buyer, amount, due: {
+        "expected_days_late": 2.5,
+        "late_probability": 0.1,
+        "model": "TabPFN",
+        "n_train": 10,
+        "features": {},
+    })
     monkeypatch.setattr(server.gemma, "suspicious_network_report", lambda graph: "Ağ raporu.")
     with TestClient(server.app) as test_client:
         yield test_client
@@ -130,6 +137,52 @@ def test_market_contains_preloaded_invoices(client):
     response = client.get("/api/market")
     assert response.status_code == 200
     assert any(item["id"].startswith("INV-") for item in response.json())
+
+
+def test_delay_forecast_document_role_access(client):
+    login(client, "kobi", "9200000101")
+    upload = client.post(
+        "/api/uploads",
+        files={"file": ("invoice.png", io.BytesIO(b"\x89PNG\r\n\x1a\nforecast"), "image/png")},
+    )
+    document_id = upload.json()["document"]["id"]
+    assert client.post(f"/api/documents/{document_id}/extract").status_code == 200
+    response = client.get(f"/api/documents/{document_id}/delay-forecast")
+    assert response.status_code == 200, response.text
+    assert response.json()["model"] == "TabPFN"
+
+    client.post("/api/logout")
+    login(client, "finansor", "anadolu_faktoring")
+    preloaded = client.get("/api/market").json()[0]
+    response = client.get(f"/api/documents/{preloaded['id']}/delay-forecast")
+    assert response.status_code == 200, response.text
+
+    client.post("/api/logout")
+    login(client, "denetim", "denetim")
+    response = client.get(f"/api/documents/{preloaded['id']}/delay-forecast")
+    assert response.status_code == 200, response.text
+
+    client.post("/api/logout")
+    login(client, "kobi", "9200000202")
+    assert client.get(f"/api/documents/{document_id}/delay-forecast").status_code == 404
+
+
+def test_risk_report_passes_tabpfn_forecast_to_gemma(client, monkeypatch):
+    captured = {}
+
+    def risk_report(invoice, buyer):
+        captured.update(buyer)
+        return {"summary": "TabPFN değerlendirmesi eklendi."}
+
+    monkeypatch.setattr(server.gemma, "risk_report", risk_report)
+    login(client, "finansor", "anadolu_faktoring")
+    document = client.get("/api/market").json()[0]
+
+    response = client.get(f"/api/documents/{document['id']}/risk-report")
+
+    assert response.status_code == 200, response.text
+    assert captured["payment_delay_forecast"]["model"] == "TabPFN"
+    assert captured["tabpfn_summary"].startswith("TabPFN tahmini: ~")
 
 
 def test_offer_creates_panel_and_email_notifications(client):

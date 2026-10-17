@@ -22,6 +22,13 @@ def ai_client(tmp_path, monkeypatch):
     monkeypatch.setattr(server.repo_api, "load_invoices", lambda: invoices)
     monkeypatch.setattr(server.repo_ai, "ROOT", tmp_path)
     server.repo_ai.clear_ai_cache()
+    monkeypatch.setattr(server.forecast, "forecast_delay", lambda buyer, amount, due: {
+        "expected_days_late": 2.5,
+        "late_probability": 0.1,
+        "model": "TabPFN",
+        "n_train": 10,
+        "features": {},
+    })
     monkeypatch.setattr(
         server.gemma,
         "extract_invoice",
