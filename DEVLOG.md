@@ -21,3 +21,5 @@ Short notes as we go. Becomes the source for the DEV post.
   (seller, buyer, VKN, items, KDV, total, missing delivery note) in 26 s.
 - **Internal Streamlit workflows merged:** integrated the KOBİ upload/offer experience and the
   financier marketplace/audit panels; both role-specific style helpers are wired into the app.
+- **Agent merges:** merged the fixer’s invoice-flow corrections and the TabPFN engineer’s
+  payment-delay forecast, with combined AI tests passing.
