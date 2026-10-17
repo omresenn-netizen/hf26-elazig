@@ -29,7 +29,26 @@ Regenerate with `python scripts/make_demo_data.py`.
 ## Built with
 Gemma 4 · Ollama · GitHub Copilot (agent mode, coding agent, PR review) · Python · Streamlit · networkx
 
-## Check the setup
+## Run the demo
+
+Requirements: Python 3.13 and Ollama with the `gemma4` model available locally.
+
+```powershell
+py -3.13 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+ollama pull gemma4
+streamlit run app.py
+```
+
+The first version implements the KOBİ panel: choose an example in `samples/` or upload a
+PNG/JPG invoice, then extract its fields locally and run deterministic fraud checks.
+Gemma calls are recorded in `logs/gemma.jsonl`; images are not written to the log.
+GİB verification, credit scores, transfers and e-signatures are deterministic demo mocks.
+Runtime state is stored in the ignored local `vadesiz.db`.
+
+## Check the complete development setup
+
 ```
 powershell -ExecutionPolicy Bypass -File scripts\check_setup.ps1
 ```

@@ -1,0 +1,143 @@
+"""Local Ollama calls used by Vadesiz."""
+import base64
+import json
+import re
+import threading
+import time
+from datetime import datetime, timezone
+from pathlib import Path
+
+import requests
+
+ROOT = Path(__file__).resolve().parent
+OLLAMA_URL = "http://localhost:11434/api/chat"
+MODEL = "gemma4"
+LOG_PATH = ROOT / "logs" / "gemma.jsonl"
+_LOG_LOCK = threading.Lock()
+
+
+def _parse_json(raw):
+    text = raw.strip()
+    if text.startswith("```"):
+        text = re.sub(r"^```(?:json)?\s*|\s*```$", "", text, flags=re.IGNORECASE)
+    return json.loads(text)
+
+
+def _log_call(task, prompt, image_filename, raw_response, parsed_result, duration, error=None):
+    LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    record = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "task": task,
+        "prompt": prompt,
+        "image_filename": image_filename,
+        "raw_response": raw_response,
+        "parsed_result": parsed_result,
+        "duration_seconds": round(duration, 3),
+    }
+    if error:
+        record["error"] = error
+    with _LOG_LOCK, LOG_PATH.open("a", encoding="utf-8") as log_file:
+        log_file.write(json.dumps(record, ensure_ascii=False) + "\n")
+
+
+def _chat(task, prompt, image_bytes=None, image_filename=None, expect_json=False):
+    last_raw = ""
+    for attempt in range(2 if expect_json else 1):
+        current_prompt = prompt
+        if attempt:
+            current_prompt += "\nÖnceki yanıt geçerli JSON değildi. Yalnızca istenen biçimde geçerli JSON döndür."
+        message = {"role": "user", "content": current_prompt}
+        if image_bytes is not None:
+            message["images"] = [base64.b64encode(image_bytes).decode("ascii")]
+
+        payload = {
+            "model": MODEL,
+            "messages": [message],
+            "stream": False,
+            "think": False,
+        }
+        if expect_json:
+            payload["format"] = "json"
+
+        started = time.perf_counter()
+        raw = None
+        parsed = None
+        error = None
+        try:
+            response = requests.post(OLLAMA_URL, json=payload, timeout=(10, 300))
+            response.raise_for_status()
+            raw = response.json()["message"]["content"]
+            last_raw = raw
+            if expect_json:
+                try:
+                    parsed = _parse_json(raw)
+                except (json.JSONDecodeError, TypeError):
+                    pass
+            else:
+                parsed = raw
+        except (requests.RequestException, ValueError, KeyError, TypeError) as exc:
+            error = f"{type(exc).__name__}: {exc}"
+            _log_call(task, current_prompt, image_filename, raw, parsed, time.perf_counter() - started, error)
+            raise RuntimeError(f"Gemma ({task}) çağrısı başarısız: {error}") from exc
+
+        _log_call(task, current_prompt, image_filename, raw, parsed, time.perf_counter() - started)
+        if not expect_json or parsed is not None:
+            return parsed
+
+    return last_raw
+
+
+def extract_invoice(image_bytes, image_filename):
+    prompt = """Görseldeki Türk e-Faturasını oku. Yalnızca geçerli JSON döndür.
+Şema: {"invoice_no":null,"issue_date":null,"due_date":null,"seller_vkn":null,
+"seller_name":null,"buyer_vkn":null,"buyer_name":null,"items":[{"description":"",
+"unit":"","quantity":0,"unit_price":0.0}],"subtotal":null,"kdv":null,"total":null,
+"irsaliye_no":null,"buyer_approved":null}
+Tarihleri YYYY-MM-DD, sayıları JSON number olarak yaz. Okunmayan alanı null yap.
+buyer_approved yalnızca belgede açıkça onay bilgisi varsa true/false, aksi halde null olsun.
+Belgede bulunmayan bir bilgiyi tahmin etme."""
+    return _chat("extract_invoice", prompt, image_bytes=image_bytes, image_filename=image_filename, expect_json=True)
+
+
+def explain_flags(invoice, flags):
+    if not flags:
+        prompt = (
+            "Bu fatura için otomatik kurallarda belirgin uyarı çıkmadı. "
+            "Türkçe, kısa ve temkinli bir açıklama yaz; bu sonucun insan incelemesini "
+            "gereksiz kılmadığını belirt. Fatura: " + json.dumps(invoice, ensure_ascii=False)
+        )
+    else:
+        prompt = (
+            "Fatura risk bayraklarını kullanıcıya Türkçe, kısa ve anlaşılır biçimde açıkla. "
+            "Yalnızca verilen bulguları kullan; kesin sahtecilik hükmü verme ve kararın "
+            "insan incelemesinde olduğunu belirt.\nFatura: "
+            + json.dumps(invoice, ensure_ascii=False)
+            + "\nBayraklar: "
+            + json.dumps(flags, ensure_ascii=False)
+        )
+    return _chat("explain_flags", prompt)
+
+
+def risk_report(invoice, buyer_data):
+    prompt = (
+        "Fatura ve alıcı bilgileri için Türkçe kısa bir risk değerlendirmesi üret. "
+        "Yalnızca şu JSON şemasını döndür: "
+        '{"summary":"...","suggested_discount_rate":0.0}. '
+        "İndirim oranı yüzde değil 0 ile 1 arasında ondalık sayı olsun. "
+        "Bu yalnızca öneridir, nihai kararı insan verir.\nFatura: "
+        + json.dumps(invoice, ensure_ascii=False)
+        + "\nAlıcı: "
+        + json.dumps(buyer_data, ensure_ascii=False)
+    )
+    return _chat("risk_report", prompt, expect_json=True)
+
+
+def compare_offers(offers):
+    prompt = (
+        "Teklifleri net ödeme tutarı ve iskonto oranına göre karşılaştır. "
+        "En uygun teklifi öner ama kararı kullanıcıya bırak. "
+        'Yalnızca şu JSON şemasını döndür: {"recommendation":"...","reason":"..."}. '
+        "Teklifler: "
+        + json.dumps(offers, ensure_ascii=False)
+    )
+    return _chat("compare_offers", prompt, expect_json=True)
