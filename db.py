@@ -35,12 +35,13 @@ def init_db():
             );
             CREATE TABLE IF NOT EXISTS deals (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                invoice_no TEXT NOT NULL,
+                invoice_no TEXT NOT NULL UNIQUE,
                 offer_id INTEGER,
                 transfer_id TEXT NOT NULL,
                 created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (offer_id) REFERENCES offers(id)
             );
+            CREATE UNIQUE INDEX IF NOT EXISTS idx_deals_invoice_no ON deals(invoice_no);
             """
         )
 
@@ -64,6 +65,20 @@ def list_offers(invoice_no=None):
                 (invoice_no,),
             ).fetchall()
         return [dict(row) for row in rows]
+
+
+def get_deal(invoice_no):
+    with get_connection() as connection:
+        row = connection.execute(
+            """
+            SELECT deals.*, offers.financier_name, offers.discount_rate, offers.net_amount
+            FROM deals
+            LEFT JOIN offers ON offers.id = deals.offer_id
+            WHERE deals.invoice_no = ?
+            """,
+            (invoice_no,),
+        ).fetchone()
+        return dict(row) if row else None
 
 
 def create_deal(invoice_no, offer_id, transfer_id):

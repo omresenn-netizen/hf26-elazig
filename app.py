@@ -1,6 +1,7 @@
 """Streamlit UI for the first Vadesiz demo."""
 import hashlib
 import json
+import sqlite3
 from pathlib import Path
 
 import streamlit as st
@@ -95,6 +96,228 @@ def _show_analysis(result):
     st.write(result["explanation"])
 
 
+def _invoice_with_gib_approval(invoice, invoices):
+    enriched = dict(invoice)
+    verification = mocks.verify_invoice(invoice, invoices)
+    enriched["buyer_approved"] = verification["buyer_approved"]
+    return enriched
+
+
+def _display_offer_workflow(invoice):
+    invoice_no = invoice.get("invoice_no")
+    if not invoice_no:
+        return
+    st.divider()
+    st.subheader("Finansör teklifleri")
+    offers = db.list_offers(invoice_no)
+    deal = db.get_deal(invoice_no)
+    if deal:
+        st.success(
+            f"Teklif kabul edildi: {deal.get('financier_name') or 'Finansör'} — "
+            f"{_format_tl(deal.get('net_amount'))} net. "
+            f"DEMO / MOCK transfer kodu: {deal['transfer_id']}"
+        )
+        return
+    if not offers:
+        st.info("Bu fatura için henüz finansör teklifi yok.")
+        return
+
+    st.dataframe(
+        [
+            {
+                "Finansör": offer["financier_name"],
+                "İskonto": f"%{offer['discount_rate'] * 100:.2f}".replace(".", ","),
+                "Net ödeme": _format_tl(offer["net_amount"]),
+                "Durum": "Açık" if offer["status"] == "open" else offer["status"],
+            }
+            for offer in offers
+        ],
+        hide_index=True,
+        use_container_width=True,
+    )
+    open_offers = [offer for offer in offers if offer["status"] == "open"]
+    if open_offers:
+        comparison_key = tuple(
+            (offer["id"], offer["discount_rate"], offer["net_amount"]) for offer in open_offers
+        )
+        cached = st.session_state.setdefault("offer_comparisons", {})
+        if comparison_key not in cached:
+            try:
+                cached[comparison_key] = gemma.compare_offers(open_offers)
+            except RuntimeError as exc:
+                st.error(f"Gemma teklif karşılaştırması alınamadı: {exc}")
+        recommendation = cached.get(comparison_key)
+        if isinstance(recommendation, dict):
+            st.info(
+                f"**Gemma önerisi:** {recommendation.get('recommendation', '—')}  \n"
+                f"{recommendation.get('reason', '')}"
+            )
+        elif recommendation is not None:
+            st.warning("Gemma geçerli karşılaştırma JSON'u döndürmedi:")
+            st.code(recommendation)
+
+        selected_offer_id = st.selectbox(
+            "Kabul edilecek teklif",
+            [offer["id"] for offer in open_offers],
+            format_func=lambda offer_id: next(
+                f"{offer['financier_name']} — {_format_tl(offer['net_amount'])} net"
+                for offer in open_offers if offer["id"] == offer_id
+            ),
+            key=f"offer_choice_{invoice_no}",
+        )
+        if st.button("Teklifi kabul et", key=f"accept_offer_{invoice_no}"):
+            selected = next(offer for offer in open_offers if offer["id"] == selected_offer_id)
+            transfer = mocks.bank_transfer(invoice_no, selected["net_amount"])
+            try:
+                db.create_deal(invoice_no, selected["id"], transfer["transfer_id"])
+            except sqlite3.Error as exc:
+                st.error(f"Teklif kabul edilemedi: {exc}")
+                return
+            st.success(
+                f"DEMO / MOCK transfer tamamlandı: {_format_tl(transfer['amount'])} · "
+                f"İşlem kodu: {transfer['transfer_id']}"
+            )
+            st.rerun()
+    else:
+        st.info("Bu faturadaki teklifler artık açık değil.")
+
+
+def _build_financier_rows(companies, invoices):
+    company_by_vkn = {company["vkn"]: company for company in companies}
+    rows = []
+    for source in invoices:
+        invoice = _invoice_with_gib_approval(source, invoices)
+        flags = fraud.analyze_invoice(invoice, companies, invoices)
+        deal = db.get_deal(invoice["invoice_no"])
+        if deal:
+            status = "Finansman tamamlandı"
+        elif not mocks.verify_invoice(source, invoices)["verified"]:
+            status = "GİB kaydı bulunamadı"
+        elif invoice.get("buyer_approved") is False:
+            status = "Alıcı onayı bekleniyor"
+        elif flags:
+            status = "İnsan incelemesi"
+        else:
+            status = "İncelemeye hazır"
+        rows.append({
+            "Fatura no": invoice["invoice_no"],
+            "Satıcı": company_by_vkn.get(invoice["seller_vkn"], {}).get("name", invoice.get("seller_vkn")),
+            "Alıcı": company_by_vkn.get(invoice["buyer_vkn"], {}).get("name", invoice.get("buyer_vkn")),
+            "Toplam": _format_tl(invoice.get("total")),
+            "Vade": invoice.get("due_date", "—"),
+            "Risk": fraud.risk_score(flags),
+            "Durum": status,
+        })
+    return rows
+
+
+def _show_financier_panel(companies, invoices):
+    st.header("Finansör paneli")
+    st.caption("Faturalar yerel kurgusal veri setinden alınır; risk puanı karar desteğidir.")
+    rows = _build_financier_rows(companies, invoices)
+    st.dataframe(rows, hide_index=True, use_container_width=True)
+
+    invoice_by_no = {invoice["invoice_no"]: invoice for invoice in invoices}
+    selected_no = st.selectbox(
+        "İncelenecek fatura",
+        list(invoice_by_no),
+        format_func=lambda invoice_no: (
+            f"{invoice_no} · {_format_tl(invoice_by_no[invoice_no].get('total'))}"
+        ),
+    )
+    source = invoice_by_no[selected_no]
+    invoice = _invoice_with_gib_approval(source, invoices)
+    flags = fraud.analyze_invoice(invoice, companies, invoices)
+    existing_deal = db.get_deal(selected_no)
+    st.metric("Kural tabanlı risk puanı", f"{fraud.risk_score(flags)}/100")
+    if flags:
+        for flag in flags:
+            st.markdown(f"- **{FLAG_LABELS.get(flag['code'], flag['code'])}** — {flag['detail']}")
+
+    buyer = next((company for company in companies if company["vkn"] == invoice.get("buyer_vkn")), {})
+    credit = mocks.buyer_credit_score(invoice.get("buyer_vkn"))
+    st.subheader("Alıcı bilgileri")
+    st.write(f"**Alıcı:** {buyer.get('name', '—')}")
+    st.write(f"**Mock kredi skoru:** {credit['score']} / 900 · {credit['service']}")
+
+    report_cache = st.session_state.setdefault("risk_reports", {})
+    if selected_no not in report_cache:
+        context = {
+            "company": buyer,
+            "credit_score": credit,
+            "gib_verification": mocks.verify_invoice(source, invoices),
+            "flags": flags,
+        }
+        report_invoice = {key: value for key, value in invoice.items() if key != "scenario"}
+        with st.spinner("Gemma risk raporunu hazırlıyor..."):
+            try:
+                report_cache[selected_no] = gemma.risk_report(report_invoice, context)
+            except RuntimeError as exc:
+                st.error(f"Gemma risk raporu alınamadı: {exc}")
+    report = report_cache.get(selected_no)
+    suggested_rate = 0.04
+    if isinstance(report, dict):
+        st.subheader("Gemma risk raporu")
+        st.write(report.get("summary", "Özet üretilemedi."))
+        rate = report.get("suggested_discount_rate")
+        if isinstance(rate, (int, float)) and 0 <= rate <= 1:
+            suggested_rate = float(rate)
+            st.write(f"**Önerilen iskonto:** %{suggested_rate * 100:.2f}".replace(".", ","))
+        else:
+            st.warning("Gemma'nın iskonto önerisi geçerli bir 0–1 oranı değil.")
+    elif report is not None:
+        st.subheader("Gemma risk raporu")
+        st.warning("Gemma geçerli JSON döndürmedi; ham çıktı:")
+        st.code(report)
+
+    if existing_deal:
+        st.success(
+            f"Bu fatura zaten finanse edilmiş. DEMO / MOCK transfer kodu: "
+            f"{existing_deal['transfer_id']}"
+        )
+        return
+
+    st.subheader("Teklif oluştur")
+    invoice_total = float(invoice.get("total") or 0)
+    current_rate = min(max(suggested_rate, 0.0), 0.5)
+    with st.form(f"offer_form_{selected_no}"):
+        financier_name = st.text_input("Finansör adı", value="Vadesiz Demo Finans")
+        discount_rate = st.number_input(
+            "İskonto oranı",
+            min_value=0.0,
+            max_value=0.5,
+            value=current_rate,
+            step=0.005,
+            format="%.3f",
+        )
+        net_amount = st.number_input(
+            "Net ödeme (TL)",
+            min_value=0.0,
+            max_value=max(invoice_total, 0.01),
+            value=round(invoice_total * (1 - discount_rate), 2),
+            step=100.0,
+            format="%.2f",
+        )
+        submitted = st.form_submit_button("Teklifi kaydet")
+    if submitted:
+        if not financier_name.strip():
+            st.error("Finansör adı boş olamaz.")
+        elif invoice_total <= 0:
+            st.error("Faturanın geçerli toplam tutarı yok; teklif oluşturulamadı.")
+        else:
+            try:
+                offer_id = db.save_offer(
+                    selected_no,
+                    financier_name.strip(),
+                    discount_rate,
+                    net_amount,
+                )
+            except sqlite3.Error as exc:
+                st.error(f"Teklif kaydedilemedi: {exc}")
+            else:
+                st.success(f"Teklif kaydedildi (#{offer_id}): {_format_tl(net_amount)} net.")
+
+
 def main():
     st.set_page_config(page_title="Vadesiz", page_icon="🧾", layout="centered")
     db.init_db()
@@ -103,12 +326,15 @@ def main():
 
     role = st.sidebar.selectbox("Panel", ("KOBİ paneli", "Finansör paneli", "Dedektör"))
     st.sidebar.info("DEMO / MOCK: GİB, kredi skoru, banka transferi ve e-imza gerçek servis değildir.")
+    companies, invoices = fraud.load_demo_data()
+    if role == "Finansör paneli":
+        _show_financier_panel(companies, invoices)
+        return
     if role != "KOBİ paneli":
-        st.info("Bu panel sonraki sürümde hazırlanacak. Şimdilik KOBİ panelini kullanabilirsiniz.")
+        st.info("Dedektör paneli sonraki sürümde hazırlanacak.")
         return
 
     st.header("Faturanı yükle")
-    companies, invoices = fraud.load_demo_data()
     sample_files = sorted(SAMPLE_DIR.glob("*.png"))
     sample_names = ["— Örnek seçmeden yükle —", *[path.name for path in sample_files]]
     selected_sample = st.selectbox("Demo görseli", sample_names)
@@ -175,7 +401,9 @@ def main():
                 st.error(f"Gemma açıklaması alınamadı: {exc}")
 
     if st.session_state.get("invoice_analysis_digest") == digest:
-        _show_analysis(st.session_state["invoice_analysis"])
+        result = st.session_state["invoice_analysis"]
+        _show_analysis(result)
+        _display_offer_workflow(result["invoice"])
 
     st.caption("Risk puanı yalnızca karar desteğidir. Nihai değerlendirme insana aittir.")
 

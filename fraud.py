@@ -182,7 +182,8 @@ def analyze_invoice(invoice, companies, invoices):
     if employees and monthly_total > max(1_000_000, employees * 100_000):
         add("capacity_outlier", f"Aylık fatura toplamı çalışan sayısına göre yüksek ({employees} çalışan, {_format_tl(monthly_total)}).")
 
-    amount = _number(invoice.get("subtotal", invoice.get("amount")))
+    subtotal = invoice.get("subtotal")
+    amount = _number(subtotal if subtotal is not None else invoice.get("amount"))
     if amount is not None and amount >= 100_000 and abs(amount / 50_000 - round(amount / 50_000)) < 0.000001:
         add("round_amount", f"KDV öncesi ara toplam olağandışı yuvarlak bir tutar ({_format_tl(amount)}).")
     vague = sorted({
@@ -219,15 +220,16 @@ def analyze_invoice(invoice, companies, invoices):
     if len(buyer_ids) >= 3 and len(buyer_sectors) >= 3 and seller_has_suspicious_invoice:
         add("invoice_broker", f"Satıcı, en az üç farklı sektörden {len(buyer_ids)} alıcıya şüpheli açıklama veya irsaliyesiz fatura kesmiş.")
 
-    year_end_keys = set()
+    year_end_keys = {}
     for item in seller_invoices:
         item_date = _issue_date(item)
         if item_date and item_date.month == 12 and item_date.day >= 27:
             identity = item.get("invoice_no") or _fingerprint(item)
             if identity:
-                year_end_keys.add(identity)
-    if len(year_end_keys) >= 3:
-        add("year_end_cluster", f"Aynı satıcıdan yılın son beş gününde {len(year_end_keys)} farklı fatura kesilmiş.")
+                year_end_keys.setdefault(item_date.year, set()).add(identity)
+    cluster_size = max((len(keys) for keys in year_end_keys.values()), default=0)
+    if cluster_size >= 3:
+        add("year_end_cluster", f"Aynı satıcıdan yılın son beş gününde {cluster_size} farklı fatura kesilmiş.")
 
     if invoice.get("buyer_approved") is False:
         add("buyer_not_approved", "Alıcı faturayı henüz onaylamamış.")
