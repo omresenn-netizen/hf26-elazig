@@ -29,7 +29,6 @@ ROOT = Path(__file__).resolve().parent
 UPLOADS = ROOT / "uploads"
 WEB = ROOT / "web"
 MAX_UPLOAD_SIZE = 10 * 1024 * 1024
-_RISK_REPORT_CACHE = {}
 
 
 @asynccontextmanager
@@ -286,12 +285,13 @@ async def upload_invoice(request: Request, file: UploadFile = File(...)):
     try:
         (UPLOADS / stored_name).write_bytes(content)
     except OSError as exc:
-        with db.get_connection() as connection:
-            connection.execute("DELETE FROM uploads WHERE id = ?", (result["id"],))
-            connection.execute(
-                "DELETE FROM audit_log WHERE action = 'upload' AND json_extract(detail_json, '$.upload_id') = ?",
-                (result["id"],),
-            )
+        db.fail_upload(
+            result["id"],
+            user,
+            request.client.host if request.client else "127.0.0.1",
+            request.headers.get("user-agent", ""),
+            str(exc),
+        )
         raise HTTPException(500, "Dosya güvenli biçimde kaydedilemedi.") from exc
     return {"document": document_or_404(f"U-{result['id']}")}
 
@@ -305,7 +305,10 @@ def extract_document(document_id: str, request: Request):
     path = repo_api.file_path(upload_id)
     if not path:
         raise HTTPException(404, "Yüklenen fatura dosyası bulunamadı.")
-    fields = gemma.extract_invoice(path.read_bytes(), path.name)
+    try:
+        fields = gemma.extract_invoice(path.read_bytes(), path.name)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from exc
     if not isinstance(fields, dict):
         return {"fields": fields, **ai_metadata()}
     corrections = _reconcile_parties(fields)
@@ -370,8 +373,7 @@ def check_document(document_id: str, payload: dict, request: Request):
     gib_result = mocks.verify_invoice(invoice, invoices)
     buyer_result = mocks.buyer_credit_score(invoice.get("buyer_vkn"))
     result = repo_api.save_extraction(upload_id, user, request, invoice, score, flags)
-    if result["duplicate"]:
-        raise HTTPException(409, "Bu fatura daha önce yüklenmiş.")
+    score = fraud.risk_score(result["flags"])
     explanation = gemma.explain_flags(invoice, result["flags"])
     repo_api.audit("invoice_checked", user, request, {"upload_id": upload_id, "risk_score": score})
     document = document_or_404(document_id)
@@ -419,7 +421,15 @@ def publish_document(document_id: str, request: Request):
         ).fetchone()
         if not current or current["status"] != "incelemede" or current["risk_score"] is None or active_offer:
             raise HTTPException(409, "Fatura finansmana açılamıyor.")
-        status = "teklif_bekliyor" if current["risk_score"] < 60 else "incelemede"
+        flags = json.loads(row["flags_json"] or "[]")
+        duplicate_invoice = any(
+            flag.get("code") == "duplicate_invoice" for flag in flags
+        )
+        status = (
+            "teklif_bekliyor"
+            if current["risk_score"] < 60 and not duplicate_invoice
+            else "incelemede"
+        )
         connection.execute(
             "UPDATE uploads SET status = ? WHERE id = ? AND status = 'incelemede'",
             (status, upload_id),
@@ -499,10 +509,20 @@ def accept_offer(offer_id: int, request: Request):
             raise HTTPException(404, "Teklif bulunamadı.")
         if current["status"] == "finanse_edildi" or not current_offer or current_offer["status"] != "beklemede":
             raise HTTPException(409, "Bu teklif artık kabul edilemez.")
+        invoice_no = offer["invoice_no"] or invoice.get("invoice_no")
+        existing_deal = connection.execute(
+            "SELECT 1 FROM deals WHERE invoice_no = ?", (invoice_no,)
+        ).fetchone()
+        if existing_deal:
+            raise HTTPException(409, "Bu fatura için daha önce transfer kaydı oluşturulmuş.")
         connection.execute("UPDATE uploads SET status = 'finanse_edildi' WHERE id = ?", (upload_id,))
         connection.execute(
             "UPDATE offers SET status = CASE WHEN id = ? THEN 'kabul' ELSE 'red' END WHERE upload_id = ? AND status = 'beklemede'",
             (offer_id, upload_id),
+        )
+        connection.execute(
+            "INSERT INTO deals (invoice_no, offer_id, transfer_id) VALUES (?, NULL, ?)",
+            (invoice_no, receipt["transfer_id"]),
         )
         financiers = connection.execute(
             "SELECT DISTINCT financier_user_id FROM offers WHERE upload_id = ?",
@@ -1051,7 +1071,14 @@ def review_queue(request: Request):
     return [
         document_or_404(f"U-{row['id']}")
         for row in repo_api.all_upload_rows()
-        if row["status"] == "incelemede" and (row["risk_score"] or 0) >= 60
+        if row["status"] == "incelemede"
+        and (
+            (row["risk_score"] or 0) >= 60
+            or any(
+                flag.get("code") == "duplicate_invoice"
+                for flag in json.loads(row["flags_json"] or "[]")
+            )
+        )
     ]
 
 
@@ -1070,7 +1097,11 @@ def review_document(document_id: str, payload: dict, request: Request):
         raise HTTPException(400, "Ret kararı için gerekçe gereklidir.")
     if row["status"] != "incelemede":
         raise HTTPException(409, "Fatura inceleme kuyruğunda değil.")
-    if row["risk_score"] is None or row["risk_score"] < 60:
+    duplicate_invoice = any(
+        flag.get("code") == "duplicate_invoice"
+        for flag in json.loads(row["flags_json"] or "[]")
+    )
+    if (row["risk_score"] is None or row["risk_score"] < 60) and not duplicate_invoice:
         raise HTTPException(409, "Fatura inceleme kuyruğu risk eşiğini karşılamıyor.")
     status = "teklif_bekliyor" if decision == "approve" else "reddedildi"
     with db.get_connection() as connection:

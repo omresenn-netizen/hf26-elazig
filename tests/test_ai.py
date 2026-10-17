@@ -22,7 +22,6 @@ def ai_client(tmp_path, monkeypatch):
     monkeypatch.setattr(server.repo_api, "load_invoices", lambda: invoices)
     monkeypatch.setattr(server.repo_ai, "ROOT", tmp_path)
     server.repo_ai.clear_ai_cache()
-    monkeypatch.setattr(server, "_RISK_REPORT_CACHE", {})
     monkeypatch.setattr(
         server.gemma,
         "extract_invoice",

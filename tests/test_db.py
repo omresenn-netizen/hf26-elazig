@@ -116,3 +116,76 @@ def test_existing_audit_rows_and_legacy_offers_survive_migration(monkeypatch, tm
         assert connection.execute(
             "SELECT invoice_no FROM legacy_offers WHERE invoice_no = 'LEGACY-1'"
         ).fetchone()[0] == "LEGACY-1"
+
+
+def test_invoice_fingerprint_duplicate_stays_in_review(monkeypatch, tmp_path):
+    monkeypatch.setattr(db, "DB_PATH", tmp_path / "fingerprint.db")
+    db.init_db()
+    with db.get_connection() as connection:
+        user = dict(connection.execute(
+            "SELECT id, username, role, company_vkn FROM users WHERE role = 'kobi' LIMIT 1"
+        ).fetchone())
+    invoice = {
+        "seller_vkn": user["company_vkn"],
+        "invoice_no": "SAME-INVOICE",
+        "total": 1200,
+        "issue_date": "2026-10-01",
+    }
+    first_upload = db.create_upload(
+        user, user["company_vkn"], "127.0.0.1", "", "first.png",
+        b"\x89PNG\r\n\x1a\nfirst-image",
+    )
+    first = db.save_upload_extraction(
+        first_upload["id"], user, "127.0.0.1", invoice, 0, []
+    )
+    second_upload = db.create_upload(
+        user, user["company_vkn"], "127.0.0.1", "", "second.png",
+        b"\x89PNG\r\n\x1a\nsecond-image",
+    )
+    second = db.save_upload_extraction(
+        second_upload["id"], user, "127.0.0.1", invoice, 0, []
+    )
+
+    assert first["duplicate"] is False
+    assert second["duplicate"] is True
+    assert second["status"] == "incelemede"
+    assert any(flag["code"] == "duplicate_invoice" for flag in second["flags"])
+    with db.get_connection() as connection:
+        row = connection.execute(
+            "SELECT status, risk_score FROM uploads WHERE id = ?",
+            (second_upload["id"],),
+        ).fetchone()
+    assert row["status"] == "incelemede"
+    assert row["risk_score"] >= 45
+
+
+def test_financing_volume_includes_api_offer_deal(monkeypatch, tmp_path):
+    monkeypatch.setattr(db, "DB_PATH", tmp_path / "financing-volume.db")
+    db.init_db()
+    with db.get_connection() as connection:
+        seller = connection.execute(
+            "SELECT id, company_vkn FROM users WHERE role = 'kobi' LIMIT 1"
+        ).fetchone()
+        financier = connection.execute(
+            "SELECT id FROM users WHERE role = 'finansor' LIMIT 1"
+        ).fetchone()
+        upload_id = connection.execute(
+            """
+            INSERT INTO uploads (
+                user_id, company_vkn, ip_address, user_agent, file_name, file_size,
+                file_sha256, invoice_no, status
+            ) VALUES (?, ?, '127.0.0.1', '', 'invoice.png', 0, 'hash', 'API-VOLUME-1', 'finanse_edildi')
+            """,
+            (seller["id"], seller["company_vkn"]),
+        ).lastrowid
+        connection.execute(
+            """
+            INSERT INTO offers (upload_id, financier_user_id, discount_rate, net_amount, status)
+            VALUES (?, ?, 0.05, 950, 'kabul')
+            """,
+            (upload_id, financier["id"]),
+        )
+        connection.execute(
+            "INSERT INTO deals (invoice_no, offer_id, transfer_id) VALUES ('API-VOLUME-1', NULL, 'DEMO-1')"
+        )
+    assert db.financing_volume() == 950

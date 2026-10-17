@@ -4,5 +4,7 @@ __pycache__/
 venv/
 .env
 *.db
+vadesiz.db.bak-*
+logs/outbox.log
 .streamlit/secrets.toml
 uploads/

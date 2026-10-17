@@ -10,7 +10,6 @@ import gemma
 @pytest.fixture(autouse=True)
 def offline_gemma(monkeypatch):
     monkeypatch.setattr(gemma, "explain_flags", lambda invoice, flags: "Test açıklaması; insan incelemesi gerekir.")
-    monkeypatch.setattr(gemma, "extract_invoice", lambda image, name: {})
     monkeypatch.setattr(gemma, "risk_report", lambda invoice, buyer: {"summary": "Test risk özeti.", "suggested_discount_rate": 0.05})
     monkeypatch.setattr(gemma, "compare_offers", lambda offers: {"recommendation": "Teklif 1", "reason": "Test."})
 

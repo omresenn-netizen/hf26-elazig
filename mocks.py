@@ -50,12 +50,3 @@ def bank_transfer(invoice_no, amount):
         "transfer_id": transfer_id,
         "amount": amount,
     }
-
-
-def e_signature(signer_vkn, document_id):
-    signature_id = "DEMO-" + _token(signer_vkn, document_id)[:12].upper()
-    return {
-        "service": "DEMO / MOCK — E-imza",
-        "signed": True,
-        "signature_id": signature_id,
-    }

@@ -51,9 +51,10 @@ audit_log(id, at, user_id, username, ip_address, action, detail_json)
 ```
 - IP address: `st.context.ip_address` (fallback "127.0.0.1"). User agent: `st.context.headers.get("User-Agent")`.
 - `file_sha256` = SHA-256 of the uploaded file bytes. `invoice_fingerprint` = existing fraud fingerprint.
-- Upload of a file whose `file_sha256` or `invoice_fingerprint` already exists → status `reddedildi`,
-  flag `duplicate_invoice`, audit entry `duplicate_upload`.
-- Actions to audit: `login`, `login_failed`, `logout`, `upload`, `duplicate_upload`, `extract`,
+- Upload of a file whose `file_sha256` already exists → reject with HTTP 409 and audit `duplicate_upload`.
+  A matching `invoice_fingerprint` is not auto-rejected: keep status `incelemede`, add the
+  `duplicate_invoice` flag, and route it to the Denetim review queue.
+- Actions to audit: `login`, `login_failed`, `logout`, `upload`, `upload_failed`, `duplicate_upload`, `extract`,
   `offer_created`, `offer_accepted`, `offer_rejected`, `transfer_mock`.
 - Denetim role gets a page **"Kayıt Defteri"**: filterable table of `uploads` and `audit_log`
   (company, date range, action) with columns: time, company, user, IP, file, SHA-256 (shortened with
@@ -66,7 +67,8 @@ Pages (sidebar or top tabs): **Fatura Yükle**, **Faturalarım**, **Bildirimler*
 - Centered card, big document icon, title "Faturanızı yükleyin", short help text.
 - Step indicator at the top: ① Yükle → ② Okuma → ③ Kontrol → ④ Teklife aç.
 - Dashed-border drag & drop area (style Streamlit's `st.file_uploader` with CSS):
-  "Faturayı buraya sürükleyin veya seçin · PNG, JPG, PDF · en fazla 10 MB".
+  "Faturayı buraya sürükleyin veya seçin · PNG, JPG, PDF · en fazla 10 MB". PDF files are rendered
+  locally to a PNG of the first page before Gemma reads them.
 - **Remove the demo sample dropdown.** The user uploads real files only.
 - After upload: show file name, size, SHA-256 (short), a small preview thumbnail.
 - "Faturayı oku" button → Gemma extracts → editable form with the fields (KOBİ can correct) →

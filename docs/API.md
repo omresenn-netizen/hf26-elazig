@@ -32,9 +32,11 @@ Status values: `incelemede`, `teklif_bekliyor`, `teklif_var`, `finanse_edildi`, 
 
 ## KOBİ
 - `POST /api/uploads` multipart `file` (PNG/JPG/PDF, ≤ 10 MB, checked by magic bytes) → `{document}`
-  with status `incelemede` and steps `upload` done. Duplicate SHA-256 or invoice fingerprint → 409.
+  with status `incelemede` and steps `upload` done. A previously uploaded file SHA-256 → 409.
+  A matching invoice fingerprint is flagged `duplicate_invoice` and stays in `incelemede` for Denetim review.
   `data/demo_uploads.json` invoices must not count as duplicates on their first upload.
 - `POST /api/documents/{id}/extract` → runs `gemma.extract_invoice` → `{fields}` (editable by the user).
+  PDF files are rendered locally to a PNG of their first page before Gemma reads them.
 - `POST /api/documents/{id}/check` `{fields}` → GİB mock + fraud rules + `gemma.explain_flags`
   → `{document, explanation}`.
 - `POST /api/documents/{id}/publish` → risk < 60: `teklif_bekliyor`; risk ≥ 60: stays `incelemede` (review queue).

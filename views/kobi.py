@@ -362,31 +362,18 @@ def _upload_page(user, companies, invoices, ip_address, user_agent):
                 st.session_state["active_upload_digest"] = digest
                 upload_id = created["id"]
             current_id = upload_id
-            if uploaded.name.casefold().endswith(".pdf"):
-                message = (
-                    "PDF güvenle kaydedildi; ancak yerel Gemma görsel okuma çağrısı PDF sayfasını "
-                    "doğrudan çözemiyor. İlk sayfayı PNG/JPG olarak dışa aktarıp yükleyin."
-                )
-                db.log_audit(
-                    "extract",
-                    user,
-                    ip_address,
-                    {"upload_id": upload_id, "error": "pdf_rendering_unavailable"},
-                )
-                st.error(message)
-            else:
-                with st.spinner("Gemma faturanızı okuyor..."):
-                    try:
-                        extracted = gemma.extract_invoice(file_bytes, uploaded.name)
-                    except RuntimeError as exc:
-                        db.log_audit(
-                            "extract",
-                            user,
-                            ip_address,
-                            {"upload_id": upload_id, "error": str(exc)},
-                        )
-                        st.error(str(exc))
-                        extracted = None
+            with st.spinner("Gemma faturanızı okuyor..."):
+                try:
+                    extracted = gemma.extract_invoice(file_bytes, uploaded.name)
+                except (RuntimeError, ValueError) as exc:
+                    db.log_audit(
+                        "extract",
+                        user,
+                        ip_address,
+                        {"upload_id": upload_id, "error": str(exc)},
+                    )
+                    st.error(str(exc))
+                    extracted = None
                 if isinstance(extracted, dict) and _is_complete_invoice(extracted):
                     st.session_state["kobi_invoice_draft"] = extracted
                     st.session_state["kobi_invoice_draft_digest"] = digest
@@ -453,6 +440,8 @@ def _upload_page(user, companies, invoices, ip_address, user_agent):
                 st.error("Fatura bilgileri daha önce işlendi; bu kayıt finansmana açılamaz.")
             elif result["status"] == "finanse_edildi":
                 st.success("Bu fatura için finansman tamamlandı.")
+            elif any(flag["code"] == "duplicate_invoice" for flag in result["flags"]):
+                st.warning("Olası mükerrer fatura denetim kuyruğuna gönderildi; finansörlere açılmadan önce incelenecektir.")
             elif result["score"] >= 60:
                 if result.get("financing_opened"):
                     st.warning("Yüksek riskli fatura denetim kuyruğuna gönderildi; finansörlere ancak inceleme sonrası açılır.")
