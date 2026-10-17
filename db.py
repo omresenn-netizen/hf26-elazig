@@ -8,6 +8,7 @@ from contextlib import contextmanager
 from pathlib import Path
 
 DB_PATH = Path(__file__).resolve().parent / "vadesiz.db"
+PAYMENT_HISTORY_PATH = Path(__file__).resolve().parent / "data" / "payment_history.json"
 PASSWORD_ITERATIONS = 260_000
 DEMO_PASSWORD = "demo1234"
 FINANCIERS = {
@@ -21,8 +22,9 @@ ROLE_LABELS = {"kobi": "KOBİ", "finansor": "Finansör", "denetim": "Denetim"}
 def get_connection():
     connection = sqlite3.connect(DB_PATH)
     connection.row_factory = sqlite3.Row
-    connection.execute("PRAGMA foreign_keys = ON")
     try:
+        connection.execute("PRAGMA journal_mode = WAL")
+        connection.execute("PRAGMA foreign_keys = ON")
         yield connection
         connection.commit()
     except Exception:
@@ -118,6 +120,7 @@ def init_db():
                 body TEXT NOT NULL,
                 read_at TEXT
             );
+            CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);
             CREATE TABLE IF NOT EXISTS audit_log (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -129,9 +132,101 @@ def init_db():
             );
             CREATE INDEX IF NOT EXISTS idx_audit_log_at ON audit_log(at);
             CREATE INDEX IF NOT EXISTS idx_audit_log_action ON audit_log(action);
+            CREATE TABLE IF NOT EXISTS payment_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                company_vkn TEXT NOT NULL,
+                invoice_no TEXT NOT NULL,
+                counterparty_vkn TEXT NOT NULL,
+                amount REAL NOT NULL,
+                due_date TEXT NOT NULL,
+                paid_date TEXT NOT NULL,
+                days_late INTEGER NOT NULL,
+                UNIQUE (company_vkn, invoice_no)
+            );
+            CREATE INDEX IF NOT EXISTS idx_payment_history_company_due
+                ON payment_history(company_vkn, due_date DESC);
+            CREATE TRIGGER IF NOT EXISTS audit_log_no_update
+            BEFORE UPDATE ON audit_log
+            BEGIN
+                SELECT RAISE(ABORT, 'audit_log is append-only');
+            END;
+            CREATE TRIGGER IF NOT EXISTS audit_log_no_delete
+            BEFORE DELETE ON audit_log
+            BEGIN
+                SELECT RAISE(ABORT, 'audit_log is append-only');
+            END;
             """
         )
         _seed_users(connection)
+        _seed_payment_history(connection)
+
+
+def _seed_payment_history(connection):
+    if connection.execute("SELECT 1 FROM payment_history LIMIT 1").fetchone():
+        return
+    records = json.loads(PAYMENT_HISTORY_PATH.read_text(encoding="utf-8"))
+    connection.executemany(
+        """
+        INSERT INTO payment_history (
+            company_vkn, invoice_no, counterparty_vkn, amount,
+            due_date, paid_date, days_late
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)
+        """,
+        [
+            (
+                record["company_vkn"],
+                record["invoice_no"],
+                record["counterparty_vkn"],
+                record["amount"],
+                record["due_date"],
+                record["paid_date"],
+                record["days_late"],
+            )
+            for record in records
+        ],
+    )
+
+
+def get_payment_history(vkn, limit=24):
+    with get_connection() as connection:
+        rows = connection.execute(
+            """
+            SELECT invoice_no, due_date, paid_date, amount, days_late
+            FROM payment_history
+            WHERE company_vkn = ?
+            ORDER BY due_date DESC, id DESC
+            LIMIT ?
+            """,
+            (vkn, max(0, int(limit))),
+        ).fetchall()
+        return [dict(row) for row in rows]
+
+
+def payment_stats(vkn):
+    with get_connection() as connection:
+        row = connection.execute(
+            """
+            SELECT COUNT(*) AS invoice_count,
+                   COALESCE(AVG(CASE WHEN days_late <= 0 THEN 1.0 ELSE 0.0 END), 0.0)
+                       AS on_time_ratio,
+                   COALESCE(AVG(days_late), 0.0) AS avg_days_late,
+                   COALESCE(MAX(days_late), 0) AS max_days_late,
+                   COALESCE(SUM(
+                       CASE WHEN due_date >= date('now', '-12 months')
+                            THEN amount ELSE 0 END
+                   ), 0.0) AS volume_12m
+            FROM payment_history
+            WHERE company_vkn = ?
+            """,
+            (vkn,),
+        ).fetchone()
+        return {
+            "invoice_count": row["invoice_count"],
+            "on_time_ratio": row["on_time_ratio"],
+            "avg_days_late": round(row["avg_days_late"], 2),
+            "max_days_late": row["max_days_late"],
+            "volume_12m": float(row["volume_12m"]),
+        }
 
 
 def _password_hash(password, salt):
