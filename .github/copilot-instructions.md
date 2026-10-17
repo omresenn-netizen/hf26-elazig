@@ -9,6 +9,9 @@ on the due date.
 The core value is **trust**: an open-weight model (Gemma 4) reads every invoice and detects
 fake invoices ("naylon fatura") before any money moves.
 
+> **UI and workflow v2 is defined in `docs/UI_SPEC.md` (login per role, white corporate theme,
+> SQL audit log, marketplace, notifications). It overrides the screen descriptions below.**
+
 ## Users and screens (Streamlit, one app, sidebar to switch role)
 1. **KOBİ paneli** – upload invoice image/PDF → Gemma extracts fields → fraud checks →
    risk score → list of offers → accept best offer (mock bank transfer).
