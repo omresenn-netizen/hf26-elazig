@@ -4,11 +4,14 @@
 
 Hacktoberfest 2026 — Elazığ fest project.
 
+The primary VadeX experience is the web front end in `web/`, backed by the FastAPI
+contract in `docs/API.md`. The Streamlit app below is retained as an internal tool.
+
 Small businesses often wait 60–120 days to be paid. Vadesiz demonstrates how a business
 could upload an invoice, review local AI extraction and deterministic risk flags, then
 compare financing offers without sending invoice data to a cloud AI API.
 
-## Current demo
+## Internal Streamlit tool
 
 - **Login and audit:** role-specific KOBİ, financier and auditor login tabs with seeded
   demo accounts. Passwords are stored as salted PBKDF2-HMAC hashes. Login attempts,
@@ -64,6 +67,15 @@ Python · Streamlit · Ollama/Gemma 4 · SQLite · networkx · PyVis
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts\check_setup.ps1
 ```
+
+## Built by a GitHub Copilot agent team
+
+- **architect** — split the Streamlit app into role-specific views.
+- **kobi-builder** — built the SME upload, offers and notifications workflow.
+- **market-builder** — built the financier marketplace and audit workflows.
+- **api-builder** — implemented the FastAPI backend contract.
+- **integrator** — merged and validated the agent branches.
+- **security-auditor** — reviewed authentication, uploads, SQL and secrets.
 
 ## License
 

@@ -19,3 +19,5 @@ Short notes as we go. Becomes the source for the DEV post.
   an invoice broker, a sector mismatch, a capacity outlier, an unapproved and a duplicate invoice.
 - **Gemma reads invoices:** first try on a generated e-Fatura image returned every field correctly
   (seller, buyer, VKN, items, KDV, total, missing delivery note) in 26 s.
+- **Internal Streamlit workflows merged:** integrated the KOBİ upload/offer experience and the
+  financier marketplace/audit panels; both role-specific style helpers are wired into the app.

@@ -33,14 +33,17 @@ def main():
     st.caption("KOB\u0130'ler i\u00e7in fatura finansman\u0131 \u2022 Yerel yapay zek\u00e2 ile demo")
     companies, invoices = fraud.load_demo_data()
     if user["role"] == "finansor":
+        ui.market_styles()
         views.finansor.render(user, companies, invoices, ip_address)
         ui.render_footer()
         return
     if user["role"] == "denetim":
+        ui.market_styles()
         views.denetim.render(user, companies, invoices, ip_address)
         ui.render_footer()
         return
 
+    ui.kobi_styles()
     views.kobi.render(user, companies, invoices, ip_address)
     ui.render_footer()
 
