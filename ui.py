@@ -153,3 +153,24 @@ def render_footer():
         "entegrasyonları mock'tur</div>",
         unsafe_allow_html=True,
     )
+
+
+def market_styles():
+    st.markdown(
+        """
+        <style>
+        .market-table-wrap { overflow-x: auto; margin: 12px 0 20px; }
+        .market-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .market-table th { background: #F4F6FA; color: #334155; text-align: left; }
+        .market-table th, .market-table td {
+            border-bottom: 1px solid #E5E7EB; padding: 11px 10px; vertical-align: top;
+        }
+        .market-table tbody tr:nth-child(even) { background: #F8FAFC; }
+        .market-risk { display: inline-block; padding: 3px 9px; border-radius: 12px; font-weight: 700; }
+        .market-risk-low { color: #166534; background: #DCFCE7; }
+        .market-risk-medium { color: #9A3412; background: #FFEDD5; }
+        .market-risk-high { color: #991B1B; background: #FEE2E2; }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )

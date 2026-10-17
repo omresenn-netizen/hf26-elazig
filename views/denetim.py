@@ -3,6 +3,7 @@ import csv
 import html
 import io
 import math
+import sqlite3
 from datetime import date, timedelta
 
 import streamlit as st
@@ -12,6 +13,8 @@ from pyvis.network import Network
 import db
 import fraud
 import gemma
+import repo_market
+import ui
 from .common import FLAG_LABELS, _format_tl, _invoice_with_gib_approval, _show_header_metrics
 
 def _detector_graph_html(companies, invoices, invoice_flags):
@@ -270,13 +273,85 @@ def _show_audit_ledger():
     )
     st.markdown(table_html, unsafe_allow_html=True)
 
+
+def _show_review_queue(user, ip_address):
+    st.header("İnceleme Kuyruğu")
+    records = repo_market.list_uploads_for_review()
+    if not records:
+        st.success("İnceleme bekleyen yükleme yok.")
+        return
+    options = {str(record["id"]): record for record in records}
+    st.dataframe([
+        {
+            "Fatura no": record["invoice"].get("invoice_no") or "Okuma bekleniyor",
+            "Satıcı": record["seller_name"] or record.get("company_vkn") or "—",
+            "Dosya": record["file_name"],
+            "Risk": record["risk_score"] if record["risk_score"] is not None else "—",
+            "Yükleme": record["uploaded_at"],
+        }
+        for record in records
+    ], hide_index=True, use_container_width=True)
+    selected_id = st.selectbox(
+        "İncelenecek kayıt",
+        ["", *options],
+        format_func=lambda upload_id: (
+            "— Kayıt seçin —" if not upload_id else
+            f"{options[upload_id]['invoice'].get('invoice_no') or options[upload_id]['file_name']} "
+            f"· #{upload_id}"
+        ),
+        key="review_upload",
+    )
+    if not selected_id:
+        return
+    record = options[selected_id]
+    invoice = record["invoice"]
+    with st.container(border=True):
+        st.subheader(invoice.get("invoice_no") or record["file_name"])
+        st.write(f"**Satıcı VKN:** {record.get('company_vkn') or '—'}")
+        st.write(f"**Dosya:** {record['file_name']} · SHA-256 `{record['file_sha256'][:16]}…`")
+        if invoice:
+            st.write(f"**Alıcı VKN:** {invoice.get('buyer_vkn', '—')}")
+            st.write(f"**Tutar:** {_format_tl(invoice.get('total'))} · **Vade:** {invoice.get('due_date', '—')}")
+        st.write(f"**Risk:** {record['risk_score'] if record['risk_score'] is not None else '—'}/100")
+        for flag in record["flags"]:
+            st.markdown(
+                f"- **{FLAG_LABELS.get(flag['code'], flag['code'])}** — "
+                f"{html.escape(str(flag['detail']))}"
+            )
+        reason = st.text_input(
+            "Reddetme nedeni",
+            key=f"review_reason_{selected_id}",
+            max_chars=500,
+        )
+        approve_col, reject_col = st.columns(2)
+        if approve_col.button("Onayla ve pazara aç", key=f"review_approve_{selected_id}", type="primary"):
+            try:
+                repo_market.decide_review(int(selected_id), True, "", user, ip_address)
+            except (ValueError, sqlite3.Error) as exc:
+                st.error(f"Onay kaydedilemedi: {exc}")
+            else:
+                st.success("Fatura teklif bekliyor durumuna alındı.")
+                st.rerun()
+        if reject_col.button("Reddet", key=f"review_reject_{selected_id}"):
+            try:
+                repo_market.decide_review(int(selected_id), False, reason, user, ip_address)
+            except (ValueError, sqlite3.Error) as exc:
+                st.error(f"Reddetme kaydedilemedi: {exc}")
+            else:
+                st.success("Fatura reddedildi; gerekçe kayıt defterine yazıldı.")
+                st.rerun()
+
+
 def render(user, companies, invoices, ip_address):
-    audit_page = st.sidebar.selectbox(
+    ui.market_styles()
+    audit_page = st.sidebar.radio(
         "Denetim sayfası",
-        ("Dedektör", "Kayıt Defteri"),
+        ("Dedektör", "İnceleme Kuyruğu", "Kayıt Defteri"),
     )
     if audit_page == "Dedektör":
         _show_header_metrics(companies, invoices)
         _show_detector_panel(companies, invoices)
+    elif audit_page == "İnceleme Kuyruğu":
+        _show_review_queue(user, ip_address)
     else:
         _show_audit_ledger()
