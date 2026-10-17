@@ -5,11 +5,14 @@ import json
 import secrets
 import sqlite3
 from contextlib import contextmanager
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 DB_PATH = Path(__file__).resolve().parent / "vadesiz.db"
 PAYMENT_HISTORY_PATH = Path(__file__).resolve().parent / "data" / "payment_history.json"
 PASSWORD_ITERATIONS = 260_000
+MAX_LOGIN_ATTEMPTS = 5
+LOGIN_LOCK_MINUTES = 5
 DEMO_PASSWORD = "demo1234"
 FINANCIERS = {
     "anadolu_faktoring": "Anadolu Faktoring",
@@ -48,6 +51,14 @@ def init_db():
             }
             if "upload_id" not in offer_columns and "legacy_offers" not in tables:
                 connection.execute("ALTER TABLE offers RENAME TO legacy_offers")
+        if "users" in tables:
+            user_columns = {row["name"] for row in connection.execute("PRAGMA table_info(users)").fetchall()}
+            if "failed_login_attempts" not in user_columns:
+                connection.execute(
+                    "ALTER TABLE users ADD COLUMN failed_login_attempts INTEGER NOT NULL DEFAULT 0"
+                )
+            if "login_locked_until" not in user_columns:
+                connection.execute("ALTER TABLE users ADD COLUMN login_locked_until TEXT")
         connection.executescript(
             """
             CREATE TABLE IF NOT EXISTS legacy_offers (
@@ -76,7 +87,9 @@ def init_db():
                 role TEXT NOT NULL CHECK(role IN ('kobi', 'finansor', 'denetim')),
                 company_vkn TEXT,
                 display_name TEXT NOT NULL,
-                email TEXT
+                email TEXT,
+                failed_login_attempts INTEGER NOT NULL DEFAULT 0,
+                login_locked_until TEXT
             );
             CREATE TABLE IF NOT EXISTS uploads (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -230,12 +243,42 @@ def payment_stats(vkn):
 
 
 def _password_hash(password, salt):
+    if not isinstance(password, str):
+        password = str(password or "")
+    if not isinstance(salt, str):
+        salt = str(salt or "")
     return hashlib.pbkdf2_hmac(
         "sha256",
         password.encode("utf-8"),
         bytes.fromhex(salt),
         PASSWORD_ITERATIONS,
     ).hex()
+
+
+def _normalize_lockout_time(value):
+    if not value:
+        return None
+    try:
+        return datetime.fromisoformat(value)
+    except ValueError:
+        return None
+
+
+def _user_value(row, key, default=None):
+    if isinstance(row, dict):
+        return row.get(key, default)
+    if hasattr(row, "keys"):
+        return row[key] if key in row.keys() else default
+    return default
+
+
+def _account_locked(user):
+    if not user:
+        return False
+    locked_until = _normalize_lockout_time(_user_value(user, "login_locked_until"))
+    if locked_until is None:
+        return False
+    return locked_until > datetime.now(timezone.utc)
 
 
 def _seed_user(connection, username, role, display_name, company_vkn=None, email=None):
@@ -298,6 +341,17 @@ def authenticate_user(username, password, role, ip_address="127.0.0.1"):
         user = connection.execute(
             "SELECT * FROM users WHERE username = ?", (username,)
         ).fetchone()
+        if user and _account_locked(user):
+            _write_audit(
+                connection,
+                username,
+                ip_address,
+                "login_locked",
+                user_id=user["id"],
+                detail={"role": role, "reason": "account_locked", "locked_until": user["login_locked_until"]},
+            )
+            return None
+
         valid_password = False
         if user:
             valid_password = hmac.compare_digest(
@@ -306,8 +360,12 @@ def authenticate_user(username, password, role, ip_address="127.0.0.1"):
             )
         else:
             _password_hash(password or "", "0" * 32)
-        valid = bool(user and user["role"] == role and valid_password)
-        if valid:
+
+        if user and user["role"] == role and valid_password:
+            connection.execute(
+                "UPDATE users SET failed_login_attempts = 0, login_locked_until = NULL WHERE id = ?",
+                (user["id"],),
+            )
             user_data = dict(user)
             user_data.pop("password_hash", None)
             user_data.pop("salt", None)
@@ -320,9 +378,32 @@ def authenticate_user(username, password, role, ip_address="127.0.0.1"):
                 detail={"role": role},
             )
             return user_data
-        reason = "invalid_credentials"
-        if user and user["role"] != role:
-            reason = "role_mismatch"
+
+        if user and user["role"] == role:
+            attempts = int(_user_value(user, "failed_login_attempts") or 0) + 1
+            lock_until = None
+            if attempts >= MAX_LOGIN_ATTEMPTS:
+                lock_until = (datetime.now(timezone.utc) + timedelta(minutes=LOGIN_LOCK_MINUTES)).isoformat()
+                _write_audit(
+                    connection,
+                    username,
+                    ip_address,
+                    "login_locked",
+                    user_id=user["id"],
+                    detail={"role": role, "reason": "max_attempts_reached", "locked_until": lock_until},
+                )
+            connection.execute(
+                "UPDATE users SET failed_login_attempts = ?, login_locked_until = ? WHERE id = ?",
+                (attempts, lock_until, user["id"]),
+            )
+            reason = "invalid_credentials"
+            if attempts >= MAX_LOGIN_ATTEMPTS:
+                reason = "max_attempts_reached"
+        else:
+            reason = "invalid_credentials"
+            if user and user["role"] != role:
+                reason = "role_mismatch"
+
         _write_audit(
             connection,
             username or "(empty)",
@@ -511,24 +592,19 @@ def list_users(role=None):
 
 
 def list_audit_records(start_date=None, end_date=None, company_vkn=None, action=None):
-    clauses = []
-    parameters = []
-    if start_date:
-        clauses.append("date(a.at) >= date(?)")
-        parameters.append(start_date)
-    if end_date:
-        clauses.append("date(a.at) <= date(?)")
-        parameters.append(end_date)
-    if company_vkn:
-        clauses.append("COALESCE(up.company_vkn, u.company_vkn) = ?")
-        parameters.append(company_vkn)
-    if action:
-        clauses.append("a.action = ?")
-        parameters.append(action)
-    where = " WHERE " + " AND ".join(clauses) if clauses else ""
+    parameters = [
+        start_date,
+        start_date,
+        end_date,
+        end_date,
+        company_vkn,
+        company_vkn,
+        action,
+        action,
+    ]
     with get_connection() as connection:
         rows = connection.execute(
-            f"""
+            """
             SELECT a.at, COALESCE(up.company_vkn, u.company_vkn) AS company_vkn,
                    COALESCE(company.display_name, u.display_name, '') AS company_name,
                    a.username, a.ip_address, a.action, a.detail_json,
@@ -539,7 +615,10 @@ def list_audit_records(start_date=None, end_date=None, company_vkn=None, action=
                 ON up.id = CAST(json_extract(a.detail_json, '$.upload_id') AS INTEGER)
             LEFT JOIN users AS company
                 ON company.company_vkn = COALESCE(up.company_vkn, u.company_vkn)
-            {where}
+            WHERE (? IS NULL OR date(a.at) >= date(?))
+              AND (? IS NULL OR date(a.at) <= date(?))
+              AND (? IS NULL OR COALESCE(up.company_vkn, u.company_vkn) = ?)
+              AND (? IS NULL OR a.action = ?)
             ORDER BY a.at DESC, a.id DESC
             """,
             parameters,
