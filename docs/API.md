@@ -51,6 +51,9 @@ Status values: `incelemede`, `teklif_bekliyor`, `teklif_var`, `finanse_edildi`, 
   `teklif_bekliyor`/`teklif_var`, uploads + preloaded invoices (except `data/demo_uploads.json` numbers).
 - `GET /api/documents/{id}/risk-report` → `gemma.risk_report` (cached per id) + deterministic
   suggested discount → `{summary, suggested_discount_rate, suggested_net_amount}`.
+- `GET /api/documents/{id}/delay-forecast` (finansör, denetim, owning KOBİ) → TabPFN prediction for
+  the invoice buyer: `{expected_days_late, late_probability, model, n_train, features}`. The
+  forecast is also supplied to Gemma's risk-report context.
 - `POST /api/offers` `{document_id, net_amount, note}` → one active offer per financier per document,
   updating replaces it. Creates `panel` + `email` notifications for the KOBİ (email appended to
   `logs/outbox.log`, never sent). → `{offer}`.

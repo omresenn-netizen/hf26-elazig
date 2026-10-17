@@ -247,6 +247,8 @@ ul.flags li.hi { border-left-color: var(--bad); background: var(--bad-bg); }
 .ai .ai-h .chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #9ff0f5; box-shadow: 0 0 0 3px rgba(159, 240, 245, .35); }
 .ai .ai-h h4 { font-size: 14.5px; }
 .ai .ai-h time { margin-left: auto; color: var(--muted); font-size: 12px; }
+.forecast-bar { height: 8px; margin: 8px 0 12px; overflow: hidden; border-radius: 8px; background: var(--line-2); }
+.forecast-bar span { display: block; height: 100%; border-radius: inherit; background: var(--teal); }
 .ai p { margin: 0 0 8px; font-size: 14.5px; }
 .ai ul { margin: 6px 0 0; padding-left: 18px; font-size: 14px; }
 .ai ul.pro li::marker { color: var(--ok); } .ai ul.con li::marker { color: var(--bad); }

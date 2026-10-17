@@ -8,3 +8,4 @@ python-multipart>=0.0.12
 itsdangerous>=2.2
 httpx>=0.27
 pytest>=8.0
+tabpfn>=9.1.0,<10

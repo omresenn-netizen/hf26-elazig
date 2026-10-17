@@ -340,6 +340,25 @@ const paymentProfile = (sel, vkn) => vkn && aiInto(sel, "Alıcının ödeme geç
     ${h.length ? `<div class="bars" title="Her çubuk bir ödeme: yükseklik gecikme günü">${h.map(x => `<span class="${x.days_late > 15 ? "vlate" : x.days_late > 5 ? "late" : ""}" style="height:${Math.max(4, (x.days_late || 0) / max * 100)}%" title="${esc(x.invoice_no)} · ${x.days_late} gün"></span>`).join("")}</div><div class="muted small">Son ${h.length} ödeme, soldan sağa eskiden yeniye · yükseklik = gecikme günü</div>` : ""}
     <div style="margin-top:10px">${md(r.ai_comment)}</div>`;
 });
+async function delayForecast(sel, id) {
+  const el = $(sel); if (!el) return;
+  const title = "Ödeme gecikmesi tahmini · TabPFN";
+  const heading = model => `<div class="ai-h"><span class="chip">${esc(model || "TabPFN")}</span><h4>${esc(title)}</h4></div>`;
+  el.innerHTML = aiLoading(title);
+  try {
+    const r = await api(`/documents/${encodeURIComponent(id)}/delay-forecast`);
+    if (!$(sel)) return;
+    const delay = Number(r.expected_days_late), probability = Number(r.late_probability);
+    const safeDelay = Number.isFinite(delay) ? delay : null;
+    const safeProbability = Number.isFinite(probability) ? Math.min(1, Math.max(0, probability)) : null;
+    const bar = safeProbability == null ? 0 : safeProbability * 100;
+    $(sel).innerHTML = `<div class="ai">${heading(r.model)}<p><b>${safeDelay == null ? "–" : safeDelay.toFixed(1) + " gün"}</b> beklenen gecikme</p>
+      <div class="muted small">5 günden fazla gecikme olasılığı · ${safeProbability == null ? "–" : PCT(safeProbability)}</div>
+      <div class="forecast-bar" role="img" aria-label="Gecikme olasılığı ${safeProbability == null ? "bilinmiyor" : PCT(safeProbability)}"><span style="width:${bar}%"></span></div></div>`;
+  } catch (e) {
+    if ($(sel)) $(sel).innerHTML = `<div class="ai">${heading("TabPFN")}<p class="muted small">Tahmin şu an alınamadı: ${esc(e.message)}</p></div>`;
+  }
+}
 
 // ---------- KOBİ ----------
 async function kobiHome() {
@@ -458,10 +477,10 @@ async function detail(id) {
         ${o.status === "beklemede" ? `<div class="ai-line" id="oc-${o.id}"><span class="skeleton" style="display:inline-block;width:60%;margin:0;vertical-align:middle"></span></div>` : ""}
         ${o.status === "beklemede" && !["finanse_edildi", "reddedildi"].includes(d.status) ? `<div class="acts"><button class="btn primary sm" data-act="accept" data-id="${o.id}">Kabul et</button><button class="btn sm" data-act="reject" data-id="${o.id}">Reddet</button></div>` : ""}</div>`).join("")
         : `<p class="muted" style="margin:0">${d.status === "incelemede" ? "Belge denetim incelemesinde. Onaylandıktan sonra pazara açılacak." : "Henüz teklif gelmedi. Teklif geldiğinde bildirim ve e-posta alacaksınız."}</p>`}
-      </div></div><div id="cmp" style="margin-bottom:18px"></div><div id="pay"></div>`;
+      </div></div><div id="cmp" style="margin-bottom:18px"></div><div class="grid-2"><div id="pay"></div><div id="forecast"></div></div>`;
   } else if (role === "finansor") {
     const mine = offers.find(o => o.financier?.id === S.user.id && o.status === "beklemede");
-    right = `<div id="rr" style="margin-bottom:18px"></div><div id="pay" style="margin-bottom:18px"></div>
+    right = `<div id="rr" style="margin-bottom:18px"></div><div class="grid-2" style="margin-bottom:18px"><div id="pay"></div><div id="forecast"></div></div>
       <div class="panel"><div class="ph"><h3>${mine ? "Teklifinizi güncelleyin" : "Teklif ver"}</h3><span class="muted small">${offers.filter(o => o.status === "beklemede").length} aktif teklif</span></div><div class="pb">
       ${["teklif_bekliyor", "teklif_var"].includes(d.status) ? `<form id="of"><div class="field"><label class="f" for="na">Ödenecek net tutar (TL)</label><input class="f" id="na" type="number" step="0.01" max="${d.total}" value="${mine ? mine.net_amount : ""}" required></div>
         <div class="muted small" id="calc" style="margin:-6px 0 12px">Nominal ${TL(d.total)}</div><div class="field"><label class="f" for="nt">Not (isteğe bağlı)</label><textarea class="f" id="nt">${esc(mine?.note || "")}</textarea></div>
@@ -475,6 +494,7 @@ async function detail(id) {
   S.detailKey = id + ":" + offers.map(o => o.id + o.status + o.net_amount).join(",");
   invoiceInsight("#ins", d.id);
   paymentProfile("#pay", d.buyer?.vkn);
+  if (role === "kobi" || role === "finansor") delayForecast("#forecast", d.id);
   if (role === "kobi" && offers.some(o => o.status === "beklemede")) {
     aiInto("#cmp", "Teklif değerlendirmesi", `/documents/${encodeURIComponent(d.id)}/offers-insight`, r => {
       (r.offers || []).forEach(o => { const el = $("#oc-" + o.offer_id); if (el) el.textContent = o.comment; });
