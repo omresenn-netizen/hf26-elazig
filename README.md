@@ -65,6 +65,18 @@ Gemma runs through the local Ollama HTTP API; each call is appended to
 `vadesiz.db`. The legacy Streamlit tool can still be started with
 `.\.venv\Scripts\streamlit.exe run app.py`.
 
+### Demo state
+
+On a fresh database, with the server running, seed a lived-in state (10 invoices through the real
+API: uploads, Gemma checks, financier offers, accepted deals):
+
+```powershell
+.\.venv\Scripts\python.exe scripts\seed_demo.py
+```
+
+Demo accounts (password `demo1234`): KOBİ = company VKN (e.g. `9200000505`), financier
+`anadolu_faktoring`, audit `denetim`. Live-demo invoice images are in `samples/`.
+
 ## Deploy
 
 For a private DigitalOcean GPU Droplet deployment with Docker Compose, see

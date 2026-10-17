@@ -14,6 +14,10 @@ const app = $("#app");
 const toast = m => { const t = $("#toast"); t.textContent = m; t.className = "on"; clearTimeout(toast.t); toast.t = setTimeout(() => t.className = "", 2600); };
 const spin = '<span class="spin" aria-hidden="true"></span>';
 
+// query string without empty values (the API rejects "" for numeric filters)
+const qsOf = obj => new URLSearchParams(Object.entries(obj).filter(([, v]) => v !== "" && v != null));
+const RISK_MAX = { A: 29, B: 59, C: 100 };
+
 async function api(path, { method = "GET", body, form } = {}) {
   const opt = { method, credentials: "same-origin", headers: {} };
   if (form) opt.body = form;
@@ -357,7 +361,7 @@ async function kobiDocs() {
   };
   app.innerHTML = shell("kobi/belgeler", "Panel / Belgelerim", "Belgelerim", "Yüklediğiniz tüm faturalar.",
     `<div class="panel"><div class="filters"><input class="f" id="fq" placeholder="Belge no veya alıcı ara"><select class="f" id="fs"><option value="">Tüm durumlar</option>${Object.entries(STATUS).slice(0, 5).map(([k, [l]]) => `<option value="${k}">${l}</option>`).join("")}</select><a class="btn primary" href="#/kobi/yukle">Fatura yükle</a></div><div id="lst"></div></div>`);
-  $("#fq").oninput = draw; $("#fs").onchange = draw; draw();
+  $("#fq").oninput = draw; $("#fs").onchange = draw; takeSearch("#fq"); draw();
 }
 
 // upload wizard: 1 Yükle → 2 Okuma → 3 Kontrol → 4 Yayınla
@@ -493,7 +497,7 @@ async function detail(id) {
 // ---------- Finansör ----------
 async function market() {
   const draw = async () => {
-    const qs = new URLSearchParams({ q: $("#mq").value, risk: $("#mr").value, min: $("#mm").value, max_days: $("#md").value, sort: $("#ms").value });
+    const qs = qsOf({ q: $("#mq").value.trim(), risk: RISK_MAX[$("#mr").value], min: $("#mm").value, max_days: $("#md").value, sort: $("#ms").value });
     $("#lst").innerHTML = `<div class="empty">${spin}</div>`;
     const list = await api("/market?" + qs);
     $("#mk").innerHTML = kpis([["Açık belge", list.length], ["Toplam nominal", TL0(list.reduce((a, d) => a + (d.total || 0), 0))], ["Ortalama vade", list.length ? Math.round(list.reduce((a, d) => a + (d.days_left || 0), 0) / list.length) + " gün" : "–"], ["Teklifli belge", list.filter(d => d.offer_count).length]]);
@@ -503,6 +507,7 @@ async function market() {
     `<div id="dg" style="margin-bottom:18px"></div><div id="mk"></div><div class="panel"><div class="filters"><input class="f" id="mq" placeholder="Firma veya belge no"><select class="f" id="mr"><option value="">Tüm risk sınıfları</option><option value="A">A · düşük</option><option value="B">B · orta</option><option value="C">C · yüksek</option></select><input class="f" id="mm" type="number" placeholder="Min. tutar (TL)"><select class="f" id="md"><option value="">Tüm vadeler</option><option>30</option><option>60</option><option>90</option><option>120</option></select><select class="f" id="ms"><option value="amount">Tutara göre</option><option value="due">Vadeye göre</option></select></div><div id="lst"></div></div>`);
   ["mq", "mm"].forEach(i => $("#" + i).oninput = debounce(draw, 300));
   ["mr", "md", "ms"].forEach(i => $("#" + i).onchange = draw);
+  takeSearch("#mq");
   digest("#dg");
   await draw();
 }
@@ -528,7 +533,7 @@ async function reviewQueue() {
 }
 async function network() {
   app.innerHTML = shell("denetim/ag", "Denetim / Fatura ağı analizi", "Fatura ağı analizi", "Firmalar arası fatura akışı. Döngüsel zincirler, paravan şirketler ve fatura simsarları kırmızıyla işaretlenir.",
-    `<div class="panel net"><div class="ph"><div class="legend"><span><i style="background:#17734a"></i>Temiz</span><span><i style="background:#b3261e"></i>Şüpheli</span><span class="muted">Daire boyutu: kesilen fatura toplamı</span></div><button class="btn sm" data-act="netreport">Gemma ağ raporu</button></div><div id="nr"></div><svg id="g" role="img" aria-label="Fatura ağı grafiği"></svg></div>`);
+    `<div class="panel net"><div class="ph"><div class="legend"><span><i style="background:#17734a"></i>Temiz</span><span><i style="background:#b3261e"></i>Yüksek riskli fatura kesen</span><span><i style="background:#d97706"></i>Yüksek riskli fatura alan</span><span class="muted">Daire boyutu: kesilen fatura toplamı</span></div><button class="btn sm" data-act="netreport">Gemma ağ raporu</button></div><div id="nr"></div><svg id="g" role="img" aria-label="Fatura ağı grafiği"></svg></div>`);
   const g = await api("/network");
   drawGraph($("#g"), g);
 }
@@ -546,11 +551,11 @@ function drawGraph(svg, g) {
   svg.innerHTML = `<defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#98a2b3"/></marker><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#b3261e"/></marker></defs>` +
     edges.map(e => { const a = nodes[idx[e.source]], b = nodes[idx[e.target]], dx = b.x - a.x, dy = b.y - a.y, d = Math.sqrt(dx * dx + dy * dy) || 1, x2 = b.x - dx / d * (b.r + 3), y2 = b.y - dy / d * (b.r + 3);
       return `<line x1="${a.x}" y1="${a.y}" x2="${x2}" y2="${y2}" stroke="${e.flagged ? "#b3261e" : "#c3cad4"}" stroke-width="${e.flagged ? 2.2 : 1.2}" marker-end="url(#${e.flagged ? "arr" : "ar"})"><title>${esc(e.invoice_count)} fatura · ${esc(TL0(e.total))}</title></line>`; }).join("") +
-    nodes.map(n => `<g><circle cx="${n.x}" cy="${n.y}" r="${n.r}" fill="${n.flagged ? "#b3261e" : "#17734a"}" fill-opacity=".85" stroke="#fff" stroke-width="2"><title>${esc(n.name)} · ${esc(n.sector)} · ${esc(TL0(n.total))}</title></circle><text x="${n.x}" y="${n.y + n.r + 13}" text-anchor="middle" font-size="11" fill="#1b2430">${esc((n.name || "").split(" ").slice(0, 2).join(" "))}</text></g>`).join("");
+    nodes.map(n => `<g><circle cx="${n.x}" cy="${n.y}" r="${n.r}" fill="${n.flagged ? "#b3261e" : n.exposed ? "#d97706" : "#17734a"}" fill-opacity=".85" stroke="#fff" stroke-width="2"><title>${esc(n.name)} · ${esc(n.sector)}${n.flagged ? " · yüksek riskli fatura kesiyor" : n.exposed ? " · yüksek riskli fatura almış" : ""} · ${esc(TL0(n.total))}</title></circle><text x="${n.x}" y="${n.y + n.r + 13}" text-anchor="middle" font-size="11" fill="#1b2430">${esc((n.name || "").split(" ").slice(0, 2).join(" "))}</text></g>`).join("");
 }
 async function ledger() {
   const draw = async () => {
-    const qs = new URLSearchParams({ company: $("#lc").value, action: $("#la").value, from: $("#lf1").value, to: $("#lt").value });
+    const qs = qsOf({ company: $("#lc").value.trim(), action: $("#la").value, from: $("#lf1").value, to: $("#lt").value });
     $("#csv").href = "/api/audit.csv?" + qs;
     const rows = await api("/audit?" + qs);
     $("#lst").innerHTML = rows.length ? `<div class="tw"><table class="data"><thead><tr><th>Zaman</th><th>Kullanıcı</th><th>Firma</th><th>IP</th><th>İşlem</th><th>Dosya</th><th>SHA-256</th><th>Belge no</th></tr></thead><tbody>${rows.map(r => `<tr><td>${DT(r.at)}</td><td>${esc(r.username)}</td><td>${esc(r.company)}</td><td class="mono">${esc(r.ip_address)}</td><td><span class="badge">${esc(r.action)}</span></td><td>${esc(r.file_name)}</td><td class="mono" title="${esc(r.sha256)}">${short(r.sha256)}</td><td class="mono">${esc(r.invoice_no)}</td></tr>`).join("")}</tbody></table></div>` : '<div class="empty">Kayıt yok.</div>';
@@ -559,6 +564,7 @@ async function ledger() {
     `<div class="panel"><div class="filters"><input class="f" id="lc" placeholder="Firma VKN"><select class="f" id="la"><option value="">Tüm işlemler</option>${["login", "login_failed", "logout", "upload", "duplicate_upload", "extract", "offer_created", "offer_accepted", "offer_rejected", "transfer_mock"].map(a => `<option>${a}</option>`).join("")}</select><input class="f" id="lf1" type="date"><input class="f" id="lt" type="date"><a class="btn" id="csv" href="/api/audit.csv">CSV indir</a></div><div id="lst"></div></div>`);
   ["lc"].forEach(i => $("#" + i).oninput = debounce(draw, 300));
   ["la", "lf1", "lt"].forEach(i => $("#" + i).onchange = draw);
+  takeSearch("#lc");
   await draw();
 }
 
@@ -621,6 +627,21 @@ document.addEventListener("click", e => {
   if (S.menu && !e.target.closest(".menu")) { S.menu = null; nav(); }
 }, true);
 addEventListener("hashchange", render);
+// header search: searches the list that belongs to the signed-in role
+document.querySelector(".search").addEventListener("submit", e => {
+  e.preventDefault();
+  const q = $("#q").value.trim();
+  if (!q) return;
+  if (!S.user) { toast("Arama yapmak için giriş yapın."); go("giris"); return; }
+  S.searchQ = q;
+  const target = { kobi: "kobi/belgeler", finansor: "finansor", denetim: "denetim/kayit" }[S.user.role];
+  if ((location.hash || "").slice(2) === target) render(); else go(target);
+});
+function takeSearch(inputSel) {
+  if (!S.searchQ) return;
+  const el = $(inputSel); if (el) el.value = S.searchQ;
+  S.searchQ = null;
+}
 
 // live updates: a financier's offer shows up on the KOBİ screen without a reload
 setInterval(async () => {

@@ -860,10 +860,21 @@ def _digest_context(user):
     return network_data_for_report()
 
 
+def _turkish_flag_codes(value):
+    """Replace internal flag codes (e.g. network_cycle) with their Turkish labels so the model echoes those."""
+    if isinstance(value, dict):
+        return {key: _turkish_flag_codes(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_turkish_flag_codes(item) for item in value]
+    if isinstance(value, str):
+        return repo_api.FLAG_LABELS.get(value, value)
+    return value
+
+
 @app.get("/api/my/ai-digest")
 def ai_digest(request: Request):
     user = session_user(request)
-    context = _digest_context(user)
+    context = _turkish_flag_codes(_digest_context(user))
 
     def generate():
         raw = gemma.ai_digest(user["role"], context)
@@ -1151,17 +1162,22 @@ def network(request: Request):
         buyer = repo_api.COMPANY_BY_VKN.get(buyer_id, {})
         flags = fraud.analyze_invoice(invoice, repo_api.COMPANIES, invoices)
         total = float(invoice.get("total") or invoice.get("amount") or 0)
-        flagged = bool(flags)
+        # only high-risk invoices colour the graph; a single soft flag (e.g. a round amount) does not
+        flagged = fraud.risk_score(flags) >= 60
         for company_id, company in ((seller_id, seller), (buyer_id, buyer)):
             node = nodes.setdefault(company_id, {
                 "id": company_id,
                 "name": company.get("name") or company_id,
                 "sector": company.get("sector"),
                 "total": 0.0,
-                "flagged": False,
+                "flagged": False,   # issues high-risk invoices (source)
+                "exposed": False,   # receives high-risk invoices
             })
             node["total"] += total
-            node["flagged"] = node["flagged"] or flagged
+            if flagged and company_id == seller_id:
+                node["flagged"] = True
+            elif flagged:
+                node["exposed"] = True
         edge = edges.setdefault((seller_id, buyer_id), {
             "source": seller_id, "target": buyer_id, "total": 0.0,
             "invoice_count": 0, "flagged": False,

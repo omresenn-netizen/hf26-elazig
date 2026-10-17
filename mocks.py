@@ -9,9 +9,18 @@ def _token(*values):
     return hashlib.sha256(source.encode("utf-8")).hexdigest()
 
 
+def _extra_registry():
+    """Extra mock e-Fatura records (written by scripts/seed_demo.py) that are not in the preloaded market."""
+    path = Path(__file__).resolve().parent / "data" / "gib_registry.json"
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+
+
 def verify_invoice(invoice, invoices):
     invoice_no = invoice.get("invoice_no")
-    found = next((item for item in invoices if item.get("invoice_no") == invoice_no), None)
+    found = next((item for item in [*invoices, *_extra_registry()] if item.get("invoice_no") == invoice_no), None)
     return {
         "service": "DEMO / MOCK — GİB e-Fatura",
         "verified": found is not None,

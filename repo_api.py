@@ -42,7 +42,9 @@ def serialize_flags(flags):
 
 
 def load_invoices():
-    return json.loads((ROOT / "data" / "invoices.json").read_text(encoding="utf-8"))
+    # "scenario" is the generator's ground-truth label; it must never reach the API, the UI or Gemma
+    invoices = json.loads((ROOT / "data" / "invoices.json").read_text(encoding="utf-8"))
+    return [{key: value for key, value in invoice.items() if key != "scenario"} for invoice in invoices]
 
 
 def api_user(row):
