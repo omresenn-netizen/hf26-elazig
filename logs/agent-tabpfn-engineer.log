@@ -1,0 +1,853 @@
+﻿ÔùÅ skill(devrelay-community-wisdom)
+
+ÔùÅ skill(devrelay-challenges)
+
+ÔùÅ update_todo todos: "- [ ] Inspect owned forecast/data dependencies and integratiÔÇĞ"
+  Ôöö TODO list updated
+
+/ Search (grep)
+  Ôöé "payment_history|payment_stats|forecast|delay-forecast|aiInto"
+  Ôöö 19 files found
+
+ÔùÅ Inspect instructions, API, database, dependencies (shell)
+  Ôöé git status --short; Get-Content .github\copilot-instructions.md -Raw; Get-Content docs\API.md
+  Ôöé -Raw; Get-Content db.py -Raw; Get-Content requirements.txt -Raw
+  Ôöö 13 linesÔÇĞ
+
+/ Search (grep)
+  Ôöé "payment_history|payment_stats|delay-forecast|aiInto|risk_report|@app.get" (db.py, server.py,
+  Ôöé web\vadex.js, .github\agents\tabpfn-engineer.agent.md, docs\API.md)
+  Ôöö 315 lines found
+
+ÔùÅ search_dev_to_semantic (MCP: devrelay-gateway) ┬À TabPFN model pitfalls CPU inference dependency iÔÇĞ
+  Ôöö {"Ok":[{"id":4866850,"title":"Can Zero-Shot Models Beat XGBoost and LightGBM?...
+
+ÔùÅ search_dev_to_semantic (MCP: devrelay-gateway) ┬À using TabPFN for tabular regression and classifiÔÇĞ
+  Ôöö {"Ok":[{"id":4866850,"title":"Can Zero-Shot Models Beat XGBoost and LightGBM?...
+
+ÔùÅ get_challenges (MCP: devrelay-gateway) ┬À page: 1, per_page: 10
+  Ôöö Output too large to read at once (28.4 KB). Saved to: C:\Users\omres\AppData\...
+
+ÔùÅ list_my_mlh_events (MCP: devrelay-gateway)                                                      5s
+  Ôöö {"Ok":[{"id":"01a12737-8131-7b7d-ae09-dccf7e87855e","status":"checked_in","ev...
+
+ÔùÅ Read tabpfn-engineer.agent.md
+  Ôöé .github\agents\tabpfn-engineer.agent.md
+  Ôöö 27 lines read
+
+ÔùÅ Read requirements.txt
+  Ôöö 10 lines read
+
+ÔùÅ Read db.py
+  Ôöö L1:245 (245 lines read)
+
+ÔùÅ Read API.md
+  Ôöé docs\API.md
+  Ôöö L40:100 (61 lines read)
+
+ÔùÅ Read server.py
+  Ôöö L1:100 (100 lines read)
+
+ÔùÅ Read server.py
+  Ôöö L610:755 (146 lines read)
+
+ÔùÅ Read vadex.js
+  Ôöé web\vadex.js
+  Ôöö L320:355 (35 lines read)
+
+ÔùÅ Read vadex.js
+  Ôöé web\vadex.js
+  Ôöö L450:500 (51 lines read)
+
+ÔùÅ Check worktree and inspect project data and tests (shell)
+  Ôöé git status --short; Get-Content .github\copilot-instructions.md -TotalCount 150; Get-Content
+  Ôöé data\companies.json -TotalCount 15; Get-Content data\payment_history.json -TotalCount 25;
+  Ôöé Get-ChildItem tests
+  Ôöö 122 linesÔÇĞ
+
+ÔùÅ Read repo_ai.py
+  Ôöö L1:190 (124 lines read)
+
+ÔùÅ Read conftest.py
+  Ôöé tests\conftest.py
+  Ôöö 20 lines read
+
+ÔùÅ Read vadex.css
+  Ôöé web\vadex.css
+  Ôöö L1:100 (100 lines read)
+
+ÔùÅ Read test_api.py
+  Ôöé tests\test_api.py
+  Ôöö L1:160 (159 lines read)
+
+ÔùÅ Read repo_api.py
+  Ôöö L1:80 (80 lines read)
+
+ÔùÅ Check Python environments and TabPFN availability (shell)
+  Ôöé python --version; python -c "import importlib.util; print('tabpfn',
+  Ôöé importlib.util.find_spec('tabpfn')); print('pytest', importlib.util.find_spec('pytest'))";
+  Ôöé Test-Path 'C:\Users\omres\OneDrive\Desktop\hf26-elazig\.venv\Scripts\python.exe'; Test-Path
+  Ôöé 'C:\Users\omres\hf26-wt\tabpfn-engineer\.venv\Scripts\python.exe'; git status --short
+  Ôöö 5 linesÔÇĞ
+
+ÔùÅ get_article_content (MCP: devrelay-gateway) ┬À id: 4866850
+  Ôöö {"Ok":"I kept hearing about the performance of zero-shot models. At first, th...
+
+ÔùÅ get_comments (MCP: devrelay-gateway) ┬À article_id: 4866850, page: 1
+  Ôöö {"Ok":[]}
+
+ÔùÅ get_article_content (MCP: devrelay-gateway) ┬À id: 4820199
+  Ôöö {"Ok":"---\ntitle: \"Touch Grass: the best hours to be outside, forecast on y...
+
+ÔùÅ Read test_api.py
+  Ôöé tests\test_api.py
+  Ôöö L160:330 (36 lines read)
+
+/ Search (grep)
+  Ôöé "\.ai\s*\{|\.ai-head|ai-chip|risk-report|payment-profile" (web\vadex.css, web\vadex.js,
+  Ôöé tests\test_api.py)
+  Ôöö 27 lines found
+
+Ô£ù Read project guidance, company schemas, and DEVLOG (shell)
+  Ôöé Get-Content .github\copilot-instructions.md -Encoding utf8 -TotalCount 100; Get-Content
+  Ôöé data\companies.json -Encoding utf8 -TotalCount 60; Get-Content docs\DEVLOG.md -Encoding utf8
+  Ôöé -TotalCount 50
+  Ôöö # Project: Vadesiz ÔÇô invoice financing marketplace for Turkish SMEs (Hacktoberfest 2026, Elaz─▒─ş)
+
+    ## What we are building
+    Small businesses (KOB─░) sell goods to big companies but get paid 60ÔÇô120 days later.
+    Vadesiz lets a KOB─░ upload a real invoice and sell it to licensed financiers (factoring
+    companies, banks) for cash today, at a small discount. The big buyer pays the financier
+    on the due date.
+
+    The core value is **trust**: an open-weight model (Gemma 4) reads every invoice and detects
+    fake invoices ("naylon fatura") before any money moves.
+
+    > **UI and workflow v2 is defined in `docs/UI_SPEC.md` (login per role, white corporate theme,
+    > SQL audit log, marketplace, notifications). It overrides the screen descriptions below.**
+
+    ## Users and screens (Streamlit, one app, sidebar to switch role)
+    1. **KOB─░ paneli** ÔÇô upload invoice image/PDF ÔåÆ Gemma extracts fields ÔåÆ fraud checks ÔåÆ
+    risk score ÔåÆ list of offers ÔåÆ accept best offer (mock bank transfer).
+    2. **Finans├Âr paneli** ÔÇô list of verified invoices with Gemma risk report and suggested
+    discount rate ÔåÆ place an offer.
+    3. **Dedekt├Âr** ÔÇô invoice network graph (who invoices whom); fake-invoice rings shown in red;
+    per-invoice red flags explained by Gemma.
+
+    ## Gemma 4 (the brain) ÔÇô local Ollama
+    - HTTP API `http://localhost:11434`, model `gemma4`, use `/api/chat`.
+    - Images go base64 in the message `images` field. Send `"think": false`.
+    Use `"format": "json"` when expecting JSON.
+    - ONE helper module `gemma.py` for all calls. Every call appends one JSON line to
+    `logs/gemma.jsonl`: timestamp, task name, prompt, image file name (not the image),
+    raw response, parsed result, duration in seconds.
+    - Gemma tasks: `extract_invoice` (image ÔåÆ fields JSON), `explain_flags` (flags ÔåÆ Turkish
+    explanation), `risk_report` (invoice + buyer data ÔåÆ Turkish risk summary + suggested
+    discount rate), `compare_offers` (offers ÔåÆ recommendation).
+    - If Gemma returns invalid JSON: retry once, then show raw text so the user can fix it.
+
+    ## Fraud detection (rules in `fraud.py`, explained by Gemma)
+    - Duplicate invoice: SHA-256 of (seller VKN, invoice no, amount, date) already seen.
+    - No delivery note (irsaliye) for goods.
+    - Sector mismatch: seller sector vs. item category (e.g. textile company selling drinks).
+    - Capacity: monthly invoiced amount far above what the employee count suggests.
+    - Round amounts and vague items ("dan─▒┼şmanl─▒k hizmeti").
+    - Buyer has not approved the invoice.
+    - Network: cycles in the sellerÔåÆbuyer graph (AÔåÆBÔåÆCÔåÆA) and shell companies
+    (same address, founded < 1 year ago). Use `networkx`.
+    Each rule returns a flag code + short detail; Gemma turns the list into a Turkish explanation.
+    Final decision always stays with a human: suspicious invoices go to review, not auto-reject.
+
+    ## Mocked services (clearly labelled "DEMO / MOCK" in the UI)
+    `mocks.py`: G─░B e-Fatura verification, buyer credit score (Findex-like), bank transfer,
+    e-signature. Deterministic fake responses based on the data files.
+
+    ## Data (already in repo, do not regenerate)
+    - `data/companies.json` ÔÇô fictional companies (VKN, name, sector, employees, founded, address).
+    - `data/invoices.json` ÔÇô fictional invoices, including one fake-invoice ring.
+    - `samples/*.png` ÔÇô invoice images for the upload demo.
+    Runtime state (offers, accepted deals) in SQLite `vadesiz.db` (built-in `sqlite3`).
+
+    ## Tech stack (do not add other frameworks without asking)
+    Python 3.13, Streamlit, requests, networkx, pyvis (graph in Streamlit via html component).
+    No OpenAI / Anthropic / other cloud AI SDKs.
+
+    ## Rules
+    - Keep code simple and readable; few files: `app.py`, `gemma.py`, `fraud.py`, `mocks.py`,
+    `db.py`.
+    - UI text in Turkish; code, comments, README in English.
+    - Money as float TL; show with Turkish formatting (1.234.567,89 TL).
+
+    ## Git
+    - After every task that leaves the app working, commit yourself:
+    `git add -A` then `git commit -m "<short English message>"`. One commit per finished step.
+    - Do not push; the user pushes.
+    - Never commit secrets, `.env`, `vadesiz.db`.
+    [
+    {
+    "vkn": "9100000011",
+    "name": "Anadolu Market Zinciri A.┼Ş.",
+    "sector": "perakende",
+    "employees": 4200,
+    "founded": 1998,
+    "address": "Sanayi Cad. No:1, Merkez/Elaz─▒─ş",
+    "type": "buyer"
+    },
+    {
+    "vkn": "9100000022",
+    "name": "F─▒rat Beyaz E┼şya A.┼Ş.",
+    "sector": "beyaz e┼şya ├╝retimi",
+    "employees": 1800,
+    "founded": 2003,
+    "address": "OSB 3. Cad. No:7, Merkez/Elaz─▒─ş",
+    "type": "buyer"
+    },
+    {
+    "vkn": "9100000033",
+    "name": "Harput Giyim Ma─şazalar─▒ A.┼Ş.",
+    "sector": "giyim perakende",
+    "employees": 950,
+    "founded": 2006,
+    "address": "Gazi Cad. No:45, Merkez/Elaz─▒─ş",
+    "type": "buyer"
+    },
+    {
+    "vkn": "9100000044",
+    "name": "Do─şu Yap─▒ Market A.┼Ş.",
+    "sector": "yap─▒ market",
+    "employees": 600,
+    "founded": 2009,
+    "address": "Malatya Yolu No:12, Merkez/Elaz─▒─ş",
+    "type": "buyer"
+    },
+    {
+    "vkn": "9200000101",
+    "name": "Hazar Tekstil At├Âlyesi Ltd. ┼Şti.",
+    "sector": "tekstil",
+    "employees": 18,
+    "founded": 2015,
+    "address": "Hilalkent Mah. 3. Sok. No:9, Merkez/Elaz─▒─ş",
+    "type": "sme"
+    },
+    {
+    "vkn": "9200000202",
+    "name": "Keban ─░├ğecek Da─ş─▒t─▒m Ltd. ┼Şti.",
+    "sector": "i├ğecek da─ş─▒t─▒m",
+    "employees": 25,
+    "founded": 2012,
+    "address": "Abdullahpa┼şa Mah. No:21, Merkez/Elaz─▒─ş",
+    "type": "sme"
+    },
+    {
+    "vkn": "9200000303",
+    "name": "Palu Ambalaj Ltd. ┼Şti.",
+    "sector": "ambalaj",
+    "employees": 12,
+    Get-Content : Cannot find path 'C:\Users\omres\hf26-wt\tabpfn-engineer\docs\DEVLOG.md' because
+    it does not exist.
+    At line:2 char:140
+    + ... talCount 60; Get-Content docs\DEVLOG.md -Encoding utf8 -TotalCount 50
+    +                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (C:\Users\omres\...\docs\DEVLOG.md:String)
+    [Get-Content], ItemNotFoundEx
+    ception
+    + FullyQualifiedErrorId : PathNotFound,Microsoft.PowerShell.Commands.GetContentCommand
+    Failed with exit code 1
+
+ÔùÅ get_challenge_details (MCP: devrelay-gateway) ┬À id: 82
+  Ôöö {"Ok":{"id":82,"title":"Hacktoberfest Open-Source AI Challenge: Week 4","slug...
+
+Ô£ù Fetching web content https://tabpfn.github.io/TabPFN/ ┬À url: "https://tabpfn.github.io/TabPFN/"
+  Ôöö Error: Failed to fetch https://tabpfn.github.io/TabPFN/ - status code 404
+
+/ Search (grep)                                                                                   5s
+  Ôöé "\.grid-2|\.ai \{|ai-h|chip" (web\vadex.css)
+  Ôöö 53 lines found
+
+/ Search (grep)                                                                                   5s
+  Ôöé "def risk_report|def user_can_view_document|def document_invoice" (gemma.py, server.py)
+  Ôöö 97 lines found
+
+ÔùÅ Inspect target environment and historical label distribution (shell)                            5s
+  Ôöé $p='C:\Users\omres\OneDrive\Desktop\hf26-elazig\.venv\Scripts\python.exe'; & $p --version; &
+  Ôöé $p -c "import importlib.util; print('tabpfn', importlib.util.find_spec('tabpfn'));
+  Ôöé print('torch', importlib.util.find_spec('torch')); print('pandas',
+  Ôöé importlib.util.find_spec('pandas'))"; python -c "import json,collections;
+  Ôöé rows=json.load(open('data/payment_history.json',encoding='utf-8')); ÔÇĞ
+  Ôöö 8 linesÔÇĞ
+
+ÔùÅ Fetching web content https://raw.githubusercontent.com/PriorLabs/TabPFN/main/src/tabpfn/constantsÔÇĞ
+  Ôöö Content type text/plain; charset=utf-8 cannot be simplified to markdown. Here...
+
+ÔùÅ Fetching web content https://raw.githubusercontent.com/PriorLabs/TabPFN/main/src/tabpfn/regressorÔÇĞ
+  Ôöö Content type text/plain; charset=utf-8 cannot be simplified to markdown. Here...
+
+ÔùÅ update_todo todos: "- [x] Inspect owned forecast/data dependencies and integratiÔÇĞ"
+  Ôöö TODO list updated
+
+ÔùÅ Edit
+  Ôöé Edit requirements.txt
+  Ôöé Create forecast.py
+  Ôöé Edit server.py
+  Ôöé Edit web/vadex.js
+  Ôöé Edit web/vadex.css
+  Ôöé Edit docs/API.md
+  Ôöé Create tests/test_forecast.py
+  Ôöö Create docs/FORECAST.md
+
+/ Search (grep)
+  Ôöé "function aiHead|function aiLoading|function esc" (web\vadex.js)
+  Ôöö No matches found
+
+ÔùÅ Read vadex.js
+  Ôöé web\vadex.js
+  Ôöö L1:90 (90 lines read)
+
+/ Search (grep)
+  Ôöé "aiHead|aiLoading" (web\vadex.js)
+  Ôöö 35 lines found
+
+ÔùÅ Edit
+  Ôöé Edit forecast.py
+  Ôöé Edit web/vadex.js
+  Ôöé Edit tests/test_api.py
+  Ôöö Edit tests/test_forecast.py
+
+ÔùÅ update_todo todos: "- [x] Inspect owned forecast/data dependencies and integratiÔÇĞ"
+  Ôöö TODO list updated
+
+ÔùÅ Check Python syntax, whitespace, and changed files (shell)
+  Ôöé python -m py_compile forecast.py server.py tests\test_forecast.py tests\test_api.py; git diff
+  Ôöé --check; git status --short
+  Ôöö 9 linesÔÇĞ
+
+ÔùÅ Install TabPFN into the project virtual environment (shell)                                  3m 0s
+  Ôöé $python='C:\Users\omres\OneDrive\Desktop\hf26-elazig\.venv\Scripts\python.exe'; & $python -m pip
+  Ôöé install 'tabpfn>=9.1.0,<10'
+  Ôöö 13 linesÔÇĞ
+
+ÔùÅ update_todo todos: "- [x] Inspect owned forecast/data dependencies and integratiÔÇĞ"
+  Ôöö TODO list updated
+
+ÔùÅ Validate the updated browser JavaScript (shell)
+  Ôöé node --check web\vadex.js; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+  Ôöö No Content
+
+Ô£ù Review the complete forecast implementation diff (shell)
+  Ôöé git diff -- docs/API.md requirements.txt server.py web/vadex.js web/vadex.css tests/test_api.py;
+  Ôöé git diff --no-index -- NUL forecast.py; git diff --no-index -- NUL tests/test_forecast.py; git
+  Ôöé diff --no-index -- NUL docs/FORECAST.md
+  Ôöö Output too large to read at once (25.4 KB). Saved to: C:\Users\omres\AppData\Local\Temp\17922801
+    42029-copilot-tool-output-26276-583b1075-7ae8-4b75-ae63-4c6c83ff737e.txt
+    Consider using tools like rg (for searching), head/tail (for viewing start/end), view with
+    view_range (for specific sections), or jq (for JSON) to examine portions of the output.
+
+    Preview (first 500 chars):
+    diff --git a/docs/API.md b/docs/API.md
+    index 865ca8a..09867aa 100644
+    --- a/docs/API.md
+    +++ b/docs/API.md
+    @@ -51,6 +51,9 @@ Status values: `incelemede`, `teklif_bekliyor`, `teklif_var`,
+    `finanse_edildi`,
+    `teklif_bekliyor`/`teklif_var`, uploads + preloaded invoices (except `data/demo_uploads.json`
+    numbers).
+    - `GET /api/documents/{id}/risk-report` ÔåÆ `gemma.risk_report` (cached per id) + deterministic
+    suggested discount ÔåÆ `{summary, suggested_discount_rate, suggested_net_amount}`.
+    +- `GET /ap
+    Failed with exit code 1
+
+Ô£ù Read (ignore)
+  Ôöö Failed
+
+ÔùÅ Read forecast.py
+  Ôöö 250 lines read
+
+ÔùÅ Read server.py
+  Ôöö L620:700 (81 lines read)
+
+ÔùÅ Read test_forecast.py
+  Ôöé tests\test_forecast.py
+  Ôöö 97 lines read
+
+ÔùÅ Read vadex.js
+  Ôöé web\vadex.js
+  Ôöö L330:370 (41 lines read)
+
+ÔùÅ Edit
+  Ôöé Edit web/vadex.js
+  Ôöö Edit tests/test_api.py
+
+ÔùÅ Read shell output Waiting up to 5 seconds for command output                                    5s
+  Ôöö 13 linesÔÇĞ
+
+ÔùÅ Edit
+  Ôöé Edit forecast.py
+  Ôöö Edit tests/test_forecast.py
+
+ÔùÅ Review forecast routes and targeted test coverage (shell)
+  Ôöé git status --short; rg -n 'risk-report|delay-forecast|forecast_delay|tabpfn_summary' tests
+  Ôöé server.py docs\API.md
+  Ôöö 27 linesÔÇĞ
+
+ÔùÅ Validate Python and browser syntax plus whitespace (shell)
+  Ôöé python -m py_compile forecast.py server.py tests\test_forecast.py tests\test_api.py; node
+  Ôöé --check web\vadex.js; git diff --check
+  Ôöö No Content
+
+Ô£ù Run feature and holdout unit tests without TabPFN (shell)
+  Ôöé python -m pytest -q tests\test_forecast.py
+  Ôöö ...Fs                                                                    [100%]
+    ================================== FAILURES ===================================
+    ______________________ test_time_holdout_reports_metrics ______________________
+
+    monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000026B95742AD0>
+
+    def test_time_holdout_reports_metrics(monkeypatch):
+    monkeypatch.setattr(
+    forecast,
+    "_fit_models",
+    lambda training: (_MetricRegressor(), _MetricClassifier(), len(training)),
+    )
+
+    >       result = forecast.evaluate_time_holdout(_payments(), _companies())
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    tests\test_forecast.py:77:
+    _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    records = [{'id': 1, 'company_vkn': 'buyer-1', 'counterparty_vkn': 'seller-1', 'amount': 1100,
+    ...}, {'id': 2, 'company_vkn': 'b...', 'amount': 1500, ...}, {'id': 6, 'company_vkn': 'buyer-1',
+    'counterparty_vkn': 'seller-6', 'amount': 1600, ...}, ...]
+    companies = {'buyer-1': {'vkn': 'buyer-1', 'sector': 'retail', 'employees': 80, 'founded':
+    2000}}
+    holdout_fraction = 0.2
+
+    def evaluate_time_holdout(records=None, companies=None, holdout_fraction=0.2):
+    """Measure TabPFN on the latest due-date portion of the payment history."""
+    if not 0 < holdout_fraction < 1:
+    raise ValueError("holdout_fraction must be between zero and one.")
+    records = _load_history() if records is None else records
+    companies = _load_companies() if companies is None else companies
+    rows = build_training_table(records, companies)
+    dates = sorted({row["due_date"] for row in rows})
+    if len(dates) < 2:
+    raise ValueError("At least two distinct due dates are required for a time holdout.")
+    cutoff = max(1, min(len(dates) - 1, int(len(dates) * (1 - holdout_fraction))))
+    split_date = dates[cutoff]
+    training = [row for row in rows if row["due_date"] < split_date]
+    testing = [row for row in rows if row["due_date"] >= split_date]
+    >       regressor, classifier = _fit_models(training)
+    ^^^^^^^^^^^^^^^^^^^^^
+    E       ValueError: too many values to unpack (expected 2)
+
+    forecast.py:227: ValueError
+    =========================== short test summary info ===========================
+    FAILED tests/test_forecast.py::test_time_holdout_reports_metrics - ValueError...
+    1 failed, 3 passed, 1 skipped in 0.15s
+    Failed with exit code 1
+
+ÔùÅ update_todo todos: "- [x] Inspect owned forecast/data dependencies and integratiÔÇĞ"
+  Ôöö TODO list updated
+
+ÔùÅ Read shell output Waiting up to 5 seconds for command output
+  Ôöö 12 linesÔÇĞ
+
+ÔùÅ Read test_ai.py
+  Ôöé tests\test_ai.py
+  Ôöö L1:85 (85 lines read)
+
+ÔùÅ Read test_ai.py
+  Ôöé tests\test_ai.py
+  Ôöö L160:220 (61 lines read)
+
+ÔùÅ Edit
+  Ôöé Edit forecast.py
+  Ôöö Edit tests/test_ai.py
+
+Ô£ù Run synthetic feature and holdout tests (shell)
+  Ôöé python -m pytest -q tests\test_forecast.py
+  Ôöö ...Fs                                                                    [100%]
+    ================================== FAILURES ===================================
+    ______________________ test_time_holdout_reports_metrics ______________________
+
+    monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001AE425B2AD0>
+
+    def test_time_holdout_reports_metrics(monkeypatch):
+    monkeypatch.setattr(
+    forecast,
+    "_fit_models",
+    lambda training: (_MetricRegressor(), _MetricClassifier(), len(training)),
+    )
+
+    >       result = forecast.evaluate_time_holdout(_payments(), _companies())
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    tests\test_forecast.py:77:
+    _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    records = [{'id': 1, 'company_vkn': 'buyer-1', 'counterparty_vkn': 'seller-1', 'amount': 1100,
+    ...}, {'id': 2, 'company_vkn': 'b...', 'amount': 1500, ...}, {'id': 6, 'company_vkn': 'buyer-1',
+    'counterparty_vkn': 'seller-6', 'amount': 1600, ...}, ...]
+    companies = {'buyer-1': {'vkn': 'buyer-1', 'sector': 'retail', 'employees': 80, 'founded':
+    2000}}
+    holdout_fraction = 0.2
+
+    def evaluate_time_holdout(records=None, companies=None, holdout_fraction=0.2):
+    """Measure TabPFN on the latest due-date portion of the payment history."""
+    if not 0 < holdout_fraction < 1:
+    raise ValueError("holdout_fraction must be between zero and one.")
+    records = _load_history() if records is None else records
+    companies = _load_companies() if companies is None else companies
+    rows = build_training_table(records, companies)
+    dates = sorted({row["due_date"] for row in rows})
+    if len(dates) < 2:
+    raise ValueError("At least two distinct due dates are required for a time holdout.")
+    cutoff = max(1, min(len(dates) - 1, int(len(dates) * (1 - holdout_fraction))))
+    split_date = dates[cutoff]
+    training = [row for row in rows if row["due_date"] < split_date]
+    testing = [row for row in rows if row["due_date"] >= split_date]
+    regressor, classifier, _ = _fit_models(training)
+    test_features = _feature_frame([row["features"] for row in testing])
+    predictions = regressor.predict(test_features)
+    probabilities = classifier.predict_proba(test_features)
+    classes = list(classifier.classes_)
+    late_class_index = classes.index(1)
+    actual_targets = [row["target"] for row in testing]
+    actual_labels = [row["late"] for row in testing]
+    >       late_predictions = probabilities[:, late_class_index] >= 0.5
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    E       TypeError: list indices must be integers or slices, not tuple
+
+    forecast.py:235: TypeError
+    =========================== short test summary info ===========================
+    FAILED tests/test_forecast.py::test_time_holdout_reports_metrics - TypeError:...
+    1 failed, 3 passed, 1 skipped in 2.64s
+    Failed with exit code 1
+
+ÔùÅ Verify the installed TabPFN API and v2 estimator support (shell)                               30s
+  Ôöé $python='C:\Users\omres\OneDrive\Desktop\hf26-elazig\.venv\Scripts\python.exe'; & $python -c
+  Ôöé "import inspect, tabpfn; from tabpfn import TabPFNRegressor; from tabpfn.constants import
+  Ôöé ModelVersion; print('tabpfn', getattr(tabpfn, '__version__', 'installed')); print('factory',
+  Ôöé inspect.signature(TabPFNRegressor.create_default_for_version)); print('v2', ModelVersion.V2)"
+  Ôöö 1 lineÔÇĞ
+
+ÔùÅ Edit
+  Ôöö Edit forecast.py
+
+ÔùÅ Recheck formatting and browser syntax (shell)
+  Ôöé git diff --check; node --check web\vadex.js
+  Ôöö No Content
+
+ÔùÅ Re-run targeted forecast unit tests (shell)
+  Ôöé python -m pytest -q tests\test_forecast.py
+  Ôöö 2 linesÔÇĞ
+
+ÔùÅ Read shell output Waiting up to 5 seconds for command output                                    5s
+  Ôöö 1 lineÔÇĞ
+
+ÔùÅ Edit
+  Ôöö Edit docs/FORECAST.md
+
+ÔùÅ Read FORECAST.md
+  Ôöé docs\FORECAST.md
+  Ôöö 29 lines read
+
+ÔùÅ Edit
+  Ôöö Edit docs/FORECAST.md
+
+ÔùÅ Verify the forecast tests after correcting leakage logic (shell)
+  Ôöé git diff --check; python -m pytest -q tests\test_forecast.py
+  Ôöö 2 linesÔÇĞ
+
+ÔùÅ Confirm TabPFN and PyTorch were installed (shell)
+  Ôöé $python='C:\Users\omres\OneDrive\Desktop\hf26-elazig\.venv\Scripts\python.exe'; & $python -m pip
+  Ôöé show tabpfn torch | Select-String '^(Name|Version|Location):'
+  Ôöö 6 linesÔÇĞ
+
+ÔùÅ Read shell output Waiting up to 10 seconds for command output                                  10s
+  Ôöö 1 lineÔÇĞ
+
+/ Search (grep)
+  Ôöé "def create_default_for_version|class TabPFNClassifier|class TabPFNRegressor"
+  Ôöé (~\OneDrive\Desktop\hf26-elazig\.venv\Lib\site-packages\tabpfn)
+  Ôöö No matches found
+
+ÔùÅ Check whether Hugging Face authentication is configured without printing secrets (shell)
+  Ôöé Get-ChildItem Env:HF* | ForEach-Object { $_.Name }
+  Ôöö No Content
+
+ÔùÅ Read shell output Waiting up to 5 seconds for command output                                    5s
+  Ôöö 1 lineÔÇĞ
+
+Ô£ù Locate TabPFN v2 estimator factory in the installed package (shell)
+  Ôöé Get-ChildItem 'C:\Users\omres\OneDrive\Desktop\hf26-elazig\.venv\Lib\site-packages\tabpfn' -Name
+  Ôöé | Select-Object -First 30; rg -n 'create_default_for_version'
+  Ôöé 'C:\Users\omres\OneDrive\Desktop\hf26-elazig\.venv\Lib\site-packages\tabpfn'
+  Ôöö architectures
+    finetuning
+    misc
+    preprocessing
+    visualisation
+    __pycache__
+    base.py
+    browser_auth.py
+    checkpoint.py
+    classifier.py
+    constants.py
+    downsample_correction.py
+    errors.py
+    inference.py
+    inference_config.py
+    inference_tuning.py
+    memory.py
+    model_loading.py
+    parallel_execute.py
+    regression_metrics.py
+    regressor.py
+    settings.py
+    utils.py
+    validation.py
+    __init__.py
+    Failed with exit code 1
+
+ÔùÅ Inspect installed TabPFN checkpoint selection methods (shell)
+  Ôöé Select-String -Path
+  Ôöé 'C:\Users\omres\OneDrive\Desktop\hf26-elazig\.venv\Lib\site-packages\tabpfn\regressor.py','C:\Us
+  Ôöé ers\omres\OneDrive\Desktop\hf26-elazig\.venv\Lib\site-packages\tabpfn\classifier.py' -Pattern
+  Ôöé 'def create_default_for_version|ModelVersion|model_version' -Context 2,4 | Select-Object -First
+  Ôöé 50
+  Ôöö 176 linesÔÇĞ
+
+ÔùÅ Check whether the TabPFN import process is still progressing (shell)
+  Ôöé Get-Process python -ErrorAction SilentlyContinue | Select-Object Id,CPU,WorkingSet64,StartTime |
+  Ôöé Format-Table -AutoSize
+  Ôöö 8 linesÔÇĞ
+
+ÔùÅ Edit
+  Ôöé Edit forecast.py
+  Ôöé Edit web/vadex.js
+  Ôöö Edit tests/test_forecast.py
+
+ÔùÅ Edit
+  Ôöö Edit tests/test_forecast.py
+
+ÔùÅ Edit
+  Ôöö Edit tests/test_forecast.py
+
+ÔùÅ Validate JavaScript, Python syntax, and patch whitespace (shell)
+  Ôöé node --check web\vadex.js; git diff --check; python -m py_compile forecast.py server.py
+  Ôöé tests\test_forecast.py tests\test_api.py tests\test_ai.py
+  Ôöö No Content
+
+ÔùÅ Read shell output Waiting up to 15 seconds for command output                                  15s
+  Ôöö 1 lineÔÇĞ
+
+ÔùÅ Run the full suite in the local Python environment (shell)                                     30s
+  Ôöé python -m pytest -q
+  Ôöö 2 linesÔÇĞ
+
+ÔùÅ Edit
+  Ôöö Edit forecast.py
+
+Ô£ù Read shell output Waiting up to 20 seconds for command output
+  Ôöö .......F.............s....                                               [100%]
+    ================================== FAILURES ===================================
+    __________________ test_delay_forecast_document_role_access ___________________
+
+    client = <starlette.testclient.TestClient object at 0x00000250C649F350>
+
+    def test_delay_forecast_document_role_access(client):
+    login(client, "kobi", "9200000101")
+    upload = client.post(
+    "/api/uploads",
+    files={"file": ("invoice.png", io.BytesIO(b"\x89PNG\r\n\x8a\x01forecast"), "image/png")},
+    )
+    >       document_id = upload.json()["document"]["id"]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+    E       KeyError: 'document'
+
+    tests\test_api.py:113: KeyError
+    ============================== warnings summary ===============================
+    ..\..\AppData\Local\Programs\Python\Python313\Lib\site-packages\fastapi\testclient.py:1
+    C:\Users\omres\AppData\Local\Programs\Python\Python313\Lib\site-packages\fastapi\testclient.py:1
+    : StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install
+    `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+    -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+    =========================== short test summary info ===========================
+    FAILED tests/test_api.py::test_delay_forecast_document_role_access - KeyError...
+    1 failed, 24 passed, 1 skipped, 1 warning in 41.60s
+    Failed with exit code 1
+
+ÔùÅ Check progress of the TabPFN import and test processes (shell)
+  Ôöé Get-Process python -ErrorAction SilentlyContinue | Select-Object Id,CPU,WorkingSet64,StartTime |
+  Ôöé Format-Table -AutoSize
+  Ôöö 8 linesÔÇĞ
+
+ÔùÅ Read shell output Waiting up to 20 seconds for command output                                  20s
+  Ôöö 1 lineÔÇĞ
+
+ÔùÅ Edit
+  Ôöö Edit tests/test_api.py
+
+ÔùÅ Read shell output Waiting up to 10 seconds for command output
+  Ôöö 3 linesÔÇĞ
+
+ÔùÅ Check formatting and JavaScript after the latest fixes (shell)
+  Ôöé git diff --check; node --check web\vadex.js
+  Ôöö No Content
+
+ÔùÅ Verify forecast API permissions and Gemma integration (shell)                                   5s
+  Ôöé python -m pytest -q tests\test_api.py::test_delay_forecast_document_role_access
+  Ôöé tests\test_api.py::test_risk_report_passes_tabpfn_forecast_to_gemma
+  Ôöö 8 linesÔÇĞ
+
+ÔùÅ update_todo todos: "- [x] Inspect owned forecast/data dependencies and integratiÔÇĞ"
+  Ôöö TODO list updated
+
+Ô£ù Run the time-based TabPFN evaluation and download v2 weights if needed (shell)                 21s
+  Ôöé $python='C:\Users\omres\OneDrive\Desktop\hf26-elazig\.venv\Scripts\python.exe'; & $python
+  Ôöé forecast.py
+  Ôöö Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable
+    higher rate limits and faster downloads.
+    Traceback (most recent call last):
+    File "C:\Users\omres\hf26-wt\tabpfn-engineer\forecast.py", line 255, in <module>
+    print(json.dumps(evaluate_time_holdout(), indent=2))
+    ~~~~~~~~~~~~~~~~~~~~~^^
+    File "C:\Users\omres\hf26-wt\tabpfn-engineer\forecast.py", line 227, in evaluate_time_holdout
+    regressor, classifier, _ = _fit_models(training)
+    ^^^^^^^^^^^^^^^^^^^^^^^^
+    ValueError: not enough values to unpack (expected 3, got 2)
+    Failed with exit code 1
+
+ÔùÅ Edit
+  Ôöé Edit forecast.py
+  Ôöö Edit tests/test_forecast.py
+
+ÔùÅ Verify formatting and JavaScript syntax (shell)
+  Ôöé git diff --check; node --check web\vadex.js
+  Ôöö No Content
+
+ÔùÅ Re-run time-based TabPFN evaluation (shell)                                                     6s
+  Ôöé $python='C:\Users\omres\OneDrive\Desktop\hf26-elazig\.venv\Scripts\python.exe'; & $python
+  Ôöé forecast.py
+  Ôöö 7 linesÔÇĞ
+
+ÔùÅ Re-run targeted model and API tests (shell)                                                     6s
+  Ôöé python -m pytest -q tests\test_forecast.py
+  Ôöé tests\test_api.py::test_delay_forecast_document_role_access
+  Ôöé tests\test_api.py::test_risk_report_passes_tabpfn_forecast_to_gemma
+  Ôöö 8 linesÔÇĞ
+
+ÔùÅ Edit
+  Ôöö Edit docs/FORECAST.md
+
+ÔùÅ update_todo todos: "- [x] Inspect owned forecast/data dependencies and integratiÔÇĞ"
+  Ôöö TODO list updated
+
+ÔùÅ Check dependency consistency, whitespace, and frontend syntax (shell)
+  Ôöé $python='C:\Users\omres\OneDrive\Desktop\hf26-elazig\.venv\Scripts\python.exe'; & $python -m pip
+  Ôöé check; git diff --check; node --check web\vadex.js
+  Ôöö 1 lineÔÇĞ
+
+Ô£ù Run the requested full test suite in the project virtual environment (shell)                   40s
+  Ôöé $python='C:\Users\omres\OneDrive\Desktop\hf26-elazig\.venv\Scripts\python.exe'; & $python -m
+  Ôöé pytest -q
+  Ôöö .....................F....                                               [100%]
+    ================================== FAILURES ===================================
+    ___________________ test_tabpfn_forecast_on_synthetic_table ___________________
+
+    monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000016F365ED080>
+
+    def test_tabpfn_forecast_on_synthetic_table(monkeypatch):
+    pytest.importorskip("tabpfn", reason="TabPFN is not installed; install requirements.txt to run
+    model tests.")
+    monkeypatch.setattr(forecast, "_MODELS", None)
+    monkeypatch.setattr(forecast, "_load_history", _payments)
+    monkeypatch.setattr(forecast, "_load_companies", _companies)
+
+    result = forecast.forecast_delay("buyer-1", 2500, "2026-02-15")
+
+    assert result["model"] == "TabPFN"
+    assert result["n_train"] == 12
+    assert math.isfinite(result["expected_days_late"])
+    assert 0 <= result["late_probability"] <= 1
+    >       assert result["features"]["previous_3_avg_days_late"] == pytest.approx((8 + 0 + 8) / 3)
+    E       assert 2.6666666666666665 == 5.333333333333333 ┬▒ 5.3e-06
+    E
+    E         comparison failed
+    E         Obtained: 2.6666666666666665
+    E         Expected: 5.333333333333333 ┬▒ 5.3e-06
+
+    tests\test_forecast.py:99: AssertionError
+    =========================== short test summary info ===========================
+    FAILED tests/test_forecast.py::test_tabpfn_forecast_on_synthetic_table - asse...
+    1 failed, 25 passed in 38.27s
+    Failed with exit code 1
+
+ÔùÅ Edit
+  Ôöö Edit tests/test_forecast.py
+
+ÔùÅ Verify clean formatting and the owned change set (shell)
+  Ôöé git diff --check; node --check web\vadex.js; git status --short
+  Ôöö 10 linesÔÇĞ
+
+ÔùÅ Re-run the complete requested test suite (shell)                                               37s
+  Ôöé $python='C:\Users\omres\OneDrive\Desktop\hf26-elazig\.venv\Scripts\python.exe'; & $python -m
+  Ôöé pytest -q
+  Ôöö 2 linesÔÇĞ
+
+ÔùÅ Edit
+  Ôöö Edit forecast.py
+
+ÔùÅ Check final diff hygiene and owned files (shell)
+  Ôöé git diff --check; node --check web\vadex.js; git status --short; git diff --stat
+  Ôöö 18 linesÔÇĞ
+
+ÔùÅ Run the full required test suite after final model changes (shell)                             35s
+  Ôöé $python='C:\Users\omres\OneDrive\Desktop\hf26-elazig\.venv\Scripts\python.exe'; & $python -m
+  Ôöé pytest -q
+  Ôöö 2 linesÔÇĞ
+
+ÔùÅ update_todo todos: "- [x] Inspect owned forecast/data dependencies and integratiÔÇĞ"
+  Ôöö TODO list updated
+
+ÔùÅ Commit the completed TabPFN forecast feature (shell)
+  Ôöé git add -A; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; git commit -m "Add TabPFN payment
+  Ôöé delay forecasts" -m "Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
+  Ôöö 6 linesÔÇĞ
+
+ÔùÅ Verify the commit message and co-author trailer (shell)
+  Ôöé git show -s --format=%B HEAD
+  Ôöö 3 linesÔÇĞ
+
+ÔùÅ Verify the committed files and remaining worktree changes (shell)
+  Ôöé git status --short; git show --stat --oneline --summary HEAD
+  Ôöö 15 linesÔÇĞ
+
+ÔùÅ update_todo todos: "- [x] Inspect owned forecast/data dependencies and integratiÔÇĞ"
+  Ôöö TODO list updated
+
+Implemented and committed **TabPFN payment-delay forecasting** as `bd448af`. The API now serves forecasts to financiers, auditors, and invoice-owning KOB─░s; Gemma receives the forecast in its risk-report context, and financier/KOB─░ invoice details show a probability-bar card. TabPFN 9.2.0 and its v2 weights installed successfully in the requested venv. The measured time-based holdout (160 train / 41 test) scored **4.36 days MAE** and **78.05% accuracy**, documented in `docs/FORECAST.md`. The requested suite passes: **26 passed**.
+
+### ­şîÉ Community Wisdom
+ÔÜí [Can Zero-Shot Models Beat XGBoost and LightGBM?](https://dev.to/debabrot_bhuyan/can-zero-shot-models-beat-xgboost-and-lightgbm-468j) ­şæñ [@debabrot_bhuyan](https://dev.to/debabrot_bhuyan) ÔÇö Their measured comparisons reinforce reporting task-specific metrics and split methodology rather than presenting a single score as proof of general performance. ­şöù [Read Full Discussion on DEV](https://dev.to/debabrot_bhuyan/can-zero-shot-models-beat-xgboost-and-lightgbm-468j)
+
+­şğ¬ [Touch Grass: the best hours to be outside, forecast on your own laptop with TabPFN](https://dev.to/yvoolab/touch-grass-the-best-hours-to-be-outside-forecast-on-your-own-laptop-with-tabpfn-57n7) ­şæñ [@yvoolab](https://dev.to/yvoolab) ÔÇö Its forecast checks what information was available at prediction time, a useful guard against leakage in rolling payment-history features. ­şöù [Read Full Discussion on DEV](https://dev.to/yvoolab/touch-grass-the-best-hours-to-be-outside-forecast-on-your-own-laptop-with-tabpfn-57n7)
+
+The Hacktoberfest Open-Source AI Challenge Week 4 is upcoming (Oct 26ÔÇô31); its extended details are not published yet. Your checked-in Elaz─▒─ş Hack Day is also scheduled to run until 06:00 local today. This measured forecast and its limitations could make a useful DEV post; I can draft one.
+
+node.exe : Session exported to: C:\Users\omres\OneDrive\Desktop\hf26-elazig\sessions\02-tabpfn-engineer.md
+At C:\Users\omres\AppData\Roaming\npm\copilot.ps1:24 char:5
++     & "node$exe"  "$basedir/node_modules/@github/copilot/npm-loader.j ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Session exporte...pfn-engineer.md:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+
+Changes    +586 -66
+AI Credits 9.57 (14m 46s)
+Tokens     Ôåæ 5.7m (5.6m cached, 132.9k written) ÔÇó Ôåô 46.1k (29.6k reasoning)
+Resume     copilot --resume=ce054057-2002-483a-9354-ab7c45b3aa1d
