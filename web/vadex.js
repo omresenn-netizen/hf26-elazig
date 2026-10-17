@@ -477,10 +477,10 @@ async function detail(id) {
         ${o.status === "beklemede" ? `<div class="ai-line" id="oc-${o.id}"><span class="skeleton" style="display:inline-block;width:60%;margin:0;vertical-align:middle"></span></div>` : ""}
         ${o.status === "beklemede" && !["finanse_edildi", "reddedildi"].includes(d.status) ? `<div class="acts"><button class="btn primary sm" data-act="accept" data-id="${o.id}">Kabul et</button><button class="btn sm" data-act="reject" data-id="${o.id}">Reddet</button></div>` : ""}</div>`).join("")
         : `<p class="muted" style="margin:0">${d.status === "incelemede" ? "Belge denetim incelemesinde. Onaylandıktan sonra pazara açılacak." : "Henüz teklif gelmedi. Teklif geldiğinde bildirim ve e-posta alacaksınız."}</p>`}
-      </div></div><div id="cmp" style="margin-bottom:18px"></div><div class="grid-2"><div id="pay"></div><div id="forecast"></div></div>`;
+      </div></div><div id="cmp" style="margin-bottom:18px"></div><div id="pay" style="margin-bottom:18px"></div><div id="forecast" style="margin-bottom:18px"></div>`;
   } else if (role === "finansor") {
     const mine = offers.find(o => o.financier?.id === S.user.id && o.status === "beklemede");
-    right = `<div id="rr" style="margin-bottom:18px"></div><div class="grid-2" style="margin-bottom:18px"><div id="pay"></div><div id="forecast"></div></div>
+    right = `<div id="rr" style="margin-bottom:18px"></div><div id="pay" style="margin-bottom:18px"></div><div id="forecast" style="margin-bottom:18px"></div>
       <div class="panel"><div class="ph"><h3>${mine ? "Teklifinizi güncelleyin" : "Teklif ver"}</h3><span class="muted small">${offers.filter(o => o.status === "beklemede").length} aktif teklif</span></div><div class="pb">
       ${["teklif_bekliyor", "teklif_var"].includes(d.status) ? `<form id="of"><div class="field"><label class="f" for="na">Ödenecek net tutar (TL)</label><input class="f" id="na" type="number" step="0.01" max="${d.total}" value="${mine ? mine.net_amount : ""}" required></div>
         <div class="muted small" id="calc" style="margin:-6px 0 12px">Nominal ${TL(d.total)}</div><div class="field"><label class="f" for="nt">Not (isteğe bağlı)</label><textarea class="f" id="nt">${esc(mine?.note || "")}</textarea></div>

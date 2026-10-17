@@ -1,5 +1,6 @@
 """TabPFN payment-delay forecasts from the audited payment history."""
 import json
+import logging
 import math
 import threading
 from datetime import date
@@ -20,6 +21,7 @@ FEATURE_NAMES = (
 )
 _MODELS = None
 _MODELS_LOCK = threading.Lock()
+logger = logging.getLogger(__name__)
 
 
 def _load_history():
@@ -172,6 +174,14 @@ def _models():
                 rows = build_training_table(_load_history(), _load_companies())
                 _MODELS = (*_fit_models(rows), len(rows))
     return _MODELS
+
+
+def warmup_models():
+    """Load TabPFN in the background; forecasts can retry if initialization fails."""
+    try:
+        _models()
+    except Exception:
+        logger.exception("TabPFN warm-up failed; forecasts will retry model initialization.")
 
 
 def forecast_delay(buyer_vkn, amount, due_date):

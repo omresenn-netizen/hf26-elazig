@@ -5,6 +5,12 @@ Individual tests can still monkeypatch a Gemma function with their own fake; thi
 import pytest
 
 import gemma
+import server
+
+
+@pytest.fixture(autouse=True)
+def disable_tabpfn_warmup(monkeypatch):
+    monkeypatch.setattr(server.forecast, "warmup_models", lambda: None)
 
 
 @pytest.fixture(autouse=True)

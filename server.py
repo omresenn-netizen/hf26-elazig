@@ -6,6 +6,7 @@ import math
 import os
 import re
 import secrets
+import threading
 import uuid
 from contextlib import asynccontextmanager
 from datetime import date, datetime, timezone
@@ -36,6 +37,11 @@ MAX_UPLOAD_SIZE = 10 * 1024 * 1024
 async def lifespan(application):
     db.init_db()
     UPLOADS.mkdir(parents=True, exist_ok=True)
+    threading.Thread(
+        target=forecast.warmup_models,
+        name="tabpfn-warmup",
+        daemon=True,
+    ).start()
     yield
 
 
