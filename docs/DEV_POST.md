@@ -5,9 +5,9 @@ tags: [devchallenge, hf26challenge, opensource, ai]
 
 # VadeX: catching fake invoices before they get financed — with Gemma 4 running locally
 
-A real phone call was the spark: an outside acquaintance phoned the author’s father and asked, “Do you have an invoice? I need 200k.” He was not asking for a real commercial sale; he wanted a 200,000 TL invoice with no goods or services behind it, and somebody was offering a commission. This is the fake-invoice economy in one sentence: the seller gets a fee, the buyer books a fake expense and lowers taxable profit, and the paperwork is used as a cash substitute. That is not a neutral bookkeeping trick; it is tax fraud.
+A real phone call was the spark: an outside acquaintance phoned the author’s father and asked, “Do you have an invoice? I need 200k.” He was not asking for a real commercial sale; he wanted a 200,000 TL invoice with no goods or services behind it, and somebody was offering a commission. This is the fake-invoice economy in one sentence: the seller gets a fee, while the buyer uses the fake invoice to cut its tax bill through an expense deduction and a VAT deduction. That is not a neutral bookkeeping trick; it is tax fraud.
 
-The numbers are stark. A 200,000 TL invoice with 20% VAT becomes a 240,000 TL paper trail. The buyer can avoid roughly 50,000 TL of corporate tax and 40,000 TL of VAT, so roughly 90,000 TL moves off the tax ledger, while the issuer remains on paper liable and can face criminal consequences. Under Turkish Tax Procedure Law art. 359, intentional invoice fraud can lead to 3–8 years of liability. VadeX sits on the other side of that transaction: it makes legal invoice financing safer by making the invoice itself trustworthy before cash moves.
+The numbers are stark. A 200,000 TL invoice with 20% VAT becomes a 240,000 TL paper trail. The buyer can avoid roughly 50,000 TL of corporate tax and 40,000 TL of VAT, so roughly 90,000 TL moves off the tax ledger, while the issuer remains on paper liable and can face criminal consequences. Under Turkish Tax Procedure Law art. 359, intentional invoice fraud can lead to up to 3–8 years of imprisonment for both the issuer and the user of the fake invoice. VadeX sits on the other side of that transaction: it makes legal invoice financing safer by making the invoice itself trustworthy before cash moves.
 
 ## What VadeX is
 
@@ -79,7 +79,7 @@ The project started with GitHub Copilot in VS Code and later grew into a dedicat
 | integrator | merge, validation, and final handoff | [c451fbe](https://github.com/omresenn-netizen/hf26-elazig/commit/c451fbe) | [sessions/03-integrator.md](https://github.com/omresenn-netizen/hf26-elazig/blob/main/sessions/03-integrator.md) |
 | writer | documentation and demo narrative | [17ce5f3](https://github.com/omresenn-netizen/hf26-elazig/commit/17ce5f3) | [sessions/02-writer.md](https://github.com/omresenn-netizen/hf26-elazig/blob/main/sessions/02-writer.md) |
 
-The repo history currently has 57 commits, and 25 include the `Co-authored-by: Copilot` trailer. The team also ran GitHub Actions CI with pytest + Bandit, and Copilot fixed a CI failure while the repo was under active iteration.
+The repo history currently has 61 commits, and 26 include the `Co-authored-by: Copilot` trailer. The team also ran GitHub Actions CI with pytest + Bandit. When tests tried to call the real Ollama service in GitHub Actions, Claude fixed the CI failure by adding a mock in `tests/conftest.py`.
 
 ## Demo walkthrough
 
