@@ -1,100 +1,112 @@
 ---
-title: "VadeX: local-first invoice fraud checks for batch-funded SMEs"
+title: "VadeX: catching fake invoices before they get financed — with Gemma 4 running locally"
 tags: [devchallenge, hf26challenge, opensource, ai]
 ---
 
-# VadeX: local-first invoice fraud checks for cash-crunched SMEs
+# VadeX: catching fake invoices before they get financed — with Gemma 4 running locally
 
-A real phone call was the spark: one family member asked another to issue a 200k TL invoice for a commission, and the question was not about legality — it was about speed. That is the economics behind the fake-invoice market: a seller needs cash now, buyers want a receipt they can pass through a system, and someone in the middle quietly turns paper into liquidity. In Turkey, this is often described as a "naylon fatura" problem, and it flourishes when cash is tight and paperwork is easy to manipulate.
+A real phone call was the spark: an outside acquaintance phoned the author’s father and asked, “Do you have an invoice? I need 200k.” He was not asking for a real commercial sale; he wanted a 200,000 TL invoice with no goods or services behind it, and somebody was offering a commission. This is the fake-invoice economy in one sentence: the seller gets a fee, the buyer books a fake expense and lowers taxable profit, and the paperwork is used as a cash substitute. That is not a neutral bookkeeping trick; it is tax fraud.
 
-The core problem is not abstract fraud math; it is payment timing. Most SMEs sell goods to bigger companies and wait 60–120 days to get paid. A legal invoice-financing market solves that by letting a business sell the invoice to a financier at a discount and receive cash today, while the buyer eventually pays the financier on the due date. That is the business model VadeX makes legible: the invoice itself becomes a trusted asset, not just a document.
+The numbers are stark. A 200,000 TL invoice with 20% VAT becomes a 240,000 TL paper trail. The buyer can avoid roughly 50,000 TL of corporate tax and 40,000 TL of VAT, so roughly 90,000 TL moves off the tax ledger, while the issuer remains on paper liable and can face criminal consequences. Under Turkish Tax Procedure Law art. 359, intentional invoice fraud can lead to 3–8 years of liability. VadeX sits on the other side of that transaction: it makes legal invoice financing safer by making the invoice itself trustworthy before cash moves.
 
-## What VadeX does
+## What VadeX is
 
-VadeX helps an SME upload an invoice, extract the key fields with Gemma 4, and run rule-based anti-fraud checks before any financing offer is accepted. A financier sees a ranked list of documents with risk scores, buyer credit context and a suggested discount range. A reviewer can inspect a suspicious cluster and decide whether to approve it, reject it, or send it back for more evidence. The money moves through a mock transfer flow, but the important part is the decision support layer: risk is shown, explained, and kept human-led.
+VadeX is a local-first financing support tool for Turkish SMEs. A KOBİ uploads an invoice, Gemma 4 extracts the fields, deterministic fraud rules flag the risk points, and a financier sees a ranked risk summary before deciding whether to fund it. The key principle is simple: a suspicious invoice stays in review, not in an automatic reject box.
 
-The buyers of the platform are straightforward: factoring companies and banks pay per deal when they fund a valid invoice, while larger corporate buyers can subscribe to a SaaS layer that gives them cleaner, lower-risk invoice approvals and zero-friction payment visibility. This is a financing workflow that aims to create trust without sacrificing speed.
+The buyers of the platform are straightforward: factoring companies and banks pay per deal when they fund a valid invoice, while larger buyers can subscribe to a SaaS layer that gives them cleaner invoice records and better visibility into what is actually being paid. This is a financing workflow built around trust and controlled risk, not just speed.
 
 ## Why open weights win here
 
-This is the project question judges usually care about: why not just send every invoice to a cloud model? In invoice finance, the document contains seller and buyer identifiers, financial amounts, contract details and payment timing. That is sensitive data. The rails are not public social content; they are financial records. Keeping the model local matters because the invoice does not have to leave the machine boundary, and the system can keep the risk controls and explainability in-house.
+This is the question judges often ask: why not send every invoice to a cloud model? In invoice finance, the document contains seller and buyer identifiers, amounts, VAT, dates, and payment timing. That is sensitive financial data. The rails are not a social feed; they are controlled accounting records. Keeping the model local matters because the invoice does not have to leave the machine boundary, and the lender can keep the risk controls and explanation in-house.
 
-Open weights are also practical in a financial workflow. We can run Gemma 4 locally on a laptop or GPU box, pay per inference rather than per document sent to a third-party API, and avoid vendoring our underwriting logic into one cloud provider. The result is a lower-cost, more portable trust layer that still keeps the final decision with a human. We did not build a black box; we built a local reasoning assistant that can be audited and reviewed.
+Open weights also make practical sense in a financial workflow. We run Gemma 4 locally on a laptop or GPU box. There is no per-call API fee as the document moves through the financing workflow, and the institution keeps the model on hardware it already controls. In the demo setup, a warm call is typically around 2.5 seconds, which is fast enough to keep the human reviewer in flow while preserving privacy.
 
 ## How Gemma 4 is used
 
-Gemma 4 is the nervous system of the app, but it stays bounded and transparent. The project logs each call to `logs/gemma.jsonl`, following the exact local-first pattern in the repo. The recorded task mix is concrete evidence of what the model is doing:
+Gemma 4 is the nervous system of the app, but it stays bounded and transparent. Every inference is logged to [logs/gemma.jsonl](https://github.com/omresenn-netizen/hf26-elazig/blob/main/logs/gemma.jsonl), and the repo records the actual task mix from the live demo. The app also used the same local `gemma4` model through Copilot Chat in VS Code via the Ollama provider, which is a useful local workflow but still follows the same bounded-role pattern.
 
-- `extract_invoice`: 12 calls, average ~7.06s
-- `explain_flags`: 41 calls, average ~3.11s
-- `risk_report`: 13 calls, average ~5.07s
-- `compare_offers`: 5 calls, average ~2.87s
-- plus a handful of network, insight and digest calls for the later AI visibility work
+The actual tasks and measurements from the current log are:
 
-The most important operational detail is that the model is not trusted blindly. When OCR sees a Turkish VKN or company name, the system reconciles it against the registry in `data/companies.json` and against known invoice metadata before surfacing anything as trusted. In other words, we treat the model as a fast extractor and explainer, not as the final source of truth. If the extracted VKN does not line up with the known seller or an invoice ring, we keep it in the human-review path. That is the key safety boundary for any financial AI tool.
+- `extract_invoice`: 12 calls, mean 7.06s
+- `explain_flags`: 41 calls, mean 3.11s
+- `risk_report`: 14 calls, mean 6.00s
+- `compare_offers`: 5 calls, mean 2.87s
+- `invoice_insight`: 4 calls, mean 9.58s
+- `payment_comment`: 3 calls, mean 10.96s
+- `offers_insight`: 2 calls, mean 4.22s
+- `ai_digest`: 7 calls, mean 5.74s
+- `suspicious_network_report`: 2 calls, mean 7.45s
 
-Each Gemma task is explicit and limited:
+The most important operational detail is that the model is not treated as the final source of truth. If OCR reads a Turkish VKN incorrectly, the system reconciles it against the registry and known company names before it treats the value as trusted. This matters because the exact issue we saw is an OCR slip: Gemma read buyer VKN `9100000044` as `910000044` and dropped a zero. In [server.py](https://github.com/omresenn-netizen/hf26-elazig/blob/main/server.py), `_reconcile_parties` checks 10-digit VKNs, matches exact company names to the registry, corrects the value, and surfaces a user-visible “VKN corrected, please check” notice. That safety check is in commit [c4325bc](https://github.com/omresenn-netizen/hf26-elazig/commit/c4325bc).
 
-- `extract_invoice`: read the image or PDF page and return structured fields only
-- `explain_flags`: take the rule outputs and explain them in Turkish in plain language, without assigning guilt
-- `risk_report`: summarize invoice risk and suggest a discount range for the financier
-- `compare_offers`: compare financing offers and rank the best option
+Each Gemma task is explicit and bounded:
 
-The app also includes a human-first policy: no invoice is auto-rejected because of a flag. Suspicious documents stay in review, which is exactly what a real lender would do.
+- `extract_invoice`: read the image or first PDF page and return structured JSON only
+- `explain_flags`: explain the rule outputs in Turkish in plain language without assigning guilt
+- `risk_report`: summarize risk and explain the suggested discount rate
+- `compare_offers`: compare financing offers and rank the best fit
+- `invoice_insight`, `payment_comment`, `offers_insight`, `ai_digest`, `suspicious_network_report`: broaden the explanation layer for reviewers and financiers
+
+The app also includes a human-first policy: no invoice is auto-rejected because of a flag. Suspicious documents stay in the review queue, which is exactly what a lender should do with a financial document.
+
+## TabPFN adds a financial forecast layer
+
+The payment-delay forecast lives in [forecast.py](https://github.com/omresenn-netizen/hf26-elazig/blob/main/forecast.py) and is documented in [docs/FORECAST.md](https://github.com/omresenn-netizen/hf26-elazig/blob/main/docs/FORECAST.md). The model uses chronological customer payment history and predicts the expected number of late days plus the chance of a payment being more than five days late.
+
+- Holdout split: due dates before 2026-07-03 / 2026-07-03 onward
+- Training / test rows: 160 / 41
+- MAE: 4.36 days
+- Accuracy: 78.05%
+
+A live example in the seeded data is a Doğu Yapı invoice roughly 23 days late, with a probability near 56%. That forecast is surfaced inside the risk report, and Gemma turns it into a Turkish summary for the human reviewer. Startup warm-up matters too: the app pre-heats the model and forecast pipeline before the demo so the first click feels fast and calm.
 
 ## How it was built
 
-The project began with GitHub Copilot in VS Code Agent mode, then grew into a team of dedicated Copilot CLI agents working in parallel git worktrees. Each agent had a narrow ownership boundary, and the sessions were exported into the repo so the project history remains readable and reviewable.
+The project started with GitHub Copilot in VS Code and later grew into a dedicated Copilot CLI agent team working in parallel git worktrees. The repo preserves those session files in [sessions](https://github.com/omresenn-netizen/hf26-elazig/tree/main/sessions), and each agent delivered its work as a reviewed commit merged into `main`.
 
-- `agent/architect` — system shape and repo-wide flow, with the main session in [sessions/01-architect.md](../sessions/01-architect.md)
-- `agent/kobi-builder` — KOBİ upload, invoice review, offer handling, and notifications in [sessions/02-kobi-builder.md](../sessions/02-kobi-builder.md)
-- `agent/market-builder` — financier marketplace, audit flow, and review queue in [sessions/02-market-builder.md](../sessions/02-market-builder.md)
-- `agent/api-builder` — FastAPI contract and backend behavior in [sessions/02-api-builder.md](../sessions/02-api-builder.md)
-- `agent/db-architect` — payment history + SQLite integrity and analytics in [sessions/02-db-architect.md](../sessions/02-db-architect.md)
-- `agent/ai-insights` — cached AI explanations and user digests in [sessions/02-ai-insights.md](../sessions/02-ai-insights.md)
-- `agent/devops` — deployment and CI infrastructure in [sessions/02-devops.md](../sessions/02-devops.md)
-- `agent/security-auditor` — hardening auth, audit logs, and upload safety in [sessions/02-security-auditor.md](../sessions/02-security-auditor.md)
-- `agent/fixer` — invoice-flow, review, and financing corrections in [sessions/02-fixer.md](../sessions/02-fixer.md)
-- `agent/tabpfn-engineer` — payment-delay forecast integration in [sessions/02-tabpfn-engineer.md](../sessions/02-tabpfn-engineer.md)
-- `agent/integrator` — final merge, validation, and handoff in [sessions/03-integrator.md](../sessions/03-integrator.md) and [sessions/04-integrator.md](../sessions/04-integrator.md)
+| Agent | What it built | Merge commit | Session |
+| --- | --- | --- | --- |
+| architect | repo-wide architecture and role split | [07b3058](https://github.com/omresenn-netizen/hf26-elazig/commit/07b3058) | [sessions/01-architect.md](https://github.com/omresenn-netizen/hf26-elazig/blob/main/sessions/01-architect.md) |
+| kobi-builder | KOBİ upload, invoice review, and financing flow | [378f82a](https://github.com/omresenn-netizen/hf26-elazig/commit/378f82a) | [sessions/02-kobi-builder.md](https://github.com/omresenn-netizen/hf26-elazig/blob/main/sessions/02-kobi-builder.md) |
+| market-builder | financier marketplace and audit workflows | [0fbd1bc](https://github.com/omresenn-netizen/hf26-elazig/commit/0fbd1bc) | [sessions/02-market-builder.md](https://github.com/omresenn-netizen/hf26-elazig/blob/main/sessions/02-market-builder.md) |
+| api-builder | FastAPI contract and backend behavior | [6d9c33c](https://github.com/omresenn-netizen/hf26-elazig/commit/6d9c33c) | [sessions/02-api-builder.md](https://github.com/omresenn-netizen/hf26-elazig/blob/main/sessions/02-api-builder.md) |
+| db-architect | payment history and SQLite integrity | [9378e86](https://github.com/omresenn-netizen/hf26-elazig/commit/9378e86) | [sessions/02-db-architect.md](https://github.com/omresenn-netizen/hf26-elazig/blob/main/sessions/02-db-architect.md) |
+| ai-insights | AI explanations and user digests | [b03c18e](https://github.com/omresenn-netizen/hf26-elazig/commit/b03c18e) | [sessions/02-ai-insights.md](https://github.com/omresenn-netizen/hf26-elazig/blob/main/sessions/02-ai-insights.md) |
+| devops | deployment and CI infrastructure | [ecbe8a8](https://github.com/omresenn-netizen/hf26-elazig/commit/ecbe8a8) | [sessions/02-devops.md](https://github.com/omresenn-netizen/hf26-elazig/blob/main/sessions/02-devops.md) |
+| security-auditor | auth, audit logs, and upload safety | [02c0a2c](https://github.com/omresenn-netizen/hf26-elazig/commit/02c0a2c) | [sessions/02-security-auditor.md](https://github.com/omresenn-netizen/hf26-elazig/blob/main/sessions/02-security-auditor.md) |
+| fixer | invoice-flow and financing fixes | [857d7eb](https://github.com/omresenn-netizen/hf26-elazig/commit/857d7eb) | [sessions/02-fixer.md](https://github.com/omresenn-netizen/hf26-elazig/blob/main/sessions/02-fixer.md) |
+| tabpfn-engineer | payment-delay forecast work | [6d8177d](https://github.com/omresenn-netizen/hf26-elazig/commit/6d8177d) | [sessions/02-tabpfn-engineer.md](https://github.com/omresenn-netizen/hf26-elazig/blob/main/sessions/02-tabpfn-engineer.md) |
+| integrator | merge, validation, and final handoff | [30cca5e](https://github.com/omresenn-netizen/hf26-elazig/commit/30cca5e) | [sessions/03-integrator.md](https://github.com/omresenn-netizen/hf26-elazig/blob/main/sessions/03-integrator.md) |
+| writer | documentation and demo narrative | [a6ff36c](https://github.com/omresenn-netizen/hf26-elazig/commit/a6ff36c) | [sessions/02-writer.md](https://github.com/omresenn-netizen/hf26-elazig/blob/main/sessions/02-writer.md) |
 
-Commit counts across the worktree branches tell the story of the parallel build:
-
-- kobi-builder: 20 commits
-- market-builder: 20 commits
-- api-builder: 22 commits
-- db-architect: 31 commits
-- ai-insights: 31 commits
-- devops: 31 commits
-- security-auditor: 39 commits
-- fixers and forecasting work: 47 commits each
-
-This was not a single giant patch; it was a coordinated team build with ownership boundaries and versioned checkpoints.
+The repo history currently has 57 commits, and 25 include the `Co-authored-by: Copilot` trailer. The team also ran GitHub Actions CI with pytest + Bandit, and Copilot fixed a CI failure while the repo was under active iteration.
 
 ## Demo walkthrough
 
-The repository includes seeded fictional data for a realistic walkthrough. A KOBİ user can log in with a company VKN such as `9200000505`, upload a document like `samples/04_naylon_danismanlik.png`, and then see the red flags surfaced: vague description, capacity outlier, and no delivery-note evidence. The system intentionally leaves it in a review queue rather than auto-rejecting it. A cleaner file such as `samples/01_gercek_icecek.png` can be used to show the happy path: clean extraction, validated seller/buyer data and a low-risk offer path.
+The seeded data makes the demo easy to show. The suspicious document is the broker case: the broker account `9300000904` uploads `samples/04_naylon_danismanlik.png`, and the system flags the invoice as high risk. The invoice is intentionally left in the review queue rather than auto-rejected. A clean path can be shown with the KOBİ account `9200000202` and `samples/01_gercek_icecek.png`, or with the seeded `9200000505` story in the UI.
 
-The UI also supports a financier view and an auditor view, with the network graph used to highlight circular invoicing and shell-company patterns. That is where the anti-fraud story becomes visible: not only does the invoice look suspicious, but the network around it also does.
+The product surfaces the reasoning in the UI: the invoice details, the rule flags, the Gemma summary, and the risk score. The final decision remains with a human reviewer even when the risk is high.
 
-![Demo screen: SME invoice upload workflow](TODO)
-![Demo screen: financing offers and risk summary](TODO)
+![Demo screen: KOBİ upload and review flow](TODO)
+![Demo screen: finance offer and risk summary](TODO)
 ![Demo screen: auditor network review](TODO)
 
-## Limitations and next steps
+## Limitations and mocks
 
-This is a demo-grade product, not a production lender system. The repo explicitly models `GİB`, buyer credit score, bank transfer and e-signature as deterministic mock integrations. The system is intentionally designed to show real anti-fraud logic and local AI controls without sending confidential financial data to a cloud model.
+This is a demo-grade product, not a production lender system. GİB verification, buyer credit scoring, bank transfers, and e-signature are all simulated as deterministic mock services. That is intentional: the project is about trust-building and control flow in invoice financing, not production-grade financial settlement.
 
-The next step is to move from the mock path to a real policy engine: add live buyer verification, stricter document provenance, human approval workflows and a proper audit ledger outside the demo database. We would also like to add stronger role-based controls and potentially a live model registry so risk models can be versioned and explained in a compliance-ready way.
+The next step is to move from the mock path to real policy checks: live buyer verification, stronger document provenance, more rigorous human approval flows, and an auditable ledger outside the local SQLite demo database. The app already keeps the final decision human-led; that is the right governance pattern for invoice risk.
 
 ## Team
 
-- Project: VadeX / Vadesiz
+- Project: VadeX
 - Repository: https://github.com/omresenn-netizen/hf26-elazig
 - License: MIT
-- Prize categories entered: Gemma, GitHub Copilot, TabPFN, Entire
-- Contributors (placeholders): `@your-dev-username`, `@your-dev-username-2`, `@your-dev-username-3`
+- Prize categories entered: Best Use of Gemma, Best Use of GitHub Copilot, TabPFN
+- Team: Ömer Esen (@TODO-dev-username), Onur (@TODO-dev-username)
+- Institution: Fırat University
+- Local event: Hacktoberfest Elazığ fest
 
 ## AI disclosure
 
-Most of the code was written with GitHub Copilot agents in VS Code and CLI worktrees. The product itself runs Gemma 4 locally on the machine, and the model is used as a document extractor and risk explainer rather than an autonomous decision-maker. Claude was also used as an assistant for planning, review and some front-end iteration. The result is an AI-assisted project, but the final risk decisions remain in human hands.
+Most of the project code was written with GitHub Copilot agents in VS Code and CLI worktrees. The product itself runs Gemma 4 locally on the machine, and the model is used as a document extractor and risk explainer rather than an autonomous financial decision-maker. Claude was also used as an assistant for planning, code review, and parts of the front end. This is an AI-assisted project with clear human review gates, not a fully autonomous underwriter.
