@@ -297,11 +297,16 @@ async function login(roleFromUrl) {
 }
 
 // ---------- shared tables ----------
+// an upload the user cancelled, and an upload that was never read/checked properly (shown as a draft)
+const isCancelled = d => (d.flags || []).some(f => f.code === "user_cancelled");
+const isDraft = d => !isCancelled(d) && d.status === "incelemede" && (d.risk_score == null || !d.invoice_no || String(d.invoice_no).length < 6);
+const draftRow = d => `<tr><td><span class="badge warn">Taslak</span> <span class="small">${esc(d.file?.name || d.id)}</span></td><td class="muted">–</td><td class="num muted">–</td><td class="muted">–</td><td class="muted">–</td><td class="muted small">Okuma veya kontrol tamamlanmadı</td>
+  <td class="num"><button class="btn sm" data-act="resume" data-id="${esc(d.id)}">Devam et</button> <button class="btn sm ghost" data-act="cancelupload" data-id="${esc(d.id)}">Sil</button></td></tr>`;
 function docTable(list, mode) {
   if (!list.length) return '<div class="empty">Kayıt bulunamadı.</div>';
   const fin = mode === "market";
   return `<div class="tw"><table class="data"><thead><tr><th>Belge no</th><th>${fin ? "Satıcı (KOBİ)" : "Alıcı"}</th>${fin ? "<th>Alıcı</th>" : ""}<th class="num">Tutar</th><th>Vade</th><th>Risk</th>${fin ? '<th class="num">Kredi skoru</th><th class="num">En iyi teklif</th>' : "<th>Durum</th>"}<th class="num">Teklif</th></tr></thead><tbody>
-  ${list.map(d => `<tr class="go" data-go="belge/${esc(d.id)}"><td class="mono">${esc(d.invoice_no)}</td><td>${esc(fin ? d.seller?.name : d.buyer?.name)}</td>${fin ? `<td>${esc(d.buyer?.name)}</td>` : ""}<td class="num"><b>${TL0(d.total)}</b></td><td>${DATE(d.due_date)} <span class="muted small">${d.days_left != null ? d.days_left + " gün" : ""}</span></td><td>${riskBadge(d)}</td>${fin ? `<td class="num">${d.buyer?.credit_score ?? "–"}</td><td class="num">${d.best_offer ? TL0(d.best_offer) : "–"}</td>` : `<td>${st(d.status)}</td>`}<td class="num">${d.offer_count ?? 0}</td></tr>`).join("")}
+  ${list.map(d => !fin && isDraft(d) ? draftRow(d) : `<tr class="go" data-go="belge/${esc(d.id)}"><td class="mono">${esc(d.invoice_no)}</td><td>${esc(fin ? d.seller?.name : d.buyer?.name)}</td>${fin ? `<td>${esc(d.buyer?.name)}</td>` : ""}<td class="num"><b>${TL0(d.total)}</b></td><td>${DATE(d.due_date)} <span class="muted small">${d.days_left != null ? d.days_left + " gün" : ""}</span></td><td>${riskBadge(d)}</td>${fin ? `<td class="num">${d.buyer?.credit_score ?? "–"}</td><td class="num">${d.best_offer ? TL0(d.best_offer) : "–"}</td>` : `<td>${st(d.status)}</td>`}<td class="num">${d.offer_count ?? 0}</td></tr>`).join("")}
   </tbody></table></div>`;
 }
 const kpis = a => `<div class="kpis">${a.map(([l, v]) => `<div class="kpi"><small>${esc(l)}</small><b>${v}</b></div>`).join("")}</div>`;
@@ -362,7 +367,8 @@ async function delayForecast(sel, id) {
 
 // ---------- KOBİ ----------
 async function kobiHome() {
-  const [stats, docs] = await Promise.all([api("/stats"), api("/my/documents")]);
+  const [stats, all] = await Promise.all([api("/stats"), api("/my/documents")]);
+  const docs = all.filter(d => !isCancelled(d));
   const waiting = docs.filter(d => d.status === "teklif_var");
   app.innerHTML = shell("kobi", "Panel", "Genel bakış", "Belgelerinizin ve tekliflerin güncel durumu.",
     `<div id="dg" style="margin-bottom:18px"></div>` + kpis([["Finanse edilen", TL0(stats.financed_total)], ["Teklif bekleyen belge", stats.waiting_count ?? 0], ["Alınan teklif", stats.offer_count ?? 0], ["Ortalama iskonto", stats.avg_discount != null ? PCT(stats.avg_discount) : "–"]]) +
@@ -376,7 +382,9 @@ async function kobiDocs() {
   const docs = await api("/my/documents");
   const draw = () => {
     const q = ($("#fq")?.value || "").toLowerCase(), s = $("#fs")?.value || "";
-    $("#lst").innerHTML = docTable(docs.filter(d => (!q || (d.invoice_no + " " + (d.buyer?.name || "")).toLowerCase().includes(q)) && (!s || d.status === s)));
+    // cancelled uploads only appear when the user filters for rejected documents
+    $("#lst").innerHTML = docTable(docs.filter(d => (s === "reddedildi" || !isCancelled(d))
+      && (!q || ((d.invoice_no || "") + " " + (d.buyer?.name || "") + " " + (d.file?.name || "")).toLowerCase().includes(q)) && (!s || d.status === s)));
   };
   app.innerHTML = shell("kobi/belgeler", "Panel / Belgelerim", "Belgelerim", "Yüklediğiniz tüm faturalar.",
     `<div class="panel"><div class="filters"><input class="f" id="fq" placeholder="Belge no veya alıcı ara"><select class="f" id="fs"><option value="">Tüm durumlar</option>${Object.entries(STATUS).slice(0, 5).map(([k, [l]]) => `<option value="${k}">${l}</option>`).join("")}</select><a class="btn primary" href="#/kobi/yukle">Fatura yükle</a></div><div id="lst"></div></div>`);
@@ -404,9 +412,14 @@ function kobiUpload() {
   app.innerHTML = shell("kobi/yukle", "Panel / Fatura yükle", "Fatura yükle", "Belgeniz okunur, kontrol edilir ve onayınızla finansmana açılır.", `<div class="wizard">${wiz}</div>${body}`);
   if (U.step === 1) bindDrop();
 }
+const cancelBtn = id => `<button class="btn block" style="margin-top:10px" data-act="cancelupload" data-id="${esc(id)}">Vazgeç ve yüklemeyi sil</button>`;
 function stepHelp(U) {
-  if (U.step === 2 && !U.fields) return `<div class="panel"><div class="ph"><h3>Okuma</h3></div><div class="pb"><p class="muted" style="margin-top:0">Fatura, kurum sunucusunda çalışan Gemma 4 modeliyle okunur. Bilgileri kontrol edip gerekirse düzeltebilirsiniz.</p><button class="btn primary block" data-act="extract">${U.busy ? spin + " Gemma okuyor…" : "Gemma ile oku"}</button><div class="err" id="ue"></div></div></div>`;
-  if (U.step === 2) return `<div class="panel"><div class="ph"><h3>Kontrol</h3></div><div class="pb"><p class="muted" style="margin-top:0">Bilgiler e-Fatura kaydı (simülasyon), alıcı onayı ve sahte belge kurallarıyla karşılaştırılır.</p><button class="btn primary block" data-act="check">${U.busy ? spin + " Kontrol ediliyor…" : "Kontrol et"}</button><div class="err" id="ue"></div></div></div>`;
+  if (U.step === 2 && U.notInvoice) return `<div class="panel"><div class="ph"><h3>Okuma</h3><span class="badge bad">Fatura bulunamadı</span></div><div class="pb">
+    <div class="ai-line" style="margin-bottom:14px">${esc(U.notInvoice)}</div>
+    <button class="btn red block" data-act="cancelupload" data-id="${esc(U.doc.id)}">Yüklemeyi sil</button>
+    <button class="btn block" style="margin-top:10px" data-act="manual">Bilgileri elle doldur</button></div></div>`;
+  if (U.step === 2 && !U.fields) return `<div class="panel"><div class="ph"><h3>Okuma</h3></div><div class="pb"><p class="muted" style="margin-top:0">Fatura, kurum sunucusunda çalışan Gemma 4 modeliyle okunur. Bilgileri kontrol edip gerekirse düzeltebilirsiniz.</p><button class="btn primary block" data-act="extract">${U.busy ? spin + " Gemma okuyor…" : "Gemma ile oku"}</button>${cancelBtn(U.doc.id)}<div class="err" id="ue"></div></div></div>`;
+  if (U.step === 2) return `<div class="panel"><div class="ph"><h3>Kontrol</h3></div><div class="pb"><p class="muted" style="margin-top:0">Bilgiler e-Fatura kaydı (simülasyon), alıcı onayı ve sahte belge kurallarıyla karşılaştırılır.</p><button class="btn primary block" data-act="check">${U.busy ? spin + " Kontrol ediliyor…" : "Kontrol et"}</button>${cancelBtn(U.doc.id)}<div class="err" id="ue"></div></div></div>`;
   return "";
 }
 function fieldsPanel(U) {
@@ -426,7 +439,7 @@ function checkPanel(U) {
     <h4 style="margin:18px 0 10px;font-size:14px">Doğrulama adımları</h4>${timeline(d.steps)}
     ${d.flags?.length ? `<h4 style="margin:6px 0 10px;font-size:14px">Tespit edilen bulgular</h4><ul class="flags">${d.flags.map(fl => `<li class="${d.risk_score >= 60 ? "hi" : ""}"><b>${esc(fl.label)}</b> – ${esc(fl.detail)}</li>`).join("")}</ul>` : '<p class="badge ok">Kural ihlali bulunmadı</p>'}
     <div class="gemma" style="margin-top:12px"><span class="by">Gemma 4 değerlendirmesi</span>${md(U.check.explanation)}</div>
-    ${U.step === 3 ? `<button class="btn teal block" style="margin-top:16px" data-act="publish">${d.risk_score >= 60 ? "Denetim incelemesine gönder" : "Finansmana aç"}</button>` : ""}
+    ${U.step === 3 ? `<button class="btn teal block" style="margin-top:16px" data-act="publish">${d.risk_score >= 60 ? "Denetim incelemesine gönder" : "Finansmana aç"}</button>${cancelBtn(d.id)}` : ""}
     ${U.step === 4 ? `<div class="hint"><b>${d.status === "incelemede" ? "Belge denetim incelemesine gönderildi." : "Belge fatura pazarına açıldı."}</b> Teklif geldiğinde bildirim ve e-posta alacaksınız.</div><div style="display:flex;gap:8px;margin-top:12px"><a class="btn primary" href="#/belge/${esc(d.id)}">Belgeye git</a><button class="btn" data-act="newupload">Yeni fatura</button></div>` : ""}
   </div></div>`;
 }
@@ -622,8 +635,29 @@ document.addEventListener("click", async e => {
     if (a === "newupload") { S.upload = null; kobiUpload(); }
     if (a === "extract") {
       S.upload.busy = true; kobiUpload();
-      try { const r = await api(`/documents/${encodeURIComponent(S.upload.doc.id)}/extract`, { method: "POST" }); S.upload.fields = r.fields; S.upload.fields.items ||= []; }
-      finally { S.upload.busy = false; } kobiUpload();
+      try {
+        const r = await api(`/documents/${encodeURIComponent(S.upload.doc.id)}/extract`, { method: "POST" });
+        if (r.not_invoice) { S.upload.notInvoice = r.message; S.upload.fields = null; }
+        else { S.upload.notInvoice = null; S.upload.fields = r.fields; S.upload.fields.items ||= []; }
+      } finally { S.upload.busy = false; } kobiUpload();
+    }
+    if (a === "manual") {
+      S.upload.notInvoice = null;
+      S.upload.fields = { invoice_no: "", issue_date: "", due_date: "", seller_vkn: S.user.company_vkn, seller_name: S.user.display_name,
+        buyer_vkn: "", buyer_name: "", irsaliye_no: "", subtotal: "", kdv: "", total: "", items: [{ description: "", quantity: "", unit: "", unit_price: "" }] };
+      kobiUpload();
+    }
+    if (a === "cancelupload") {
+      if (!confirm("Bu yükleme silinecek. Emin misiniz?")) return;
+      await api(`/documents/${encodeURIComponent(id)}`, { method: "DELETE" });
+      toast("Yükleme silindi. Aynı dosyayı yeniden yükleyebilirsiniz.");
+      if (S.upload?.doc?.id === id) S.upload = null;
+      if ((location.hash || "").includes("kobi/yukle")) kobiUpload(); else render();
+    }
+    if (a === "resume") {
+      const r = await api(`/documents/${encodeURIComponent(id)}`);
+      S.upload = { step: 2, doc: r.document };
+      go("kobi/yukle");
     }
     if (a === "check") {
       const fields = readFields(); S.upload.busy = true; kobiUpload();

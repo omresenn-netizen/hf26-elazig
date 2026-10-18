@@ -318,6 +318,10 @@ def extract_document(document_id: str, request: Request):
         raise HTTPException(400, str(exc)) from exc
     if not isinstance(fields, dict):
         return {"fields": fields, **ai_metadata()}
+    if _looks_like_no_invoice(fields):
+        return {"fields": fields, "not_invoice": True,
+                "message": "Bu görsel bir fatura gibi görünmüyor. Yüklemeyi silebilir veya bilgileri elle doldurabilirsiniz.",
+                **ai_metadata()}
     corrections = _reconcile_parties(fields)
     if corrections:
         fields["corrections"] = corrections
@@ -326,6 +330,28 @@ def extract_document(document_id: str, request: Request):
     except ValueError as exc:
         raise HTTPException(409, "Fatura artık okunabilir durumda değil.") from exc
     return {"fields": fields, **ai_metadata()}
+
+
+def _looks_like_no_invoice(fields):
+    """Gemma found nothing invoice-like: no number, no total and no party at all."""
+    has = lambda key: str(fields.get(key) or "").strip() not in {"", "0", "0.0", "None", "null"}
+    return not has("invoice_no") and not has("total") and not any(
+        has(k) for k in ("seller_vkn", "seller_name", "buyer_vkn", "buyer_name"))
+
+
+@app.delete("/api/documents/{document_id}")
+def cancel_document(document_id: str, request: Request):
+    user = require_role(session_user(request), "kobi")
+    upload_id = upload_id_from(document_id)
+    if upload_id is None:
+        raise HTTPException(404, "Fatura bulunamadı.")
+    try:
+        repo_api.cancel_upload(upload_id, user, request)
+    except LookupError as exc:
+        raise HTTPException(404, "Fatura bulunamadı.") from exc
+    except PermissionError as exc:
+        raise HTTPException(409, "Teklif almış veya finanse edilmiş fatura silinemez.") from exc
+    return {"ok": True, "document_id": document_id}
 
 
 def _reconcile_parties(fields):

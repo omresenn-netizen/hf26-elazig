@@ -131,7 +131,8 @@ def extract_invoice(image_bytes, image_filename):
 "irsaliye_no":null,"buyer_approved":null}
 Tarihleri YYYY-MM-DD, sayıları JSON number olarak yaz. Okunmayan alanı null yap.
 buyer_approved yalnızca belgede açıkça onay bilgisi varsa true/false, aksi halde null olsun.
-Belgede bulunmayan bir bilgiyi tahmin etme."""
+Belgede bulunmayan bir bilgiyi tahmin etme.
+Görsel bir fatura değilse (ör. yemek, manzara, kişi fotoğrafı) tüm alanları null ve items alanını boş liste döndür."""
     if Path(image_filename or "").suffix.casefold() == ".pdf":
         image_bytes = _pdf_to_png(image_bytes)
     return _chat("extract_invoice", prompt, image_bytes=image_bytes, image_filename=image_filename, expect_json=True)

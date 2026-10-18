@@ -15,7 +15,11 @@ DEMO_UPLOAD_NUMBERS = {
 }
 COMPANIES = json.loads((ROOT / "data" / "companies.json").read_text(encoding="utf-8"))
 COMPANY_BY_VKN = {item["vkn"]: item for item in COMPANIES}
+CANCELLED_FLAG = "user_cancelled"
+NOT_CANCELLED_SQL = "(flags_json IS NULL OR flags_json NOT LIKE '%\"user_cancelled\"%')"
+
 FLAG_LABELS = {
+    "user_cancelled": "Kullanıcı tarafından iptal edildi",
     "duplicate_invoice": "Olası mükerrer fatura",
     "missing_delivery_note": "İrsaliye eksik",
     "sector_mismatch": "Sektör uyuşmazlığı",
@@ -127,8 +131,12 @@ def create_upload(user, request, file_name, file_bytes, stored_name):
     user_agent = request.headers.get("user-agent", "")
     with db.get_connection() as connection:
         connection.execute("BEGIN IMMEDIATE")
+        # uploads the user cancelled do not count: the same file may be uploaded again
+        # rejected duplicate copies are not originals either; only a live original blocks the same file
         duplicate = connection.execute(
-            "SELECT id FROM uploads WHERE file_sha256 = ? ORDER BY id LIMIT 1",
+            f"""SELECT id FROM uploads WHERE file_sha256 = ? AND {NOT_CANCELLED_SQL}
+                AND NOT (status = 'reddedildi' AND flags_json LIKE '%SHA-256 özeti daha önce%')
+                ORDER BY id LIMIT 1""",
             (file_hash,),
         ).fetchone()
         status = "reddedildi" if duplicate else "incelemede"
@@ -236,6 +244,33 @@ def save_pending_extraction(upload_id, user, request, invoice):
                 "user_agent": request.headers.get("user-agent", ""),
             },
         )
+
+
+def cancel_upload(upload_id, user, request):
+    """Soft-cancel an upload: rows stay (append-only audit), the stored file is removed."""
+    path = file_path(upload_id)
+    with db.get_connection() as connection:
+        connection.execute("BEGIN IMMEDIATE")
+        row = connection.execute("SELECT * FROM uploads WHERE id = ?", (upload_id,)).fetchone()
+        if not row or row["user_id"] != user["id"]:
+            raise LookupError("not found")
+        has_offer = connection.execute("SELECT 1 FROM offers WHERE upload_id = ? LIMIT 1", (upload_id,)).fetchone()
+        if has_offer or row["status"] == "finanse_edildi":
+            raise PermissionError("has offers")
+        flags = [f for f in json.loads(row["flags_json"] or "[]") if f.get("code") != CANCELLED_FLAG]
+        flags.append({"code": CANCELLED_FLAG, "detail": "Yükleme kullanıcı tarafından iptal edildi."})
+        connection.execute(
+            "UPDATE uploads SET status = 'reddedildi', flags_json = ?, invoice_fingerprint = NULL WHERE id = ?",
+            (json.dumps(flags, ensure_ascii=False), upload_id),
+        )
+        db._write_audit(
+            connection, user["username"], request.client.host if request.client else "127.0.0.1",
+            "upload_cancelled", user_id=user["id"],
+            detail={"upload_id": upload_id, "file_sha256": row["file_sha256"],
+                    "user_agent": request.headers.get("user-agent", "")},
+        )
+    if path:
+        path.unlink(missing_ok=True)
 
 
 def upload_row(upload_id):

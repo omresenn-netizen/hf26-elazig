@@ -539,6 +539,7 @@ def save_upload_extraction(upload_id, user, ip_address, invoice, risk_score, fla
                 """
                 SELECT id FROM uploads
                 WHERE invoice_fingerprint = ? AND id != ?
+                  AND (flags_json IS NULL OR flags_json NOT LIKE '%"user_cancelled"%')
                 ORDER BY id LIMIT 1
                 """,
                 (fingerprint, upload_id),
