@@ -8,3 +8,4 @@ vadesiz.db.bak-*
 logs/outbox.log
 .streamlit/secrets.toml
 uploads/
+.claude/

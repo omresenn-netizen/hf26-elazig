@@ -1,4 +1,4 @@
-﻿# VadeX
+# VadeX
 
 VadeX is a local-first invoice-finance risk platform for Turkish SMEs. It helps a KOBİ upload an invoice, validate the seller/buyer metadata, run deterministic fraud checks, and compare financing offers without sending invoice data to a cloud AI provider.
 
@@ -87,7 +87,7 @@ The anti-fraud system is in [fraud.py](https://github.com/omresenn-netizen/hf26-
 
 ## OCR reconciliation and buyer VKN safety
 
-The project includes a hard safety check for OCR slips. In [server.py](https://github.com/omresenn-netizen/hf26-elazig/blob/main/server.py), `_reconcile_parties` validates the VKN length, checks the registry, matches the exact company name, and then surfaces a user-visible “VKN corrected, please check” notice. The exact bug it fixes is an OCR slip where Gemma read buyer VKN `9100000044` as `910000044` and dropped a zero. The safety check is in commit [c4325bc](https://github.com/omresenn-netizen/hf26-elazig/commit/c4325bc).
+The project includes a hard safety check for OCR slips. In [server.py](https://github.com/omresenn-netizen/hf26-elazig/blob/main/server.py), `_reconcile_parties` validates the VKN length, checks the registry, matches the exact company name, and then surfaces a user-visible “VKN corrected, please check” notice. The exact bug it fixes is an OCR slip where Gemma read buyer VKN `9100000044` as `910000044` and dropped a zero. The safety check is in commit [ec6989c](https://github.com/omresenn-netizen/hf26-elazig/commit/ec6989c).
 
 ## Local run
 
@@ -136,17 +136,17 @@ The repo preserves the agent sessions in [sessions](https://github.com/omresenn-
 | Agent | What it built | Merge commit | Session |
 | --- | --- | --- | --- |
 | architect | repo-wide architecture and role split | [07b3058](https://github.com/omresenn-netizen/hf26-elazig/commit/07b3058) | [sessions/01-architect.md](https://github.com/omresenn-netizen/hf26-elazig/blob/main/sessions/01-architect.md) |
-| kobi-builder | KOBİ upload, invoice review, and financing flow | [378f82a](https://github.com/omresenn-netizen/hf26-elazig/commit/378f82a) | [sessions/02-kobi-builder.md](https://github.com/omresenn-netizen/hf26-elazig/blob/main/sessions/02-kobi-builder.md) |
-| market-builder | financier marketplace and audit workflows | [0fbd1bc](https://github.com/omresenn-netizen/hf26-elazig/commit/0fbd1bc) | [sessions/02-market-builder.md](https://github.com/omresenn-netizen/hf26-elazig/blob/main/sessions/02-market-builder.md) |
+| kobi-builder | KOBİ upload, invoice review, and financing flow | [53fc203](https://github.com/omresenn-netizen/hf26-elazig/commit/53fc203) | [sessions/02-kobi-builder.md](https://github.com/omresenn-netizen/hf26-elazig/blob/main/sessions/02-kobi-builder.md) |
+| market-builder | financier marketplace and audit workflows | [f227073](https://github.com/omresenn-netizen/hf26-elazig/commit/f227073) | [sessions/02-market-builder.md](https://github.com/omresenn-netizen/hf26-elazig/blob/main/sessions/02-market-builder.md) |
 | api-builder | FastAPI contract and backend behavior | [6d9c33c](https://github.com/omresenn-netizen/hf26-elazig/commit/6d9c33c) | [sessions/02-api-builder.md](https://github.com/omresenn-netizen/hf26-elazig/blob/main/sessions/02-api-builder.md) |
-| db-architect | payment history and SQLite integrity | [9378e86](https://github.com/omresenn-netizen/hf26-elazig/commit/9378e86) | [sessions/02-db-architect.md](https://github.com/omresenn-netizen/hf26-elazig/blob/main/sessions/02-db-architect.md) |
-| ai-insights | AI explanations and user digests | [b03c18e](https://github.com/omresenn-netizen/hf26-elazig/commit/b03c18e) | [sessions/02-ai-insights.md](https://github.com/omresenn-netizen/hf26-elazig/blob/main/sessions/02-ai-insights.md) |
-| devops | deployment and CI infrastructure | [ecbe8a8](https://github.com/omresenn-netizen/hf26-elazig/commit/ecbe8a8) | [sessions/02-devops.md](https://github.com/omresenn-netizen/hf26-elazig/blob/main/sessions/02-devops.md) |
-| security-auditor | auth, audit logs and upload safety | [02c0a2c](https://github.com/omresenn-netizen/hf26-elazig/commit/02c0a2c) | [sessions/02-security-auditor.md](https://github.com/omresenn-netizen/hf26-elazig/blob/main/sessions/02-security-auditor.md) |
-| fixer | invoice-flow and financing fixes | [857d7eb](https://github.com/omresenn-netizen/hf26-elazig/commit/857d7eb) | [sessions/02-fixer.md](https://github.com/omresenn-netizen/hf26-elazig/blob/main/sessions/02-fixer.md) |
-| tabpfn-engineer | payment-delay forecast work | [6d8177d](https://github.com/omresenn-netizen/hf26-elazig/commit/6d8177d) | [sessions/02-tabpfn-engineer.md](https://github.com/omresenn-netizen/hf26-elazig/blob/main/sessions/02-tabpfn-engineer.md) |
-| integrator | merge, validation and final handoff | [30cca5e](https://github.com/omresenn-netizen/hf26-elazig/commit/30cca5e) | [sessions/03-integrator.md](https://github.com/omresenn-netizen/hf26-elazig/blob/main/sessions/03-integrator.md) |
-| writer | documentation and demo narrative | [a6ff36c](https://github.com/omresenn-netizen/hf26-elazig/commit/a6ff36c) | [sessions/02-writer.md](https://github.com/omresenn-netizen/hf26-elazig/blob/main/sessions/02-writer.md) |
+| db-architect | payment history and SQLite integrity | [22a115c](https://github.com/omresenn-netizen/hf26-elazig/commit/22a115c) | [sessions/02-db-architect.md](https://github.com/omresenn-netizen/hf26-elazig/blob/main/sessions/02-db-architect.md) |
+| ai-insights | AI explanations and user digests | [93fe789](https://github.com/omresenn-netizen/hf26-elazig/commit/93fe789) | [sessions/02-ai-insights.md](https://github.com/omresenn-netizen/hf26-elazig/blob/main/sessions/02-ai-insights.md) |
+| devops | deployment and CI infrastructure | [223f8ce](https://github.com/omresenn-netizen/hf26-elazig/commit/223f8ce) | [sessions/02-devops.md](https://github.com/omresenn-netizen/hf26-elazig/blob/main/sessions/02-devops.md) |
+| security-auditor | auth, audit logs and upload safety | [248e991](https://github.com/omresenn-netizen/hf26-elazig/commit/248e991) | [sessions/02-security-auditor.md](https://github.com/omresenn-netizen/hf26-elazig/blob/main/sessions/02-security-auditor.md) |
+| fixer | invoice-flow and financing fixes | [2518192](https://github.com/omresenn-netizen/hf26-elazig/commit/2518192) | [sessions/02-fixer.md](https://github.com/omresenn-netizen/hf26-elazig/blob/main/sessions/02-fixer.md) |
+| tabpfn-engineer | payment-delay forecast work | [5aeea81](https://github.com/omresenn-netizen/hf26-elazig/commit/5aeea81) | [sessions/02-tabpfn-engineer.md](https://github.com/omresenn-netizen/hf26-elazig/blob/main/sessions/02-tabpfn-engineer.md) |
+| integrator | merge, validation and final handoff | [c451fbe](https://github.com/omresenn-netizen/hf26-elazig/commit/c451fbe) | [sessions/03-integrator.md](https://github.com/omresenn-netizen/hf26-elazig/blob/main/sessions/03-integrator.md) |
+| writer | documentation and demo narrative | [17ce5f3](https://github.com/omresenn-netizen/hf26-elazig/commit/17ce5f3) | [sessions/02-writer.md](https://github.com/omresenn-netizen/hf26-elazig/blob/main/sessions/02-writer.md) |
 
 The repository currently has 57 commits, and 24 of them carry the `Co-authored-by: Copilot` trailer.
 
